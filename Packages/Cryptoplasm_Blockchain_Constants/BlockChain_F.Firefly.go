@@ -561,9 +561,9 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 		PerfectOverSend = tcpAmount
 		//No extra CP is required as "OverSend" when transacted amount is below 10 CP
 	} else if Difference.Negative == false {
-		FPMo := TruncToCurrency(OVSLogarithm(OvSLogBase, tcpAmount)) //fits in 24+1 context as seen from OVSLogarithm function
+		FPMo := TruncToCurrency(OVSLogarithm(OvSLogBase, tcpAmount))
 		FPM = FPMo
-		AFo := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FPM), firefly.NFI(1000))) //AFADP must be used for Multiplication: 999999.(24decimals) * 1.(24decimals) = could end up (7digits).(24decimals)
+		AFo := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FPM), firefly.NFI(1000)))
 		AF = AFo
 		Ro := TruncToCurrency(SUBpr(IP, tcpAmount, AF))
 		R = Ro
