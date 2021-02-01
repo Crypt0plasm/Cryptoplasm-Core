@@ -11,41 +11,44 @@ import (
 
 //BlockChain Intervals
 const (
-	//	Emission Details
+	// Emission Details
 	//
 	// Founders-Amount (how much goes to Funding members) and InitialQ-Amount
 	// (how much remains in the Conqueror Pool from the Premine after Founders-Amount is spent)
 	// added together give the PreMine Amount
-	//
-	TheoreticalEraEmission      = "100000000000000.000000000000000000000000" //Total Theoretical Emmision without Bonuses for One Era
+	//=============================================================================================
+	TheoreticalEraEmission      = "100000000000000.000000000000000000000000" //Total Theoretical Emission without Bonuses for One Era
 	PreMinedAmount              = "500000000.000000000000000000000000"       //Premine Amount
 	TheoreticalStartBlockReward = "100.000000000000000000000000"             //Base Block-Reward used as starting point for BR calculations
 	AuPerUnit                   = "1000000000000000000000000"                // Atomic Units per Cryptoplasm
-	//
+	//===============================
 	//
 	// Decimal Seed Precision
-	//
+	//=============================================================================================
 	CryptoplasmContextPrecision  = 50
 	CryptoplasmSeedPrecision     = uint32(40)
 	CryptoplasmCurrencyPrecision = uint32(24)
-	//
+	//===============================
 	//
 	// Fee per Byte
-	//
-	MaxFeePerByte         = "0.000010000000000000000000" //	10**19 AU aka 10 MicroPlasm aka 10000 NanoPlasm
-	FeePerByteDecrement   = "0.000000000000020000000000" //	2*10**10 AU aka 20 FemtoPlasm per Block
-	MinFeePerByte         = "0.000000001000000000000000" //	10**15 AU aka 1 NanoPlasm
+	//=============================================================================================
+	MaxFeePerByte         = "0.000010000000000000000000" //10**19 AU aka 10 MicroPlasm aka 10000 NanoPlasm
+	FeePerByteDecrement   = "0.000000000000020000000000" //2*10**10 AU aka 20 FemtoPlasm per Block
+	MinFeePerByte         = "0.000000001000000000000000" //10**15 AU aka 1 NanoPlasm
 	FeePerByteBHThreshold = "499950000"
+	//===============================
 	//
+	// Transaction Fee Multipliers
+	//=============================================================================================
 	GAS    = 1
 	PLASMA = 3
 	MIASMA = 5
 	BLINK  = 7
 	OUTPUT = 400
-	//
+	//===============================
 	//
 	// Interval Length
-	//
+	//=============================================================================================
 	IntervalPurple = "637"       //Purple	Period in Blocks
 	IntervalIndigo = "4459"      //Indigo	Period in Blocks
 	IntervalBlue   = "31213"     //Blue		Period in Blocks
@@ -54,19 +57,19 @@ const (
 	IntervalOrange = "10706059"  //Orange	Period in Blocks
 	IntervalRed    = "74942413"  //Red		Period in Blocks
 	IntervalWhite  = "524596891" //White		One Era
-	//
+	//===============================
 	//
 	// 1st,2nd and 3rd Seeds (Primary Decimal Seeds)
-	//
+	//=============================================================================================
 	BaseAreaSeed      = "0.7412804842563701273935785745772150152399" //23115732923502492351869403393438306982639378690095569104032787203980148228041913685525272242174661218702645141327232481974409791932000078410388386177817655043149469072067"
 	BaseHeightSeed    = "1.4825609685127402547871571491544300304798" //46231465847004984703738806786876613965278757380191138208065574407960296456083827371050544484349322437405290282654464963948819583864000156820776772355635310086298938144135"
 	CPAreaRatioSeed   = "0.0061411618911384368190200232738753822284" //53558150274373282200996197268636748422270727410231633348787988192143721376975759958017147211196311637271799923302298183577206534981853131081653660870758170105689380545402"
 	TotalComputedSum  = "99999499999999.999999999999999737703204"    //at higher precision sum ends in ...205 ??
 	HighestComputedBR = "341281.048829773462213727839038"
-	//
+	//===============================
 	//
 	// Cryptoplasm Decimal Seeds (Secondary Decimal Seeds)
-	//
+	//=============================================================================================
 	PurpleUpHeightSeed   = "909.7302802947269378763139749440449711467316"    //26891978265178712859078440044665328695481061733347841808882751709087041846467952197400245227340660911511048676235584758898987802431939330594135241876828897943372661795441"
 	PurpleUpAreaSeed     = "300586.0540637279168676302599502125746465902973" //75632644992903257458735950465103568423241907148623679450703441583915996934435313769203007730354943771681360454686785107877436679708139583522254486775190587479608684256174"
 	PurpleDownHeightSeed = "732.7846753997830870932228632878163206032142"    //35660083738592050362142901663713847113432794566069457416419489439272636989036672482046638214546024574094739007826821411000258383259087452574481848085511568932620265261545"
@@ -104,10 +107,10 @@ const (
 	//===============================
 	WhiteHeightPeakSeed = "380.1281559433085894190653590677886632087970"    //64030092438005383734298957536370484716894250611339362185936095502532022628114548971046078379731970307243636309202148825978990235984310581518536951072236953890507709658038"
 	WhiteAreaPeakSeed   = "247098.9538162242103958865943966608833446133772" //96509621441960570900115269772036588799224478842644813092952995468374792700535540513090096414588656427333291842393759390325440824474269113899493647236888735135953137095747"
-	//
+	//===============================
 	//
 	// Cryptoplasm Integer Seeds (Integer Seeds)
-	//
+	//=============================================================================================
 	PurpleUpPeakSeed   = 626
 	PurpleDownPeakSeed = 72
 	IndigoUpPeakSeed   = 474
@@ -128,7 +131,7 @@ const (
 var (
 	//
 	// Cryptoplasm Firefly Decimal Context Definition
-	//
+	//=============================================================================================
 	CryptoplasmPrecisionContext = firefly.Context{
 		Precision:   CryptoplasmContextPrecision,
 		MaxExponent: firefly.MaxExponent,
@@ -140,15 +143,14 @@ var (
 	//
 	//
 	// Blockchain Premine and Emission variable Declarations
-	//
+	//=============================================================================================
 	TotalEmission, _, _ = firefly.NewFromString(TheoreticalEraEmission)
 	PreMine, _, _       = firefly.NewFromString(PreMinedAmount)
 	StartBRd, _, _      = firefly.NewFromString(TheoreticalStartBlockReward)
 	AUs, _, _           = firefly.NewFromString(AuPerUnit)
 	CamelSupportReward  = MULcp(White, StartBRd)                            //Sum of Reward equivalent to the Camel-Support-Area
 	CamelReward         = DIFcp(TotalEmission, PreMine, CamelSupportReward) //Sum of Reward equivalent to the Camel Emission only (without its Support)
-
-	//
+	//===============================
 	//
 	// Fee per byte variable Declaration
 	//
@@ -156,10 +158,10 @@ var (
 	FpBInt, _, _ = firefly.NewFromString(FeePerByteDecrement)
 	FpBMin, _, _ = firefly.NewFromString(MinFeePerByte)
 	FpBThr, _, _ = firefly.NewFromString(FeePerByteBHThreshold)
-	//
+	//===============================
 	//
 	// Intervals and Seeds variable Declaration
-	//
+	//=============================================================================================
 	Purple, _, _ = firefly.NewFromString(IntervalPurple)
 	Indigo, _, _ = firefly.NewFromString(IntervalIndigo)
 	Blue, _, _   = firefly.NewFromString(IntervalBlue)
@@ -228,17 +230,17 @@ var (
 	Seed43 = RedUpPeakSeed
 	Seed44 = RedDownPeakSeed
 	Seed45 = WhitePeakSeed
-	//
+	//===============================
 	//
 	// Cryptoplasm Geometric Height Intervals
 	//
-	// Negative Seed Definitions
+	//=============================================================================================
 	ngSeed03 = SUBcp(firefly.NFI(0), Seed03)
 	ngSeed09 = SUBcp(firefly.NFI(0), Seed09)
 	ngSeed29 = SUBcp(firefly.NFI(0), Seed29)
 	//
 	// Geometric Heights List Definition
-	//
+	//=============================================================================================
 	Ax = CryptoplasmSecondaryGeometricListing(Seed31, Seed01, Seed02)
 	Bx = CryptoplasmSecondaryGeometricListing(Seed32, ngSeed03, Seed04)
 	Cx = CryptoplasmSecondaryGeometricListing(Seed33, Seed05, Seed06)
@@ -254,31 +256,31 @@ var (
 	Mx = CryptoplasmSecondaryGeometricListing(Seed43, Seed25, Seed26)
 	Nx = CryptoplasmSecondaryGeometricListing(Seed44, Seed27, Seed28)
 	Ox = CryptoplasmSecondaryGeometricListing(Seed45, ngSeed29, Seed30)
+	//===============================
 	//
 	// Computing Fee Matrix
-	//
-	//
+	//=============================================================================================
 	FE01 = GAS
 	FE02 = GAS * BLINK
 	FE03 = GAS * OUTPUT
 	FE04 = GAS * OUTPUT * BLINK
-
+	//===============================
 	FE05 = FE01 * PLASMA
 	FE06 = FE02 * PLASMA
 	FE07 = FE03 * PLASMA
 	FE08 = FE04 * PLASMA
-
+	//===============================
 	FE09 = FE01 * MIASMA
 	FE10 = FE02 * MIASMA
 	FE11 = FE03 * MIASMA
 	FE12 = FE04 * MIASMA
-
+	//===============================
 	ArrayGAS = [...]int{FE01, FE02, FE03, FE04} //Array declarations
 	ArrayPLS = [...]int{FE05, FE06, FE07, FE08} //Array declarations
 	ArrayMSM = [...]int{FE09, FE10, FE11, FE12} //Array declarations
-
+	//===============================
 	FeeArray = [3][4]int{ArrayGAS, ArrayPLS, ArrayMSM} //Array of Array declaration
-
+	//===============================
 	//This is how the Fee Array should look like:
 	//Gasses_List = [ 1,  7,  400, 2800]
 	//Plasma_List = [ 3, 21, 1200, 8400]
