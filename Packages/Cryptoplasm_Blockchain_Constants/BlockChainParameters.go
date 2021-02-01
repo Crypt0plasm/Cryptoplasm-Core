@@ -144,9 +144,9 @@ var (
 	TotalEmission, _, _ = firefly.NewFromString(TheoreticalEraEmission)
 	PreMine, _, _       = firefly.NewFromString(PreMinedAmount)
 	StartBRd, _, _      = firefly.NewFromString(TheoreticalStartBlockReward)
+	AUs, _, _           = firefly.NewFromString(AuPerUnit)
 	CamelSupportReward  = MULcp(White, StartBRd)                            //Sum of Reward equivalent to the Camel-Support-Area
 	CamelReward         = DIFcp(TotalEmission, PreMine, CamelSupportReward) //Sum of Reward equivalent to the Camel Emission only (without its Support)
-	AUs, _, _           = firefly.NewFromString(AuPerUnit)
 
 	//
 	//
