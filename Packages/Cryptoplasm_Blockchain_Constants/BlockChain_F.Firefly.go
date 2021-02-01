@@ -575,10 +575,6 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 		IsThreshold2 := Difference2.IsZero()
 		for IsThreshold2 == false {
 			Iteration = Iteration + 1
-			//Troubleshooting Comments can be commented away
-			if Iteration == 1000 {
-				break
-			}
 			Difference3 := SUBpr(IP, R, tcpAmount)
 			IsThreshold3 := Difference3.IsZero()
 			if IsThreshold3 == true {
