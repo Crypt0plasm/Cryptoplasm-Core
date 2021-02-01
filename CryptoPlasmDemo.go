@@ -22,14 +22,13 @@ Decimal Seeds which are used to compute the BlockReward(s).`
 		pbrHelp = `Prints the Block Reward for a given BlockHeight.
 Height must be a positive integer.`
 		ebrHelp = `Exports all 524.596.891 BlockRewards`
-		cusHelp = `Computes the AmountFee-ProMille and AmountFee for a given CP Amount.
-Also computes how much CP the Recipient receives after the AmountFee is deducted.
-The Recipient amount represents the "UnderSend" amount.
-Enter a Cryptoplasm Amount using this format: 123412.2134412412`
-		cosHelp = `Computes the "OverSend" Amount one needs to send in order for the Recipient
-to receive the inputted Amount. The Amount to be send represent the OverSend Amount
-Enter a Cryptoplasm Amount using this format: 3312353.7653423432
-Maximum number for which OverSpend must have in total under 49 precision (int+dec)`
+		cusHelp = `Computes how much the Recipient receives if the Sender pays,
+the "min Transaction Fee", that is, when the fee is subtracted from the transacted amount.
+As such it computes the Transaction-Tax for a given amount CP Amount.
+Any numeric value with coma(point) can be used. Software truncates it to 24 Cryptoplasm decimal precision`
+		cosHelp = `Computes the "Max Transaction Tax"", and how much more one has to send,
+for the Recipient to receive the inputted amount. The Amount with Tax is named OverSend.
+Any numeric value with coma(point) can be used. Software truncates it to 24 Cryptoplasm decimal precision`
 		pfeHelp = `Prints the Fee per Byte for the given BlockHeight`
 		sfeHelp = `Simulates all Fee types for the given BlockHeight
 Transaction size and Output Number are required as well`
@@ -44,8 +43,8 @@ Transaction size and Output Number are required as well`
 		PIN = "print-intervals"
 		PBR = "print-br"
 		EBR = "export-br"
-		CUS = "compute-undersend"
-		COS = "compute-oversend"
+		CUS = "compute-min-tx-tax"
+		COS = "compute-max-tx-tax"
 		PFE = "print-fee"
 		SFE = "simulate-fee"
 		STX = "simulate-tx"
@@ -119,15 +118,20 @@ Transaction size and Output Number are required as well`
 		tcpAmount := b.TruncToCurrency(cpAmount)
 		PerfectOverSend := b.CPOverSend(cpAmount)
 
-		fmt.Println("")
-		fmt.Println("OverSend for:", tcpAmount, "CP")
-		fmt.Println("Is equal to:.", PerfectOverSend, "CP")
-		fmt.Println("")
+	    	FPMx, AFx, Rx := b.CPSend(PerfectOverSend)
+	    	fmt.Println("")
+	    	fmt.Println("The Tx-Tax for:", tcpAmount, "CP")
+	    	fmt.Println("is equal to ...", AFx, "CP")
+	    	fmt.Println("and represents:", FPMx, "promille")
+	    	fmt.Println("")
+	    	fmt.Println("For the Recipient to get", tcpAmount, "CP")
+	    	fmt.Println("A send of a total of....", PerfectOverSend, "CP, is required")
+	    	fmt.Println("")
 		fmt.Println("VERIFICATION:")
-		FPMx, AFx, Rx := b.CPSend(PerfectOverSend)
-		fmt.Println("Sending", PerfectOverSend, "CP, will cost an Amount-Fee of", FPMx, "promille")
-		fmt.Println("The Amount-Fee will therefore amount to", AFx, "CP")
-		fmt.Println("Sending", PerfectOverSend, "CP, the Recipient gets", Rx, "CP")
+		fmt.Println("The inputted Amount of CP...........:",tcpAmount, "must be equal to")
+	    	fmt.Println("The amount the Recipient gets.......:",Rx)
+		fmt.Println("Which was computed using the resulted PerfectOverSend.")
+		fmt.Println("PerfectOverSend is the big amount of:",PerfectOverSend)
 	}
 	if *flagPFE != 0 {
 		start := time.Now()

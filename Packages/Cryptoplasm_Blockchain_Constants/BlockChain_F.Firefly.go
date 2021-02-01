@@ -549,6 +549,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	//From OSA the OSIA is derived which is the OverSendArgument being iterated, hence OverSendIterationArgument
 	//OSIA is always truncated by the OsiaPrec, thus is grows as needed
 	OSIA = TruncateCustom(IP, OSA, OsiaPrec)
+    	OsiaOffset := OverSpendDisplayFormat(OSIA)
 	//Above, it is truncated at zero decimals, because it starts without decimals, and gains them while looping
 
 	MaxNoOverSend, _, _ := firefly.NewFromString("9.999999999999999999999999")
@@ -585,6 +586,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 			if Difference3.Negative == true {
 				if LoopDirection == "down" {
 					OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
+				    	OsiaOffset = OverSpendDisplayFormat(OSIA)
 					//
 					OSAT = OSAT + 1
 					//Setting Precisions derived from OSAT, OsiaPrec and OsiaDivPrec
@@ -605,13 +607,15 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 				R = TruncToCurrency(SUBpr(IP, OverSend, AF))
 
 				OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
+			    	OsiaOffset = OverSpendDisplayFormat(OSIA)
 				//Troubleshooting Comments can be commented away
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
-				fmt.Println("OverSend computing iteration number", Iteration)
+			    	fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
 				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
 			} else if Difference3.Negative == false {
 				if LoopDirection == "up" {
 					OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
+				    	OsiaOffset = OverSpendDisplayFormat(OSIA)
 					//
 					OSAT = OSAT + 1
 					//Setting Precisions derived from OSAT, OsiaPrec and OsiaDivPrec
@@ -632,9 +636,10 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 				R = TruncToCurrency(SUBpr(IP, OverSend, AF))
 
 				OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
+			    	OsiaOffset = OverSpendDisplayFormat(OSIA)
 				//Troubleshooting Comments can be commented away
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
-				fmt.Println("OverSend computing iteration number", Iteration)
+				fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
 				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
 			}
 		}
@@ -697,4 +702,28 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	fmt.Println("")
 	fmt.Println("Computing OverSend took", elapsed, "with", Iteration, "Iterations")
 	return PerfectOverSend
+}
+
+func OverSpendDisplayFormat(Number *firefly.Decimal) string {
+    var Result string
+    NumberDigits := Count4Coma(Number)
+    Negative := Number.Negative
+    if Negative == false {
+        if NumberDigits == 3 {
+            Result = "  "
+	} else if NumberDigits == 2 {
+	    Result = "   "
+	} else {
+	    Result = "    "
+	}
+    } else {
+	if NumberDigits == 3 {
+	    Result = " "
+	} else if NumberDigits == 2 {
+	    Result = "  "
+	} else {
+	    Result = "   "
+	}
+    }
+    return Result
 }

@@ -97,20 +97,11 @@ func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*fi
 }
 
 func TxSimulator(BlockHeight, TransactionSize, OutputNumber uint64, cpAmount *firefly.Decimal) {
-	Ten := firefly.NFI(10)
-	One := firefly.NFI(1)
-
-	NumberDigits := Count4Coma(cpAmount)
-	IP := CryptoplasmCurrencyPrecision + uint32(NumberDigits) + 1
 	tcpAmount := TruncToCurrency(cpAmount)
 	Fees := FeeComputer(BlockHeight, TransactionSize, OutputNumber)
+	AmountValue := AmountTier(tcpAmount)
 
-	Difference1 := SUBpr(IP, tcpAmount, Ten)
-	IsThreshold1 := Difference1.IsZero()
-	Difference2 := SUBpr(IP, tcpAmount, One)
-	IsThreshold2 := Difference2.IsZero()
-
-	if IsThreshold1 == true || Difference1.Negative == false {
+	if AmountValue == 3 {
 		fmt.Println("Above or equal 10")
 		fmt.Println("")
 		OverSend := CPOverSend(tcpAmount)
@@ -122,14 +113,14 @@ func TxSimulator(BlockHeight, TransactionSize, OutputNumber uint64, cpAmount *fi
 		fmt.Println("And either an extra", NormalFee, "CP as normal mining fee")
 		fmt.Println("Or an extra", BlinkFee, "CP as mining fees for instant confirmation")
 		fmt.Println("")
-	} else if Difference1.Negative == true && (IsThreshold2 == true || Difference2.Negative == false) {
+	} else if AmountValue == 2 {
 		fmt.Println("Between 1 and 10")
 		NormalFee := Fees[0][1][0]
 		BlinkFee := Fees[1][1][0]
 		fmt.Println("Recipient will receive", tcpAmount, "CP")
 		fmt.Println("It will take only an extra", NormalFee, "CP as normal mining fee")
 		fmt.Println("Or an extra", BlinkFee, "CP as mining fees for instant confirmation")
-	} else {
+	} else if AmountValue == 1 {
 		fmt.Println("Below 1")
 		NormalFee := Fees[0][2][0]
 		BlinkFee := Fees[1][2][0]
@@ -137,4 +128,28 @@ func TxSimulator(BlockHeight, TransactionSize, OutputNumber uint64, cpAmount *fi
 		fmt.Println("It will take only an extra", NormalFee, "CP as normal mining fee")
 		fmt.Println("Or an extra", BlinkFee, "CP as mining fees for instant confirmation")
 	}
+}
+
+func AmountTier(cpAmount *firefly.Decimal) uint8 {
+    var Result uint8
+    Ten := firefly.NFI(10)
+    One := firefly.NFI(1)
+
+    NumberDigits := Count4Coma(cpAmount)
+    IP := CryptoplasmCurrencyPrecision + uint32(NumberDigits) + 1
+    tcpAmount := TruncToCurrency(cpAmount)
+
+    Difference1 := SUBpr(IP, tcpAmount, Ten)
+    IsThreshold1 := Difference1.IsZero()
+    Difference2 := SUBpr(IP, tcpAmount, One)
+    IsThreshold2 := Difference2.IsZero()
+
+    if IsThreshold1 == true || Difference1.Negative == false {
+        Result = 3
+    } else if Difference1.Negative == true && (IsThreshold2 == true || Difference2.Negative == false) {
+	Result = 2
+    } else {
+        Result = 1
+    }
+    return Result
 }
