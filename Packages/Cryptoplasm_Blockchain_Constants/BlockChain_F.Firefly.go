@@ -23,7 +23,20 @@ func ASApr(TotalDecimalPrecision uint32, angleAlfa, sideC, angleBeta *firefly.De
 	//ASAcp doesnt return angleG as this isn't used in the computation
 	return sdA, sdB, area
 }
-
+//Basic Operations done under CryptoplasmPrecisionContext without
+//Condition and error reporting as supported by Firefly
+//================================================
+//
+// Function 01 - NFS
+//
+// NFS reads a string and converts it to a firefly decimal type.
+// It has no restriction on precision. Tested Accepted characters are "." and "-" for a negative sign
+func NFS(String2BeRead string) *firefly.Decimal {
+    DecimalNumber,_,_ := firefly.NewFromString(String2BeRead)
+    //Further Tests can be added to detect wrong string construction.
+    //It is always assumed the string number used with this function is of correct construction.
+    return DecimalNumber
+}
 //Basic Operations done under CryptoplasmPrecisionContext without
 //Condition and error reporting as supported by Firefly
 //================================================
@@ -37,7 +50,6 @@ func ADDpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 	_, _ = cc.Add(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 01a - ADDcp
@@ -49,7 +61,6 @@ func ADDcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Add(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 02 - SUMpr
@@ -67,7 +78,6 @@ func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 	_, _ = cc.Add(sum, first, restsum)
 	return sum
 }
-
 //================================================
 //
 // Function 02a - SUMcp
@@ -85,7 +95,6 @@ func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Add(sum, first, restsum)
 	return sum
 }
-
 //================================================
 //
 // Function 03 - SUBpr
@@ -97,7 +106,6 @@ func SUBpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 	_, _ = cc.Sub(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 03b - SUBcp
@@ -109,7 +117,6 @@ func SUBcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Sub(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 04a - DIFpr
@@ -127,7 +134,6 @@ func DIFpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 	_, _ = cc.Sub(difference, first, restsum)
 	return difference
 }
-
 //================================================
 //
 // Function 04b - DIFcp
@@ -144,7 +150,6 @@ func DIFcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Sub(difference, first, restsum)
 	return difference
 }
-
 //================================================
 //
 // Function 05a - MULpr
@@ -156,7 +161,6 @@ func MULpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 	_, _ = cc.Mul(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 05b - MULcp
@@ -168,7 +172,6 @@ func MULcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Mul(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 06a - PRDpr
@@ -187,7 +190,6 @@ func PRDpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 
 	return product
 }
-
 //================================================
 //
 // Function 06b - PRDcp
@@ -206,7 +208,6 @@ func PRDcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 
 	return product
 }
-
 //================================================
 //
 // Function 07a - POWpr
@@ -218,7 +219,6 @@ func POWpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 	_, _ = cc.Pow(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 07b - POWcp
@@ -230,7 +230,6 @@ func POWcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Pow(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 08a - DIVpr
@@ -242,7 +241,6 @@ func DIVpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 	_, _ = cc.Quo(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 08b - DIVcp
@@ -268,7 +266,6 @@ func TruncateCustom(TotalDecimalPrecision uint32, number *firefly.Decimal, Decim
 	_, _ = cc.Quantize(result, number, ConvertedPrecision)
 	return result
 }
-
 //================================================
 //
 // Function 09b - TruncSeed
@@ -285,7 +282,6 @@ func TruncSeed(SeedNumber *firefly.Decimal) *firefly.Decimal {
 	_, _ = cc.Quantize(result, SeedNumber, CSP)
 	return result
 }
-
 //================================================
 //
 // Function 09c - TruncToCurrency
@@ -303,7 +299,6 @@ func TruncToCurrency(Amount2BecomeCP *firefly.Decimal) *firefly.Decimal {
 	_, _ = cc.Quantize(result, Amount2BecomeCP, CCP)
 	return result
 }
-
 //================================================
 //
 // Function 10 - PrintDL
@@ -315,7 +310,6 @@ func PrintDL(a []string) {
 		fmt.Println("Element is,", a[i])
 	}
 }
-
 //================================================
 //
 // Function 11 - SumDL
@@ -343,7 +337,6 @@ func LastDE(a []*firefly.Decimal) *firefly.Decimal {
 	LastElement := a[LastElementIndex]
 	return LastElement
 }
-
 //================================================
 //
 // Function 13 - AppDec
@@ -354,7 +347,6 @@ func AppDec(w1, w2 []*firefly.Decimal) []*firefly.Decimal {
 	w3 := append(w1, w2...)
 	return w3
 }
-
 //================================================
 //
 // Function 14 - Reverse
@@ -369,7 +361,6 @@ func Reverse(a []*firefly.Decimal) []*firefly.Decimal {
 	}
 	return Reversed
 }
-
 //================================================
 //
 // Function 15 - WriteList
@@ -396,7 +387,6 @@ func WriteList(Name string, List []string) {
 	fmt.Println("file written successfully")
 	return
 }
-
 //================================================
 //
 // Function 16 - RemoveDecimals
@@ -410,7 +400,6 @@ func RemoveDecimals(Number *firefly.Decimal) *firefly.Decimal {
 	_, _ = cc.Floor(Whole, Number)
 	return Whole
 }
-
 //================================================
 //
 // Function 16b - Count4Coma
@@ -421,7 +410,6 @@ func Count4Coma(Number *firefly.Decimal) int64 {
 	Digits := Whole.NumDigits()
 	return Digits
 }
-
 //================================================
 //
 // Function 17 - OverspendLog
@@ -443,7 +431,6 @@ func OverspendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
 	}
 	return Base
 }
-
 //================================================
 //
 // Function 17b - Logarithm
@@ -483,7 +470,6 @@ func OVSLogarithm(base, number *firefly.Decimal) *firefly.Decimal {
 	CustomLog := DIVpr(IP, LogNumber, LogBase)
 	return CustomLog
 }
-
 //================================================
 //
 // Function 18a - CPSend
@@ -507,7 +493,6 @@ func CPSend(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *fir
 
 	return FeeProMille, AmountFee, Recipient
 }
-
 //================================================
 //
 // Function 18b - CPOverSend
@@ -703,7 +688,12 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	fmt.Println("Computing OverSend took", elapsed, "with", Iteration, "Iterations")
 	return PerfectOverSend
 }
-
+//================================================
+//
+// Function 18b - OverSpendDisplayFormat
+//
+// OverSpendDisplayFormat computes the length of a string needed
+// in order to properly display when OverSend is running
 func OverSpendDisplayFormat(Number *firefly.Decimal) string {
     var Result string
     NumberDigits := Count4Coma(Number)

@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"math"
 )
-
+//================================================
+//
+// Function 01 - FeePerByte
+//
+// FeePerByte returns the Fee per Byte for the given BlockHeight
 func FeePerByte(BlockHeight uint64) *firefly.Decimal {
 	//uint64 means BlockHeight can go as high as 18.446.744.073.709.551.615
 	//This BlockHeight would be reached before the End of the Universe,
@@ -44,7 +48,11 @@ func FeePerByte(BlockHeight uint64) *firefly.Decimal {
 	}
 	return FpB
 }
-
+//================================================
+//
+// Function 02 - FeeComputer
+//
+// FeeComputer returns all the possible fees for a given Block Height
 func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*firefly.Decimal {
 	FpB := FeePerByte(BlockHeight)
 	ON := firefly.NFI(int64(OutputNumber))
@@ -95,7 +103,11 @@ func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*fi
 	ComputedFeeArray := [2][3][3]*firefly.Decimal{NormalFees, BlinkFees}
 	return ComputedFeeArray
 }
-
+//================================================
+//
+// Function 03 - TxSimulator
+//
+// TxSimulator simulates a simple transaction
 func TxSimulator(BlockHeight, TransactionSize, OutputNumber uint64, cpAmount *firefly.Decimal) {
 	tcpAmount := TruncToCurrency(cpAmount)
 	Fees := FeeComputer(BlockHeight, TransactionSize, OutputNumber)
@@ -129,7 +141,14 @@ func TxSimulator(BlockHeight, TransactionSize, OutputNumber uint64, cpAmount *fi
 		fmt.Println("Or an extra", BlinkFee, "CP as mining fees for instant confirmation")
 	}
 }
-
+//================================================
+//
+// Function 03 - AmountTier
+//
+// AmountTier returns the tier for a CryptoPlasm Amount.
+// If CryptoPlasm Amount >= 10, its tier 3
+// If CryptoPlasm Amount >= 1 and <10, its tier 2
+// If CryptoPlasm Amount < 1, its tier 1
 func AmountTier(cpAmount *firefly.Decimal) uint8 {
     var Result uint8
     Ten := firefly.NFI(10)

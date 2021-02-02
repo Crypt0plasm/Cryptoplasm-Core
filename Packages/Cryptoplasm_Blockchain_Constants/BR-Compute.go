@@ -264,7 +264,6 @@ func CryptoplasmGeometricKamelSequence() []string {
 
 	return Kamel
 }
-
 //================================================
 //
 // Func 03 - BlockReward
@@ -278,7 +277,6 @@ func BlockReward(BlockHeight uint64) *p.Decimal {
 	//fmt.Println("Computing took", elapsed)
 	return BR
 }
-
 //================================================
 //
 // Func 03b - ConvGH
