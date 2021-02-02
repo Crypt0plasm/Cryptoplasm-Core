@@ -1,11 +1,12 @@
 package main
 
 import (
-	b "Cryptoplasm-Core/Packages/Cryptoplasm_Blockchain_Constants"
-	firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"flag"
 	"fmt"
 	"time"
+
+	b "github.com/Cryptoplasm-Core/constants"
+	firefly "github.com/Cryptoplasm-Core/precision"
 )
 
 func main() {
@@ -118,20 +119,20 @@ Transaction size and Output Number are required as well`
 		tcpAmount := b.TruncToCurrency(cpAmount)
 		PerfectOverSend := b.CPOverSend(cpAmount)
 
-	    	FPMx, AFx, Rx := b.CPSend(PerfectOverSend)
-	    	fmt.Println("")
-	    	fmt.Println("The Tx-Tax for:", tcpAmount, "CP")
-	    	fmt.Println("is equal to ...", AFx, "CP")
-	    	fmt.Println("and represents:", FPMx, "promille")
-	    	fmt.Println("")
-	    	fmt.Println("For the Recipient to get", tcpAmount, "CP")
-	    	fmt.Println("A send of a total of....", PerfectOverSend, "CP, is required")
-	    	fmt.Println("")
+		FPMx, AFx, Rx := b.CPSend(PerfectOverSend)
+		fmt.Println("")
+		fmt.Println("The Tx-Tax for:", tcpAmount, "CP")
+		fmt.Println("is equal to ...", AFx, "CP")
+		fmt.Println("and represents:", FPMx, "promille")
+		fmt.Println("")
+		fmt.Println("For the Recipient to get", tcpAmount, "CP")
+		fmt.Println("A send of a total of....", PerfectOverSend, "CP, is required")
+		fmt.Println("")
 		fmt.Println("VERIFICATION:")
-		fmt.Println("The inputted Amount of CP...........:",tcpAmount, "must be equal to")
-	    	fmt.Println("The amount the Recipient gets.......:",Rx)
+		fmt.Println("The inputted Amount of CP...........:", tcpAmount, "must be equal to")
+		fmt.Println("The amount the Recipient gets.......:", Rx)
 		fmt.Println("Which was computed using the resulted PerfectOverSend.")
-		fmt.Println("PerfectOverSend is the big amount of:",PerfectOverSend)
+		fmt.Println("PerfectOverSend is the big amount of:", PerfectOverSend)
 	}
 	if *flagPFE != 0 {
 		start := time.Now()

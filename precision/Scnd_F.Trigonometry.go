@@ -1,15 +1,15 @@
-package Firefly_Precision
+package precision
 
 //
 // Constants used in Trigonometry Functions
 //
 
 //250 Decimals PI
-const PiString 		= "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091"
-const HalfCircle	= "180"
+const PiString = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091"
+const HalfCircle = "180"
 
-var PI, _, _ 		= NewFromString(PiString)
-var HfCi, _, _ 		= NewFromString(HalfCircle)
+var PI, _, _ = NewFromString(PiString)
+var HfCi, _, _ = NewFromString(HalfCircle)
 
 //=================================================================================================
 //Trigonometric Functions
@@ -25,6 +25,7 @@ func (c *Context) RADS(x *Decimal) *Decimal {
 	_, _ = c.Mul(rads, grads, multiplier)
 	return rads
 }
+
 //================================================
 //
 //Function 002 SIN
@@ -37,24 +38,24 @@ func (c *Context) SIN(rads *Decimal) *Decimal {
 	//10 units higher than the context precision
 	SPC := c.WithPrecision(HigherPrecision)
 
-	fact,_,_ 		:= NewFromString("1")
-	sign 			:= new(Decimal)
-	y 				:= new(Decimal)
-	yminusone 		:= new(Decimal)
-	factH 			:= new(Decimal)
-	pow 			:= new(Decimal)
-	NextTermH		:= new(Decimal)
-	TermOne			:= new(Decimal)
-	NextTerm		:= new(Decimal)
-	SumBig			:= new(Decimal)
-	SumSmall		:= new(Decimal)
-	SumBigQ 		:= new(Decimal)
-	CompareRes		:= new(Decimal)
+	fact, _, _ := NewFromString("1")
+	sign := new(Decimal)
+	y := new(Decimal)
+	yminusone := new(Decimal)
+	factH := new(Decimal)
+	pow := new(Decimal)
+	NextTermH := new(Decimal)
+	TermOne := new(Decimal)
+	NextTerm := new(Decimal)
+	SumBig := new(Decimal)
+	SumSmall := new(Decimal)
+	SumBigQ := new(Decimal)
+	CompareRes := new(Decimal)
 
 	//Part I
 	//First term is TermZero
 	//For i = 0, TermZero is rads
-	TermZero 	:= rads
+	TermZero := rads
 
 	//Part II
 	//Computing Term One
@@ -81,7 +82,6 @@ func (c *Context) SIN(rads *Decimal) *Decimal {
 	_, _ = SPC.Mul(factH, y, yminusone)
 	_, _ = SPC.Mul(fact, fact, factH)
 
-
 	//Exponent is rads ** y
 	//Since y is increased by 2 each iteration
 	//It can serve as exponent for x (radians)
@@ -99,7 +99,6 @@ func (c *Context) SIN(rads *Decimal) *Decimal {
 	//Together with TermZero to compute their Sum
 	//This Sum is designated SumBig
 	_, _ = SPC.Add(SumBig, TermZero, TermOne)
-
 
 	//Next we compare the Sum thus resulted with TermZero
 	//If they would be identical (which is the condition

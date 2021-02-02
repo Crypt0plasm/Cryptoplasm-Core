@@ -1,4 +1,4 @@
-package Firefly_Precision
+package precision
 
 import "math/big"
 
@@ -14,6 +14,7 @@ import "math/big"
 func NewFromString(s string) (*Decimal, Condition, error) {
 	return BaseContext.NewFromString(s)
 }
+
 //================================================
 //
 // Function 02 - New
@@ -28,6 +29,7 @@ func New(coeff int64, exponent int32) *Decimal {
 	d.Coeff.Abs(&d.Coeff)
 	return d
 }
+
 //================================================
 //
 // Function 03 - NewWithBigInt

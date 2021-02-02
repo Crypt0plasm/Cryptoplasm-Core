@@ -1,4 +1,4 @@
-package Firefly_Precision
+package precision
 
 //
 // Shortcuts functions of Main Functions
@@ -12,9 +12,10 @@ package Firefly_Precision
 // Same as NewFromString, it only outputs the decimal
 func NFS(s string) *Decimal {
 	d := new(Decimal)
-	d,_,_ = NewFromString(s)
+	d, _, _ = NewFromString(s)
 	return d
 }
+
 //================================================
 //
 // Function 02 - NFI
@@ -25,7 +26,8 @@ func NFS(s string) *Decimal {
 //			 9,223,372,036,854,775,807
 func NFI(coeff int64) *Decimal {
 	d := new(Decimal)
-	d = New(coeff,0)
+	d = New(coeff, 0)
 	return d
 }
+
 //================================================

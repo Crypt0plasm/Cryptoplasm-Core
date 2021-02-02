@@ -1,22 +1,23 @@
-package Cryptoplasm_Blockchain_Constants
+package constants
 
 import (
-	firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/Cryptoplasm-Core/precision"
 )
 
 var c = CryptoplasmPrecisionContext
 
-func ASApr(TotalDecimalPrecision uint32, angleAlfa, sideC, angleBeta *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *firefly.Decimal) {
+func ASApr(TotalDecimalPrecision uint32, angleAlfa, sideC, angleBeta *precision.Decimal) (*precision.Decimal, *precision.Decimal, *precision.Decimal) {
 	var (
 		angleA = angleAlfa
 		angleB = angleBeta
 		sdC    = sideC
-		sdA    = new(firefly.Decimal)
-		sdB    = new(firefly.Decimal)
-		area   = new(firefly.Decimal)
+		sdA    = new(precision.Decimal)
+		sdB    = new(precision.Decimal)
+		area   = new(precision.Decimal)
 	)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, sdA, sdB, area = cc.ASA(angleA, sdC, angleB)
@@ -31,8 +32,8 @@ func ASApr(TotalDecimalPrecision uint32, angleAlfa, sideC, angleBeta *firefly.De
 // Function 01 - ADDpr
 //
 // ADDpr adds two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func ADDpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func ADDpr(TotalDecimalPrecision uint32, member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Add(result, member1, member2)
 	return result
@@ -43,8 +44,8 @@ func ADDpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 // Function 01a - ADDcp
 //
 // ADDcp adds two decimals within CryptoplasmPrecisionContext Context
-func ADDcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func ADDcp(member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	_, _ = c.Add(result, member1, member2)
 	return result
@@ -55,10 +56,10 @@ func ADDcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 // Function 02 - SUMpr
 //
 // SUMpr adds multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+func SUMpr(TotalDecimalPrecision uint32, first *precision.Decimal, rest ...*precision.Decimal) *precision.Decimal {
 	var (
-		sum     = new(firefly.Decimal)
-		restsum = firefly.NFI(0)
+		sum     = new(precision.Decimal)
+		restsum = precision.NFI(0)
 	)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	for _, item := range rest {
@@ -73,10 +74,10 @@ func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 // Function 02a - SUMcp
 //
 // SUMcp adds multiple decimals within CryptoplasmPrecisionContext Context
-func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+func SUMcp(first *precision.Decimal, rest ...*precision.Decimal) *precision.Decimal {
 	var (
-		sum     = new(firefly.Decimal)
-		restsum = firefly.NFI(0)
+		sum     = new(precision.Decimal)
+		restsum = precision.NFI(0)
 	)
 
 	for _, item := range rest {
@@ -91,8 +92,8 @@ func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 // Function 03 - SUBpr
 //
 // SUBpr subtract two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func SUBpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func SUBpr(TotalDecimalPrecision uint32, member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Sub(result, member1, member2)
 	return result
@@ -103,8 +104,8 @@ func SUBpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 // Function 03b - SUBcp
 //
 // SUBcp subtract two decimals within CryptoplasmPrecisionContext Context
-func SUBcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func SUBcp(member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	_, _ = c.Sub(result, member1, member2)
 	return result
@@ -115,10 +116,10 @@ func SUBcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 // Function 04a - DIFpr
 //
 // DIFpr subtract multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func DIFpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+func DIFpr(TotalDecimalPrecision uint32, first *precision.Decimal, rest ...*precision.Decimal) *precision.Decimal {
 	var (
-		difference = new(firefly.Decimal)
-		restsum    = firefly.NFI(0)
+		difference = new(precision.Decimal)
+		restsum    = precision.NFI(0)
 	)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	for _, item := range rest {
@@ -133,10 +134,10 @@ func DIFpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 // Function 04b - DIFcp
 //
 // DIFcp subtract multiple decimals within CryptoplasmPrecisionContext Context
-func DIFcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+func DIFcp(first *precision.Decimal, rest ...*precision.Decimal) *precision.Decimal {
 	var (
-		difference = new(firefly.Decimal)
-		restsum    = firefly.NFI(0)
+		difference = new(precision.Decimal)
+		restsum    = precision.NFI(0)
 	)
 	for _, item := range rest {
 		_, _ = c.Add(restsum, restsum, item)
@@ -150,8 +151,8 @@ func DIFcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 // Function 05a - MULpr
 //
 // MULpr multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func MULpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func MULpr(TotalDecimalPrecision uint32, member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Mul(result, member1, member2)
 	return result
@@ -162,8 +163,8 @@ func MULpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 // Function 05b - MULcp
 //
 // MULcp multiplies two decimals within CryptoplasmPrecisionContext Context
-func MULcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func MULcp(member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	_, _ = c.Mul(result, member1, member2)
 	return result
@@ -174,10 +175,10 @@ func MULcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 // Function 06a - PRDpr
 //
 // PRDpr multiplies multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func PRDpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+func PRDpr(TotalDecimalPrecision uint32, first *precision.Decimal, rest ...*precision.Decimal) *precision.Decimal {
 	var (
-		product     = new(firefly.Decimal)
-		restproduct = firefly.NFI(1)
+		product     = new(precision.Decimal)
+		restproduct = precision.NFI(1)
 	)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	for _, item := range rest {
@@ -193,10 +194,10 @@ func PRDpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 // Function 06b - PRDcp
 //
 // PRDcp multiplies multiple decimals within CryptoplasmPrecisionContext Context
-func PRDcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+func PRDcp(first *precision.Decimal, rest ...*precision.Decimal) *precision.Decimal {
 	var (
-		product     = new(firefly.Decimal)
-		restproduct = firefly.NFI(1)
+		product     = new(precision.Decimal)
+		restproduct = precision.NFI(1)
 	)
 
 	for _, item := range rest {
@@ -212,8 +213,8 @@ func PRDcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 // Function 07a - POWpr
 //
 // POWpr multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func POWpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func POWpr(TotalDecimalPrecision uint32, member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Pow(result, member1, member2)
 	return result
@@ -224,8 +225,8 @@ func POWpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 // Function 07b - POWcp
 //
 // POWcp multiplies two decimals within CryptoplasmPrecisionContext Context
-func POWcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func POWcp(member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	_, _ = c.Pow(result, member1, member2)
 	return result
@@ -236,8 +237,8 @@ func POWcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 // Function 08a - DIVpr
 //
 // DIVpr multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func DIVpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func DIVpr(TotalDecimalPrecision uint32, member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Quo(result, member1, member2)
 	return result
@@ -248,8 +249,8 @@ func DIVpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 // Function 08b - DIVcp
 //
 // DIVcp multiplies two decimals within CryptoplasmPrecisionContext Context
-func DIVcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func DIVcp(member1, member2 *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	_, _ = c.Quo(result, member1, member2)
 	return result
@@ -260,8 +261,8 @@ func DIVcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 // Function 09a - TruncateCustom
 //
 // TruncateCustom truncates the decimal to the precision number
-func TruncateCustom(TotalDecimalPrecision uint32, number *firefly.Decimal, DecimalPrecision uint32) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func TruncateCustom(TotalDecimalPrecision uint32, number *precision.Decimal, DecimalPrecision uint32) *precision.Decimal {
+	var result = new(precision.Decimal)
 	ConvertedPrecision := int32(DecimalPrecision)
 	ConvertedPrecision = 0 - ConvertedPrecision
 	cc := c.WithPrecision(TotalDecimalPrecision)
@@ -274,8 +275,8 @@ func TruncateCustom(TotalDecimalPrecision uint32, number *firefly.Decimal, Decim
 // Function 09b - TruncSeed
 //
 // TruncSeed truncates the decimal to CryptoplasmSeedPrecision
-func TruncSeed(SeedNumber *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func TruncSeed(SeedNumber *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	NumberDigits := Count4Coma(SeedNumber)
 	TruncatingContextPrecision := uint32(NumberDigits) + CryptoplasmSeedPrecision
@@ -292,8 +293,8 @@ func TruncSeed(SeedNumber *firefly.Decimal) *firefly.Decimal {
 //
 // TruncToCurrency truncates the decimal to CryptoplasmCurrencyPrecision
 // It is Context Precision Independent
-func TruncToCurrency(Amount2BecomeCP *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
+func TruncToCurrency(Amount2BecomeCP *precision.Decimal) *precision.Decimal {
+	var result = new(precision.Decimal)
 
 	NumberDigits := Count4Coma(Amount2BecomeCP)
 	TruncatingContextPrecision := uint32(NumberDigits) + CryptoplasmCurrencyPrecision
@@ -322,8 +323,8 @@ func PrintDL(a []string) {
 //
 // SumDL short for SumDecimalList, return the sum of
 // the decimals within the list/slice
-func SumDL(a []*firefly.Decimal) *firefly.Decimal {
-	var sum = new(firefly.Decimal)
+func SumDL(a []*precision.Decimal) *precision.Decimal {
+	var sum = new(precision.Decimal)
 
 	for i := 0; i < len(a); i++ {
 		sum = ADDcp(sum, a[i])
@@ -337,7 +338,7 @@ func SumDL(a []*firefly.Decimal) *firefly.Decimal {
 //
 // LastDE short for LastDecimalElement, returns the last element
 // in the slice. Equivalent to pythons -1 index
-func LastDE(a []*firefly.Decimal) *firefly.Decimal {
+func LastDE(a []*precision.Decimal) *precision.Decimal {
 	Length := len(a)
 	LastElementIndex := Length - 1
 	LastElement := a[LastElementIndex]
@@ -350,7 +351,7 @@ func LastDE(a []*firefly.Decimal) *firefly.Decimal {
 //
 // AppDec creates a new bigger slice from the 2 slices used as input
 // slices must be made of decimals
-func AppDec(w1, w2 []*firefly.Decimal) []*firefly.Decimal {
+func AppDec(w1, w2 []*precision.Decimal) []*precision.Decimal {
 	w3 := append(w1, w2...)
 	return w3
 }
@@ -360,8 +361,8 @@ func AppDec(w1, w2 []*firefly.Decimal) []*firefly.Decimal {
 // Function 14 - Reverse
 //
 // Returns the Reverse of the Slice/Lists
-func Reverse(a []*firefly.Decimal) []*firefly.Decimal {
-	var Reversed = make([]*firefly.Decimal, 0)
+func Reverse(a []*precision.Decimal) []*precision.Decimal {
+	var Reversed = make([]*precision.Decimal, 0)
 	Length := len(a)
 	LastElementIndex := Length - 1
 	for i := LastElementIndex; i >= 0; i-- {
@@ -403,8 +404,8 @@ func WriteList(Name string, List []string) {
 //
 // RemoveDecimals removes the decimals and leaves the resulted number
 // without them
-func RemoveDecimals(Number *firefly.Decimal) *firefly.Decimal {
-	var Whole = new(firefly.Decimal)
+func RemoveDecimals(Number *precision.Decimal) *precision.Decimal {
+	var Whole = new(precision.Decimal)
 	NumberDigits := Number.NumDigits()
 	cc := c.WithPrecision(uint32(NumberDigits))
 	_, _ = cc.Floor(Whole, Number)
@@ -416,7 +417,7 @@ func RemoveDecimals(Number *firefly.Decimal) *firefly.Decimal {
 // Function 16b - Count4Coma
 //
 // Count4Coma returns the number of digits before precision
-func Count4Coma(Number *firefly.Decimal) int64 {
+func Count4Coma(Number *precision.Decimal) int64 {
 	Whole := RemoveDecimals(Number)
 	Digits := Whole.NumDigits()
 	return Digits
@@ -427,18 +428,18 @@ func Count4Coma(Number *firefly.Decimal) int64 {
 // Function 17 - OverspendLog
 //
 // OverspendLog returns the logarithm base required for computing overspend
-func OverspendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
-	var Base = new(firefly.Decimal)
+func OverspendLogBase(cpAmount *precision.Decimal) *precision.Decimal {
+	var Base = new(precision.Decimal)
 
 	DigitsNumber := Count4Coma(cpAmount)
-	DND := firefly.NFI(DigitsNumber) //making decimal the Digit number
+	DND := precision.NFI(DigitsNumber) //making decimal the Digit number
 	DigitsOperatingPrecision := Count4Coma(DND)
 
-	Exponent := SUBpr(uint32(DigitsOperatingPrecision), DND, firefly.NFI(2))
+	Exponent := SUBpr(uint32(DigitsOperatingPrecision), DND, precision.NFI(2))
 	e, _ := Exponent.Int64()
 	for i := e; i >= 0; i-- {
-		idec := firefly.NFI(i)
-		Value := MULpr(uint32(DigitsNumber), POWpr(uint32(DigitsNumber), firefly.NFI(10), idec), firefly.NFI(7))
+		idec := precision.NFI(i)
+		Value := MULpr(uint32(DigitsNumber), POWpr(uint32(DigitsNumber), precision.NFI(10), idec), precision.NFI(7))
 		Base = ADDpr(uint32(DigitsNumber), Base, Value)
 	}
 	return Base
@@ -449,10 +450,10 @@ func OverspendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
 // Function 17b - Logarithm
 //
 // Logaritm returns the logarithm from "number" in base "base"
-func OVSLogarithm(base, number *firefly.Decimal) *firefly.Decimal {
+func OVSLogarithm(base, number *precision.Decimal) *precision.Decimal {
 	var (
-		LogBase   = new(firefly.Decimal)
-		LogNumber = new(firefly.Decimal)
+		LogBase   = new(precision.Decimal)
+		LogNumber = new(precision.Decimal)
 	)
 	//For LogBase and LogNumber Context precision
 	//2+24 Context precision is enough, for base and number below e^100
@@ -490,7 +491,7 @@ func OVSLogarithm(base, number *firefly.Decimal) *firefly.Decimal {
 //
 // CPSend computes the AmountFee-FeeProMille, the AmountFee and
 // how much the Recipient receives after the AmountFee is deducted from the AmountSent.
-func CPSend(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *firefly.Decimal) {
+func CPSend(cpAmount *precision.Decimal) (*precision.Decimal, *precision.Decimal, *precision.Decimal) {
 
 	//Setting IP(internal precision) and truncating cpAmount to 24 decimals
 	NumberDigits := Count4Coma(cpAmount)
@@ -502,7 +503,7 @@ func CPSend(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *fir
 
 	OVSLogBase := OverspendLogBase(tcpAmount)
 	FeeProMille := TruncToCurrency(OVSLogarithm(OVSLogBase, tcpAmount))
-	AmountFee := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FeeProMille), firefly.NFI(1000)))
+	AmountFee := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FeeProMille), precision.NFI(1000)))
 	Recipient := TruncToCurrency(SUBpr(IP, tcpAmount, AmountFee))
 
 	return FeeProMille, AmountFee, Recipient
@@ -514,18 +515,18 @@ func CPSend(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *fir
 //
 // CPOverSend computes the AmountFee-FeeProMille, the AmountFee and
 // how much the Recipient receives after the AmountFee is deducted from the AmountSent.
-func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
+func CPOverSend(cpAmount *precision.Decimal) *precision.Decimal {
 	start := time.Now()
 	var (
-		PerfectOverSend = new(firefly.Decimal)
-		OverSend        = new(firefly.Decimal)
-		OSA             = new(firefly.Decimal) //OverSendArgument
-		OSIA            = new(firefly.Decimal) //OverSendIterationArgument
-		FPM             = new(firefly.Decimal) //AmountFee-ProMille
-		AF              = new(firefly.Decimal) //AmountFee
-		R               = new(firefly.Decimal) //Recipient
-		OsiaPrec        uint32                 //Number of Digits after comma OSIA must have to be computed
-		Iteration       int                    //OverSpend Loop Iteration number
+		PerfectOverSend = new(precision.Decimal)
+		OverSend        = new(precision.Decimal)
+		OSA             = new(precision.Decimal) //OverSendArgument
+		OSIA            = new(precision.Decimal) //OverSendIterationArgument
+		FPM             = new(precision.Decimal) //AmountFee-ProMille
+		AF              = new(precision.Decimal) //AmountFee
+		R               = new(precision.Decimal) //Recipient
+		OsiaPrec        uint32                   //Number of Digits after comma OSIA must have to be computed
+		Iteration       int                      //OverSpend Loop Iteration number
 	)
 
 	//Setting IP(internal precision) and truncating cpAmount to 24 decimals
@@ -545,14 +546,14 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	OSAT := -2 //int type OverSend-Argument-Tier, starts at -2
 	//OSAT at -2 needs initially addition precision of 3 (-3 would need 4)
 	//Once OSAT is set, or newly set, OverSendArgument (OSA) is computed from it:
-	OSA = DIVpr(IP, firefly.NFI(1), POWpr(IP, firefly.NFI(10), firefly.NFI(int64(OSAT))))
+	OSA = DIVpr(IP, precision.NFI(1), POWpr(IP, precision.NFI(10), precision.NFI(int64(OSAT))))
 	//From OSA the OSIA is derived which is the OverSendArgument being iterated, hence OverSendIterationArgument
 	//OSIA is always truncated by the OsiaPrec, thus is grows as needed
 	OSIA = TruncateCustom(IP, OSA, OsiaPrec)
-    	OsiaOffset := OverSpendDisplayFormat(OSIA)
+	OsiaOffset := OverSpendDisplayFormat(OSIA)
 	//Above, it is truncated at zero decimals, because it starts without decimals, and gains them while looping
 
-	MaxNoOverSend, _, _ := firefly.NewFromString("9.999999999999999999999999")
+	MaxNoOverSend, _, _ := precision.NewFromString("9.999999999999999999999999")
 	//AFADP is used because in case the cpAmountTrunc is 0.xxx AFMP would be 24 and that wouldn't be enough
 	//In this case 25 would be needed and that would be AFAP
 	Difference := SUBpr(IP, tcpAmount, MaxNoOverSend)
@@ -564,13 +565,13 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	} else if Difference.Negative == false {
 		FPMo := TruncToCurrency(OVSLogarithm(OvSLogBase, tcpAmount))
 		FPM = FPMo
-		AFo := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FPM), firefly.NFI(1000)))
+		AFo := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FPM), precision.NFI(1000)))
 		AF = AFo
 		Ro := TruncToCurrency(SUBpr(IP, tcpAmount, AF))
 		R = Ro
 
 		Iteration = 1
-		OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
+		OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, precision.NFI(1), DIVpr(OsiaDivPrec, OSIA, precision.NFI(1000))))))
 		LoopDirection := "up"
 		Difference2 := SUBpr(IP, R, tcpAmount)
 		IsThreshold2 := Difference2.IsZero()
@@ -586,7 +587,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 			if Difference3.Negative == true {
 				if LoopDirection == "down" {
 					OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-				    	OsiaOffset = OverSpendDisplayFormat(OSIA)
+					OsiaOffset = OverSpendDisplayFormat(OSIA)
 					//
 					OSAT = OSAT + 1
 					//Setting Precisions derived from OSAT, OsiaPrec and OsiaDivPrec
@@ -597,25 +598,25 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 						OsiaDivPrec = OsiaPrec + 3
 					}
 					//
-					OSA = DIVpr(OsiaDivPrec, firefly.NFI(1), POWpr(OsiaDivPrec, firefly.NFI(10), firefly.NFI(int64(OSAT))))
+					OSA = DIVpr(OsiaDivPrec, precision.NFI(1), POWpr(OsiaDivPrec, precision.NFI(10), precision.NFI(int64(OSAT))))
 				}
 				LoopDirection = "up"
 				OvSLogBase = OverspendLogBase(OverSend)
 
 				FPM = TruncToCurrency(OVSLogarithm(OvSLogBase, OverSend))
-				AF = TruncToCurrency(DIVpr(IP, MULpr(IP, OverSend, FPM), firefly.NFI(1000)))
+				AF = TruncToCurrency(DIVpr(IP, MULpr(IP, OverSend, FPM), precision.NFI(1000)))
 				R = TruncToCurrency(SUBpr(IP, OverSend, AF))
 
 				OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-			    	OsiaOffset = OverSpendDisplayFormat(OSIA)
+				OsiaOffset = OverSpendDisplayFormat(OSIA)
 				//Troubleshooting Comments can be commented away
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
-			    	fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
-				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
+				fmt.Println("Computing Tx Tax, refining argument...", OsiaOffset, OSIA)
+				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, precision.NFI(1), DIVpr(OsiaDivPrec, OSIA, precision.NFI(1000))))))
 			} else if Difference3.Negative == false {
 				if LoopDirection == "up" {
 					OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-				    	OsiaOffset = OverSpendDisplayFormat(OSIA)
+					OsiaOffset = OverSpendDisplayFormat(OSIA)
 					//
 					OSAT = OSAT + 1
 					//Setting Precisions derived from OSAT, OsiaPrec and OsiaDivPrec
@@ -626,21 +627,21 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 						OsiaDivPrec = OsiaPrec + 3
 					}
 					//
-					OSA = DIVpr(OsiaDivPrec, firefly.NFI(1), POWpr(OsiaDivPrec, firefly.NFI(10), firefly.NFI(int64(OSAT))))
+					OSA = DIVpr(OsiaDivPrec, precision.NFI(1), POWpr(OsiaDivPrec, precision.NFI(10), precision.NFI(int64(OSAT))))
 				}
 				LoopDirection = "down"
 				OvSLogBase = OverspendLogBase(OverSend)
 
 				FPM = TruncToCurrency(OVSLogarithm(OvSLogBase, OverSend))
-				AF = TruncToCurrency(DIVpr(IP, MULpr(IP, OverSend, FPM), firefly.NFI(1000)))
+				AF = TruncToCurrency(DIVpr(IP, MULpr(IP, OverSend, FPM), precision.NFI(1000)))
 				R = TruncToCurrency(SUBpr(IP, OverSend, AF))
 
 				OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-			    	OsiaOffset = OverSpendDisplayFormat(OSIA)
+				OsiaOffset = OverSpendDisplayFormat(OSIA)
 				//Troubleshooting Comments can be commented away
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
-				fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
-				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
+				fmt.Println("Computing Tx Tax, refining argument...", OsiaOffset, OSIA)
+				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, precision.NFI(1), DIVpr(OsiaDivPrec, OSIA, precision.NFI(1000))))))
 			}
 		}
 	}
@@ -704,26 +705,26 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	return PerfectOverSend
 }
 
-func OverSpendDisplayFormat(Number *firefly.Decimal) string {
-    var Result string
-    NumberDigits := Count4Coma(Number)
-    Negative := Number.Negative
-    if Negative == false {
-        if NumberDigits == 3 {
-            Result = "  "
-	} else if NumberDigits == 2 {
-	    Result = "   "
+func OverSpendDisplayFormat(Number *precision.Decimal) string {
+	var Result string
+	NumberDigits := Count4Coma(Number)
+	Negative := Number.Negative
+	if Negative == false {
+		if NumberDigits == 3 {
+			Result = "  "
+		} else if NumberDigits == 2 {
+			Result = "   "
+		} else {
+			Result = "    "
+		}
 	} else {
-	    Result = "    "
+		if NumberDigits == 3 {
+			Result = " "
+		} else if NumberDigits == 2 {
+			Result = "  "
+		} else {
+			Result = "   "
+		}
 	}
-    } else {
-	if NumberDigits == 3 {
-	    Result = " "
-	} else if NumberDigits == 2 {
-	    Result = "  "
-	} else {
-	    Result = "   "
-	}
-    }
-    return Result
+	return Result
 }

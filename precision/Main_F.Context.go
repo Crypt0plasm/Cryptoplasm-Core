@@ -1,9 +1,10 @@
-package Firefly_Precision
+package precision
 
 import (
-	"github.com/pkg/errors"
 	"math"
 	"math/big"
+
+	"github.com/pkg/errors"
 )
 
 //=================================================================================================
@@ -21,6 +22,7 @@ func (c *Context) Abs(d, x *Decimal) (Condition, error) {
 	d.Abs(x)
 	return c.Round(d, d)
 }
+
 //================================================
 //
 // Function 02 - Add
@@ -29,6 +31,7 @@ func (c *Context) Abs(d, x *Decimal) (Condition, error) {
 func (c *Context) Add(d, x, y *Decimal) (Condition, error) {
 	return c.add(d, x, y, false)
 }
+
 //================================================
 //
 // Function 03 - Cbrt
@@ -127,6 +130,7 @@ func (c *Context) Cbrt(d, x *Decimal) (Condition, error) {
 	}
 	return res, err
 }
+
 //================================================
 //
 // Function 04 - Ceil
@@ -140,6 +144,7 @@ func (c *Context) Ceil(d, x *Decimal) (Condition, error) {
 	}
 	return 0, nil
 }
+
 //================================================
 //
 // Function 05 - Cmp
@@ -160,6 +165,7 @@ func (c *Context) Cmp(d, x, y *Decimal) (Condition, error) {
 	d.SetInt64(int64(v))
 	return 0, nil
 }
+
 //================================================
 //
 // Function 06 - Exp
@@ -283,6 +289,7 @@ func (c *Context) Exp(d, x *Decimal) (Condition, error) {
 	res |= nc.round(d, d)
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 07 - Floor
@@ -296,6 +303,7 @@ func (c *Context) Floor(d, x *Decimal) (Condition, error) {
 	}
 	return 0, nil
 }
+
 //================================================
 //
 // Function 08 - Ln
@@ -470,6 +478,7 @@ func (c *Context) Ln(d, x *Decimal) (Condition, error) {
 	res |= Inexact
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 09 - Log10
@@ -499,6 +508,7 @@ func (c *Context) Log10(d, x *Decimal) (Condition, error) {
 	res |= qr
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 10 - Mul
@@ -527,6 +537,7 @@ func (c *Context) Mul(d, x, y *Decimal) (Condition, error) {
 	res |= c.round(d, d)
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 11 - Neg
@@ -539,6 +550,7 @@ func (c *Context) Neg(d, x *Decimal) (Condition, error) {
 	d.Neg(x)
 	return c.Round(d, d)
 }
+
 //================================================
 //
 // Function 12 - NewFromString
@@ -550,6 +562,7 @@ func (c *Context) NewFromString(s string) (*Decimal, Condition, error) {
 	d := new(Decimal)
 	return c.SetString(d, s)
 }
+
 //================================================
 //
 // Function 13 - Pow
@@ -659,6 +672,7 @@ func (c *Context) Pow(d, x, y *Decimal) (Condition, error) {
 	res |= Inexact
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 14 - Quantize
@@ -686,6 +700,7 @@ func (c *Context) Quantize(d, x *Decimal, exp int32) (Condition, error) {
 	}
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 15 - Quo
@@ -793,6 +808,7 @@ func (c *Context) Quo(d, x, y *Decimal) (Condition, error) {
 	d.Set(quo)
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 16 - QuoInteger
@@ -822,6 +838,7 @@ func (c *Context) QuoInteger(d, x, y *Decimal) (Condition, error) {
 	d.Negative = neg
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 17 - Reduce
@@ -838,6 +855,7 @@ func (c *Context) Reduce(d, x *Decimal) (int, Condition, error) {
 	res, err := c.Round(d, d)
 	return n, res, err
 }
+
 //================================================
 //
 // Function 18 - Rem
@@ -885,6 +903,7 @@ func (c *Context) Rem(d, x, y *Decimal) (Condition, error) {
 	res |= c.round(d, d)
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 19 - Round
@@ -913,6 +932,7 @@ func (c *Context) rounding() Rounder {
 	}
 	return rounding
 }
+
 //================================================
 //
 // Function 20 - RoundToIntegralExact
@@ -925,6 +945,7 @@ func (c *Context) RoundToIntegralExact(d, x *Decimal) (Condition, error) {
 	res := c.toIntegral(d, x)
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 21 - RoundToIntegralValue
@@ -939,6 +960,7 @@ func (c *Context) RoundToIntegralValue(d, x *Decimal) (Condition, error) {
 	res &= ^(Inexact | Rounded)
 	return c.goError(res)
 }
+
 //================================================
 //
 // Function 22 - SetString
@@ -955,6 +977,7 @@ func (c *Context) SetString(d *Decimal, s string) (*Decimal, Condition, error) {
 	_, err = c.goError(res)
 	return d, res, err
 }
+
 //================================================
 //
 // Function 23 - Sqrt
@@ -1045,6 +1068,7 @@ func (c *Context) Sqrt(d, x *Decimal) (Condition, error) {
 	d.Reduce(d) // Remove trailing zeros.
 	return nc.Round(d, d)
 }
+
 //================================================
 //
 // Function 24 - Sub
@@ -1053,6 +1077,7 @@ func (c *Context) Sqrt(d, x *Decimal) (Condition, error) {
 func (c *Context) Sub(d, x, y *Decimal) (Condition, error) {
 	return c.add(d, x, y, true)
 }
+
 //================================================
 //
 // Function 25 - WithPrecision
@@ -1063,6 +1088,7 @@ func (c *Context) WithPrecision(p uint32) *Context {
 	r.Precision = p
 	return &r
 }
+
 //=================================================================================================
 // All Cryptoplasm_Firefly_Precision Secondary Context Functions are listed below:
 //=================================================================================================
@@ -1099,6 +1125,7 @@ Loop:
 	_, err := c.goError(res)
 	return true, res, err
 }
+
 //================================================
 //
 // Function 02 - add
@@ -1142,6 +1169,7 @@ func (c *Context) add(d, x, y *Decimal, subtract bool) (Condition, error) {
 	d.Form = Finite
 	return c.Round(d, d)
 }
+
 //================================================
 //
 // Function 03 - rootSpecials
@@ -1174,6 +1202,7 @@ func (c *Context) rootSpecials(d, x *Decimal, factor int32) (bool, Condition, er
 	}
 	return false, 0, nil
 }
+
 //================================================
 //
 // Function 04 - MakeErrDecimal
@@ -1184,6 +1213,7 @@ func MakeErrDecimal(c *Context) ErrDecimal {
 		Ctx: c,
 	}
 }
+
 //================================================
 //
 // Function 05 - MakeErrDecimal
@@ -1208,6 +1238,7 @@ func (c *Context) newLoop(name string, arg *Decimal, precision uint32, maxItersP
 		delta:         new(Decimal),
 	}
 }
+
 //================================================
 //
 // Function 06 - etiny
@@ -1216,6 +1247,7 @@ func (c *Context) newLoop(name string, arg *Decimal, precision uint32, maxItersP
 func (c *Context) etiny() int32 {
 	return c.MinExponent - int32(c.Precision) + 1
 }
+
 //================================================
 //
 // Function 07 - goError
@@ -1224,6 +1256,7 @@ func (c *Context) etiny() int32 {
 func (c *Context) goError(flags Condition) (Condition, error) {
 	return flags.GoError(c.Traps)
 }
+
 //================================================
 //
 // Function 08 - exp10
@@ -1235,6 +1268,7 @@ func exp10(x int64) (exp *big.Int, err error) {
 	}
 	return tableExp10(x, nil), nil
 }
+
 //================================================
 //
 // Function 09 - integerPower
@@ -1278,6 +1312,7 @@ func (c *Context) integerPower(d, x *Decimal, y *big.Int) (Condition, error) {
 	}
 	return ed.Flags, ed.Err()
 }
+
 //================================================
 //
 // Function 10 - logSpecials
@@ -1307,6 +1342,7 @@ func (c *Context) logSpecials(d, x *Decimal) (bool, Condition, error) {
 
 	return false, 0, nil
 }
+
 //================================================
 //
 // Function 11 - quantize
@@ -1356,6 +1392,7 @@ func (c *Context) quantize(d, v *Decimal, exp int32) Condition {
 	d.Exponent = exp
 	return res
 }
+
 //================================================
 //
 // Function 12 - quoSpecials
@@ -1408,6 +1445,7 @@ func (c *Context) quoSpecials(d, x, y *Decimal, canClamp bool) (bool, Condition,
 
 	return false, 0, nil
 }
+
 //================================================
 //
 // Function 13 - RoundToIntegralValue
@@ -1422,6 +1460,7 @@ func (c *Context) toIntegralSpecials(d, x *Decimal) (bool, Condition, error) {
 	}
 	return false, 0, nil
 }
+
 //================================================
 //
 // Function 14 - RoundToIntegralValue

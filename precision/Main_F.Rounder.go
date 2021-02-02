@@ -1,4 +1,4 @@
-package Firefly_Precision
+package precision
 
 import "math/big"
 

@@ -1,12 +1,13 @@
-package Firefly_Precision
+package precision
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"math"
 	"math/big"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 //=================================================================================================
@@ -22,6 +23,7 @@ func (d *Decimal) Abs(x *Decimal) *Decimal {
 	d.Negative = false
 	return d
 }
+
 //================================================
 //
 // Function 02 - Append
@@ -71,6 +73,7 @@ func (d *Decimal) Append(buf []byte, fmt byte) []byte {
 	}
 	return append(buf, '%', fmt)
 }
+
 //================================================
 //
 // Function 02a - fmtE
@@ -122,6 +125,7 @@ func fmtF(buf []byte, d *Decimal, digits string) []byte {
 	}
 	return buf
 }
+
 //================================================
 //
 // Function 03 - Cmp
@@ -207,6 +211,7 @@ func (d *Decimal) Cmp(x *Decimal) int {
 	}
 	return cmp
 }
+
 //================================================
 //
 // Function 04 - CmpTotal
@@ -284,6 +289,7 @@ func (d *Decimal) CmpTotal(x *Decimal) int {
 		return d.Coeff.Cmp(&x.Coeff)
 	}
 }
+
 //================================================
 //
 // Function 05 - Float64
@@ -293,6 +299,7 @@ func (d *Decimal) CmpTotal(x *Decimal) int {
 func (d *Decimal) Float64() (float64, error) {
 	return strconv.ParseFloat(d.String(), 64)
 }
+
 //================================================
 //
 // Function 06 - Format
@@ -365,6 +372,7 @@ func (d *Decimal) Format(s fmt.State, format rune) {
 		_, _ = s.Write(buf)
 	}
 }
+
 //================================================
 //
 // Function 06a - writeMultiple
@@ -378,6 +386,7 @@ func writeMultiple(s fmt.State, text string, count int) {
 		}
 	}
 }
+
 //================================================
 //
 // Function 07 - Int64
@@ -412,6 +421,7 @@ func (d *Decimal) Int64() (int64, error) {
 	}
 	return v, nil
 }
+
 //================================================
 //
 // Function 08 - IsZero
@@ -420,6 +430,7 @@ func (d *Decimal) Int64() (int64, error) {
 func (d *Decimal) IsZero() bool {
 	return d.Sign() == 0
 }
+
 //================================================
 //
 // Function 09 - MarshalText
@@ -431,6 +442,7 @@ func (d *Decimal) MarshalText() ([]byte, error) {
 	}
 	return []byte(d.String()), nil
 }
+
 //================================================
 //
 // Function 10 - Modf
@@ -496,6 +508,7 @@ func (d *Decimal) Modf(integ, frac *Decimal) {
 		icoeff.Quo(&d.Coeff, e)
 	}
 }
+
 //================================================
 //
 // Function 11 - Neg
@@ -510,6 +523,7 @@ func (d *Decimal) Neg(x *Decimal) *Decimal {
 	}
 	return d
 }
+
 //================================================
 //
 // Function 12 - NumDigits
@@ -518,6 +532,7 @@ func (d *Decimal) Neg(x *Decimal) *Decimal {
 func (d *Decimal) NumDigits() int64 {
 	return NumDigits(&d.Coeff)
 }
+
 //================================================
 //
 // Function 13 - Reduce
@@ -576,6 +591,7 @@ func (d *Decimal) Reduce(x *Decimal) (*Decimal, int) {
 	d.Exponent += int32(nd)
 	return d, nd
 }
+
 //================================================
 //
 // Function 14 - Scan
@@ -600,6 +616,7 @@ func (d *Decimal) Scan(src interface{}) error {
 		return errors.Errorf("could not convert %T to Decimal", src)
 	}
 }
+
 //================================================
 //
 // Function 15 - Set
@@ -615,6 +632,7 @@ func (d *Decimal) Set(x *Decimal) *Decimal {
 	d.Form = x.Form
 	return d
 }
+
 //================================================
 //
 // Function 16 - SetFinite
@@ -625,6 +643,7 @@ func (d *Decimal) SetFinite(x int64, e int32) *Decimal {
 	d.Exponent = e
 	return d
 }
+
 //================================================
 //
 // Function 17 - SetFloat64
@@ -635,6 +654,7 @@ func (d *Decimal) SetFloat64(f float64) (*Decimal, error) {
 	_, _, err := d.SetString(strconv.FormatFloat(f, 'E', -1, 64))
 	return d, err
 }
+
 //================================================
 //
 // Function 18 - SetInt64
@@ -643,6 +663,7 @@ func (d *Decimal) SetFloat64(f float64) (*Decimal, error) {
 func (d *Decimal) SetInt64(x int64) *Decimal {
 	return d.SetFinite(x, 0)
 }
+
 //================================================
 //
 // Function 19 - SetString
@@ -652,6 +673,7 @@ func (d *Decimal) SetInt64(x int64) *Decimal {
 func (d *Decimal) SetString(s string) (*Decimal, Condition, error) {
 	return BaseContext.SetString(d, s)
 }
+
 //================================================
 //
 // Function 20 - Sign
@@ -676,6 +698,7 @@ func (d *Decimal) Sign() int {
 	}
 	return 1
 }
+
 //================================================
 //
 // Function 21 - String
@@ -685,6 +708,7 @@ func (d *Decimal) Sign() int {
 func (d *Decimal) String() string {
 	return d.Text('G')
 }
+
 //================================================
 //
 // Function 22 - Text
@@ -707,6 +731,7 @@ func (d *Decimal) Text(format byte) string {
 	capacity := 10 // to do: determine a good/better value here
 	return string(d.Append(make([]byte, 0, capacity), format))
 }
+
 //================================================
 //
 // Function 23 - UnmarshalText
@@ -716,6 +741,7 @@ func (d *Decimal) UnmarshalText(b []byte) error {
 	_, _, err := d.SetString(string(b))
 	return err
 }
+
 //=================================================================================================
 // All Cryptoplasm_Firefly_Precision Secondary Decimal Functions are listed below:
 //=================================================================================================
@@ -732,6 +758,7 @@ func (d *Decimal) setCoefficient(x int64) {
 	d.Coeff.Abs(&d.Coeff)
 	d.Form = Finite
 }
+
 //================================================
 //
 // Function 02 - setExponent
@@ -816,6 +843,7 @@ func (d *Decimal) setExponent(c *Context, res Condition, xs ...int64) Condition 
 	d.Exponent = r
 	return res
 }
+
 //================================================
 //
 // Function 03 - setExponent
@@ -828,6 +856,7 @@ func (d *Decimal) setBig(b *big.Int) *big.Int {
 	}
 	return b
 }
+
 //================================================
 //
 // Function 04 - upscale
@@ -859,6 +888,7 @@ func upscale(a, b *Decimal) (*big.Int, *big.Int, int32, error) {
 	}
 	return x, y, b.Exponent, nil
 }
+
 //================================================
 //
 // Function 05 - setString
@@ -924,6 +954,7 @@ func (d *Decimal) setString(c *Context, s string) (Condition, error) {
 	d.Form = Finite
 	return c.goError(d.setExponent(c, 0, exps...))
 }
+
 //================================================
 //
 // Function 5a - consumePrefix
@@ -934,6 +965,7 @@ func consumePrefix(s, prefix string) (string, bool) {
 	}
 	return s, false
 }
+
 //================================================
 //
 // Function 06 - setString

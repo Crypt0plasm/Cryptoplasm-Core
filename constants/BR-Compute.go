@@ -1,11 +1,12 @@
-package Cryptoplasm_Blockchain_Constants
+package constants
 
 import (
-	p "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"github.com/Cryptoplasm-Core/precision"
 )
 
 //================================================
@@ -18,11 +19,11 @@ import (
 // Function 01 - CryptoplasmPrimaryGeometricListing
 //
 // Creates a list of geometric heights using the input parameters
-func CryptoplasmPrimaryGeometricListing(a *p.Decimal, b int) []*p.Decimal {
+func CryptoplasmPrimaryGeometricListing(a *precision.Decimal, b int) []*precision.Decimal {
 	HeightFront := a
 	AreaFront := a
 	FirstElement := ADDcp(AreaFront, Seed1st)
-	Carnatz := make([]*p.Decimal, 1)
+	Carnatz := make([]*precision.Decimal, 1)
 	Carnatz[0] = FirstElement
 
 	for i := 2; i < b; i++ {
@@ -43,25 +44,25 @@ func CryptoplasmPrimaryGeometricListing(a *p.Decimal, b int) []*p.Decimal {
 // Function 01b - CryptoplasmSecondaryGeometricListing
 //
 // The Magic that is part of computing the BlockRewards
-func CryptoplasmSecondaryGeometricListing(x1 int, x2, x3 *p.Decimal) []*p.Decimal {
+func CryptoplasmSecondaryGeometricListing(x1 int, x2, x3 *precision.Decimal) []*precision.Decimal {
 	var (
 		intc       = x1
 		d          = x2
 		e          = x3
-		Missing    = new(p.Decimal)
-		SliceFront = make([]*p.Decimal, 1)
-		SliceBack  = make([]*p.Decimal, 1)
-		SliceBack2 = make([]*p.Decimal, 1)
+		Missing    = new(precision.Decimal)
+		SliceFront = make([]*precision.Decimal, 1)
+		SliceBack  = make([]*precision.Decimal, 1)
+		SliceBack2 = make([]*precision.Decimal, 1)
 	)
-	ci := p.NFI(int64(intc))
-	SliceFront = CryptoplasmPrimaryGeometricListing(p.NFI(0), intc)
+	ci := precision.NFI(int64(intc))
+	SliceFront = CryptoplasmPrimaryGeometricListing(precision.NFI(0), intc)
 	SliceBack = CryptoplasmPrimaryGeometricListing(d, 638-intc)
 	Sum1 := SumDL(SliceFront)
 	Sum2 := SumDL(SliceBack)
 	if d.Negative == false {
 		Missing = DIFcp(e, Sum1, Sum2)
 	} else {
-		SliceBack2 = CryptoplasmPrimaryGeometricListing(p.NFI(0), 638-intc)
+		SliceBack2 = CryptoplasmPrimaryGeometricListing(precision.NFI(0), 638-intc)
 		Sum3 := SumDL(SliceBack2)
 		Missing = ADDcp(MULcp(ci, d), DIFcp(e, Sum1, Sum3))
 	}
@@ -270,7 +271,7 @@ func CryptoplasmGeometricKamelSequence() []string {
 // Func 03 - BlockReward
 //
 // BlockReward returns the Block Reward for a given Block Height
-func BlockReward(BlockHeight uint64) *p.Decimal {
+func BlockReward(BlockHeight uint64) *precision.Decimal {
 	//start := time.Now()
 	GH := BlockGeometricHeight(BlockHeight)
 	BR := ConvGH(GH)
@@ -284,7 +285,7 @@ func BlockReward(BlockHeight uint64) *p.Decimal {
 // Func 03b - ConvGH
 //
 // ConvGH returns the Block Reward for a Geometric Height
-func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
+func ConvGH(GeometricHeight *precision.Decimal) *precision.Decimal {
 	GH := GeometricHeight
 	GHDigits := Count4Coma(GH)
 	MP := uint32(GHDigits) + CryptoplasmSeedPrecision
@@ -309,7 +310,7 @@ func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
 // BlockGeometricHeight returns the geometric height
 // for a given BlockHeight on the Kamel Graph
 // Used to calculate the BlockRewards
-func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
+func BlockGeometricHeight(BlockHeight uint64) *precision.Decimal {
 	//Using uint64 as BlockHeight type makes this following code work
 	//until BH 18.446.744.073.709.551.615. A higher value will overflow
 	//the variable and cause the code to not work
@@ -319,7 +320,7 @@ func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
 	//Implementing ERAs will make this code last until the end of the Universe
 	//1 Era equals 524.596.891 Blocks. Next Block would be Era2.Block1. Rewards will repeat.
 	var (
-		GH             = new(p.Decimal)
+		GH             = new(precision.Decimal)
 		CryptoplasmDNA = CryptoplasmGeometricKamelSequence()
 		Purples        = BlockHeight / 637
 		Rest           = BlockHeight % 637
@@ -361,7 +362,7 @@ func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
 				GH = ADDcp(GH, LastDE(Ox))
 			}
 		}
-		GH = SUBcp(GH, MULcp(p.NFI(int64(Purples)), Seed1st))
+		GH = SUBcp(GH, MULcp(precision.NFI(int64(Purples)), Seed1st))
 		if Rest == 0 {
 			GH = ADDcp(GH, Seed1st)
 		} else if Purples < uint64(len(CryptoplasmDNA)) {
@@ -399,7 +400,7 @@ func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
 			}
 		}
 	} else {
-		GH = p.NFI(0)
+		GH = precision.NFI(0)
 	}
 	//fmt.Println("BlockHeight geometric,", GH)
 	//Geometric Height is a SeedNumber, so it has Seed Decimal Precision
@@ -417,10 +418,10 @@ func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
 func ExportBr(Name string) {
 	start := time.Now()
 	var (
-		GH             = new(p.Decimal)
-		BR             = new(p.Decimal)
-		B              = new(p.Decimal)
-		S              = new(p.Decimal)
+		GH             = new(precision.Decimal)
+		BR             = new(precision.Decimal)
+		B              = new(precision.Decimal)
+		S              = new(precision.Decimal)
 		CryptoplasmDNA = CryptoplasmGeometricKamelSequence()
 	)
 

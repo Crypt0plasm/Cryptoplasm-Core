@@ -1,4 +1,4 @@
-package Firefly_Precision
+package precision
 
 import "fmt"
 
@@ -13,6 +13,7 @@ import "fmt"
 func (e *ErrDecimal) Abs(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Abs)
 }
+
 //================================================
 //
 // Function 02 - Add
@@ -21,6 +22,7 @@ func (e *ErrDecimal) Abs(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Add(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.Add)
 }
+
 //================================================
 //
 // Function 03 - Ceil
@@ -29,6 +31,7 @@ func (e *ErrDecimal) Add(d, x, y *Decimal) *Decimal {
 func (e *ErrDecimal) Ceil(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Ceil)
 }
+
 //================================================
 //
 // Function 04 - Err
@@ -45,6 +48,7 @@ func (e *ErrDecimal) Err() error {
 	}
 	return nil
 }
+
 //================================================
 //
 // Function 05 - Exp
@@ -53,6 +57,7 @@ func (e *ErrDecimal) Err() error {
 func (e *ErrDecimal) Exp(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Exp)
 }
+
 //================================================
 //
 // Function 06 - Floor
@@ -61,6 +66,7 @@ func (e *ErrDecimal) Exp(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Floor(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Floor)
 }
+
 //================================================
 //
 // Function 07 - Int64
@@ -74,6 +80,7 @@ func (e *ErrDecimal) Int64(d *Decimal) int64 {
 	r, e.err = d.Int64()
 	return r
 }
+
 //================================================
 //
 // Function 08 - Ln
@@ -82,6 +89,7 @@ func (e *ErrDecimal) Int64(d *Decimal) int64 {
 func (e *ErrDecimal) Ln(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Ln)
 }
+
 //================================================
 //
 // Function 09 - Log10
@@ -90,6 +98,7 @@ func (e *ErrDecimal) Ln(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Log10(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Log10)
 }
+
 //================================================
 //
 // Function 10 - Mul
@@ -98,6 +107,7 @@ func (e *ErrDecimal) Log10(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Mul(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.Mul)
 }
+
 //================================================
 //
 // Function 11 - Neg
@@ -106,6 +116,7 @@ func (e *ErrDecimal) Mul(d, x, y *Decimal) *Decimal {
 func (e *ErrDecimal) Neg(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Neg)
 }
+
 //================================================
 //
 // Function 12 - Pow
@@ -114,6 +125,7 @@ func (e *ErrDecimal) Neg(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Pow(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.Pow)
 }
+
 //================================================
 //
 // Function 13 - Quantize
@@ -128,6 +140,7 @@ func (e *ErrDecimal) Quantize(d, v *Decimal, exp int32) *Decimal {
 	e.err = err
 	return d
 }
+
 //================================================
 //
 // Function 14 - Quo
@@ -136,6 +149,7 @@ func (e *ErrDecimal) Quantize(d, v *Decimal, exp int32) *Decimal {
 func (e *ErrDecimal) Quo(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.Quo)
 }
+
 //================================================
 //
 // Function 15 - QuoInteger
@@ -144,6 +158,7 @@ func (e *ErrDecimal) Quo(d, x, y *Decimal) *Decimal {
 func (e *ErrDecimal) QuoInteger(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.QuoInteger)
 }
+
 //================================================
 //
 // Function 16 - Reduce
@@ -159,6 +174,7 @@ func (e *ErrDecimal) Reduce(d, x *Decimal) (int, *Decimal) {
 	e.err = err
 	return n, d
 }
+
 //================================================
 //
 // Function 17 - Rem
@@ -167,6 +183,7 @@ func (e *ErrDecimal) Reduce(d, x *Decimal) (int, *Decimal) {
 func (e *ErrDecimal) Rem(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.Rem)
 }
+
 //================================================
 //
 // Function 18 - Round
@@ -175,6 +192,7 @@ func (e *ErrDecimal) Rem(d, x, y *Decimal) *Decimal {
 func (e *ErrDecimal) Round(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Round)
 }
+
 //================================================
 //
 // Function 19 - RoundToIntegralExact
@@ -183,6 +201,7 @@ func (e *ErrDecimal) Round(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) RoundToIntegralExact(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.RoundToIntegralExact)
 }
+
 //================================================
 //
 // Function 20 - RoundToIntegralValue
@@ -191,6 +210,7 @@ func (e *ErrDecimal) RoundToIntegralExact(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) RoundToIntegralValue(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.RoundToIntegralValue)
 }
+
 //================================================
 //
 // Function 21 - Sqrt
@@ -199,6 +219,7 @@ func (e *ErrDecimal) RoundToIntegralValue(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Sqrt(d, x *Decimal) *Decimal {
 	return e.op2(d, x, e.Ctx.Sqrt)
 }
+
 //================================================
 //
 // Function 21 - Sub
@@ -207,6 +228,7 @@ func (e *ErrDecimal) Sqrt(d, x *Decimal) *Decimal {
 func (e *ErrDecimal) Sub(d, x, y *Decimal) *Decimal {
 	return e.op3(d, x, y, e.Ctx.Sub)
 }
+
 //================================================
 //
 // Function 22 - String
@@ -217,6 +239,7 @@ func (i Form) String() string {
 	}
 	return formName[formIndex[i]:formIndex[i+1]]
 }
+
 //=================================================================================================
 //=================================================================================================
 // All Cryptoplasm_Firefly_Precision ErrDecimal Secondary Functions are listed below:
@@ -233,6 +256,7 @@ func (e *ErrDecimal) op2(d, x *Decimal, f func(a, b *Decimal) (Condition, error)
 	e.err = err
 	return d
 }
+
 //================================================
 //
 // Function op2 - String
@@ -246,6 +270,3 @@ func (e *ErrDecimal) op3(d, x, y *Decimal, f func(a, b, c *Decimal) (Condition, 
 	e.err = err
 	return d
 }
-
-
-
