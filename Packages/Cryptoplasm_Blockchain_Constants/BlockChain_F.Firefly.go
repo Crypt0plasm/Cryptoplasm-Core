@@ -4,24 +4,212 @@ import (
 	firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"fmt"
 	"os"
-	"time"
+    "strconv"
+    "time"
 )
 
 var c = CryptoplasmPrecisionContext
 
-func ASApr(TotalDecimalPrecision uint32, angleAlfa, sideC, angleBeta *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *firefly.Decimal) {
-	var (
-		angleA = angleAlfa
-		angleB = angleBeta
-		sdC    = sideC
-		sdA    = new(firefly.Decimal)
-		sdB    = new(firefly.Decimal)
-		area   = new(firefly.Decimal)
-	)
-	cc := c.WithPrecision(TotalDecimalPrecision)
-	_, sdA, sdB, area = cc.ASA(angleA, sdC, angleB)
-	//ASAcp doesnt return angleG as this isn't used in the computation
-	return sdA, sdB, area
+//Comparison Functions operation on decimal type
+//	1) DecimalEqual			x == y
+//	2) DecimalNotEqual		x != y
+//	3) DecimalLessThan		x < y
+//	4) DecimalLessThanOrEqual	x <= y
+//	5) DecimalGreaterThan		x > y
+//	6) DecimalGreaterThanOrEqual	x >= y
+// The functions use the CryptoplasmPrecisionContext as base Context upon which
+// scaling happens to accommodate their size
+//================================================
+//
+// Function 001 - DecimalEqual
+//
+// DecimalEqual returns true if decimal x is equal to decimal y.
+// The decimals must be equal to the last decimal, in this case their decimal length is similar
+// They can be equal with dissimilar decimal length when one of them has extra zeros in the back
+// Only works with valid Decimal type numbers.
+func DecimalEqual(x, y *firefly.Decimal) bool {
+    var Result bool
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+        digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    ComparisonContextPrecision := uint32(digmax) + 1
+
+    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    IsThreshold := Difference.IsZero()
+
+    if IsThreshold == true {
+        Result = true
+    } else {
+        Result = false
+    }
+
+    return Result
+}
+//================================================
+//
+// Function 002 - DecimalNotEqual
+//
+// DecimalNotEqual returns true if decimal x is not equal to decimal y.
+// Only works with valid Decimal type numbers.
+func DecimalNotEqual(x, y *firefly.Decimal) bool {
+    var Result bool
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+	digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    ComparisonContextPrecision := uint32(digmax) + 1
+
+    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    IsThreshold := Difference.IsZero()
+
+    if IsThreshold == true {
+	Result = false
+    } else {
+	Result = true
+    }
+
+    return Result
+}
+//================================================
+//
+// Function 003 - DecimalLessThan
+//
+// DecimalLessThan returns true if decimal x is less than decimal y.
+// Only works with valid Decimal type numbers.
+// x equals y would return false as in this case x isnt less than y
+func DecimalLessThan(x, y *firefly.Decimal) bool {
+    var Result bool
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+	digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    ComparisonContextPrecision := uint32(digmax) + 1
+
+    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    //IsThreshold := Difference.IsZero()
+
+    if Difference.Negative == true {
+	Result = true
+    } else {
+	Result = false
+    }
+
+    return Result
+}
+//================================================
+//
+// Function 004 - DecimalLessThanOrEqual
+//
+// DecimalLessThanOrEqual returns true if decimal either
+// x is less than decimal y, or if they are equal.
+// Only works with valid Decimal type numbers.
+func DecimalLessThanOrEqual(x, y *firefly.Decimal) bool {
+    var Result bool
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+	digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    ComparisonContextPrecision := uint32(digmax) + 1
+
+    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    IsThreshold := Difference.IsZero()
+
+    if Difference.Negative == true || IsThreshold == true{
+	Result = true
+    } else {
+	Result = false
+    }
+
+    return Result
+}
+//================================================
+//
+// Function 005 - DecimalGreaterThan
+//
+// DecimalGreaterThan returns true if decimal x is greater than decimal y.
+// Only works with valid Decimal type numbers.
+// x equals y would return false as in this case x isn't less than y
+func DecimalGreaterThan(x, y *firefly.Decimal) bool {
+    var Result bool
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+	digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    ComparisonContextPrecision := uint32(digmax) + 1
+
+    Difference := SUBpr(ComparisonContextPrecision, y, x)
+    //IsThreshold := Difference.IsZero()
+
+    if Difference.Negative == true {
+	Result = true
+    } else {
+	Result = false
+    }
+
+    return Result
+}
+//================================================
+//
+// Function 006 - DecimalGreaterThanOrEqual
+//
+// DecimalGreaterThanOrEqual returns true if decimal either
+// x is greater than decimal y, or if they are equal.
+// Only works with valid Decimal type numbers.
+func DecimalGreaterThanOrEqual(x, y *firefly.Decimal) bool {
+    var Result bool
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+	digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    ComparisonContextPrecision := uint32(digmax) + 1
+
+    Difference := SUBpr(ComparisonContextPrecision, y, x)
+    IsThreshold := Difference.IsZero()
+
+    if Difference.Negative == true || IsThreshold == true{
+	Result = true
+    } else {
+	Result = false
+    }
+
+    return Result
 }
 //Basic Operations done under CryptoplasmPrecisionContext without
 //Condition and error reporting as supported by Firefly
@@ -252,12 +440,11 @@ func DIVcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	_, _ = c.Quo(result, member1, member2)
 	return result
 }
-
 //================================================
 //
 // Function 09a - TruncateCustom
 //
-// TruncateCustom truncates the decimal to the precision number
+// TruncateCustom truncates the decimal to the specified precision number
 func TruncateCustom(TotalDecimalPrecision uint32, number *firefly.Decimal, DecimalPrecision uint32) *firefly.Decimal {
 	var result = new(firefly.Decimal)
 	ConvertedPrecision := int32(DecimalPrecision)
@@ -410,9 +597,31 @@ func Count4Coma(Number *firefly.Decimal) int64 {
 	Digits := Whole.NumDigits()
 	return Digits
 }
+
 //================================================
 //
-// Function 17 - OverspendLog
+// Function 17 - ASApr
+//
+// ASApr computes and ASA triangle with a custom precision
+// as used in the Seed computer. Therefore it doesnt return the AngleG
+func ASApr(TotalDecimalPrecision uint32, angleAlfa, sideC, angleBeta *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *firefly.Decimal) {
+    var (
+	angleA = angleAlfa
+	angleB = angleBeta
+	sdC    = sideC
+	sdA    = new(firefly.Decimal)
+	sdB    = new(firefly.Decimal)
+	area   = new(firefly.Decimal)
+    )
+    cc := c.WithPrecision(TotalDecimalPrecision)
+    _, sdA, sdB, area = cc.ASA(angleA, sdC, angleB)
+    //ASAcp doesnt return angleG as this isn't used in the computation
+    return sdA, sdB, area
+}
+
+//================================================
+//
+// Function 18 - OverspendLog
 //
 // OverspendLog returns the logarithm base required for computing overspend
 func OverspendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
@@ -433,7 +642,7 @@ func OverspendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 17b - Logarithm
+// Function 18b - Logarithm
 //
 // Logaritm returns the logarithm from "number" in base "base"
 func OVSLogarithm(base, number *firefly.Decimal) *firefly.Decimal {
@@ -472,7 +681,7 @@ func OVSLogarithm(base, number *firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 18a - CPSend
+// Function 19a - CPSend
 //
 // CPSend computes the AmountFee-FeeProMille, the AmountFee and
 // how much the Recipient receives after the AmountFee is deducted from the AmountSent.
@@ -495,7 +704,7 @@ func CPSend(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *fir
 }
 //================================================
 //
-// Function 18b - CPOverSend
+// Function 19b - CPOverSend
 //
 // CPOverSend computes the AmountFee-FeeProMille, the AmountFee and
 // how much the Recipient receives after the AmountFee is deducted from the AmountSent.
@@ -538,15 +747,12 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	//Above, it is truncated at zero decimals, because it starts without decimals, and gains them while looping
 
 	MaxNoOverSend, _, _ := firefly.NewFromString("9.999999999999999999999999")
-	//AFADP is used because in case the cpAmountTrunc is 0.xxx AFMP would be 24 and that wouldn't be enough
-	//In this case 25 would be needed and that would be AFAP
-	Difference := SUBpr(IP, tcpAmount, MaxNoOverSend)
-	IsThreshold := Difference.IsZero()
-	if IsThreshold == true || Difference.Negative == true {
+	//CompareResult1 := DecimalLessThanOrEqual(tcpAmount,MaxNoOverSend)
+	if DecimalLessThanOrEqual(tcpAmount,MaxNoOverSend) == true {
 		R = tcpAmount
 		PerfectOverSend = tcpAmount
 		//No extra CP is required as "OverSend" when transacted amount is below 10 CP
-	} else if Difference.Negative == false {
+	} else if DecimalLessThanOrEqual(tcpAmount,MaxNoOverSend) == false {
 		FPMo := TruncToCurrency(OVSLogarithm(OvSLogBase, tcpAmount))
 		FPM = FPMo
 		AFo := TruncToCurrency(DIVpr(IP, MULpr(IP, tcpAmount, FPM), firefly.NFI(1000)))
@@ -557,18 +763,15 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 		Iteration = 1
 		OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
 		LoopDirection := "up"
-		Difference2 := SUBpr(IP, R, tcpAmount)
-		IsThreshold2 := Difference2.IsZero()
-		for IsThreshold2 == false {
+
+		for DecimalNotEqual(R,tcpAmount) == true {
 			Iteration = Iteration + 1
-			Difference3 := SUBpr(IP, R, tcpAmount)
-			IsThreshold3 := Difference3.IsZero()
-			if IsThreshold3 == true {
+			if DecimalEqual(R,tcpAmount) == true {
 				//fmt.Println("")
 				//fmt.Println("Computing done after",Iteration,"iterations")
 				break
 			}
-			if Difference3.Negative == true {
+			if DecimalLessThan(R,tcpAmount) == true {
 				if LoopDirection == "down" {
 					OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
 				    	OsiaOffset = OverSpendDisplayFormat(OSIA)
@@ -597,7 +800,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
 			    	fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
 				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
-			} else if Difference3.Negative == false {
+			} else if DecimalGreaterThan(R,tcpAmount) == true {
 				if LoopDirection == "up" {
 					OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
 				    	OsiaOffset = OverSpendDisplayFormat(OSIA)
@@ -634,10 +837,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	//Computes the AU, see bellow, only for observation purposes
 	//Must be commented away
 	//AtomicUnit := firefly.New(1,-24)
-	Difference4 := SUBpr(IP, tcpAmount, v3)
-	IsThreshold4 := Difference4.IsZero()
-
-	if IsThreshold4 == true {
+	if DecimalEqual(tcpAmount,v3) == true {
 		PerfectOverSend = OverSend
 		//Troubleshooting Comments can be commented away
 		//fmt.Println("Computed OverSend resulted in the expected Receiver up to the last 24th decimal")
@@ -646,7 +846,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 		//fmt.Println("This is equal to PerfectOverSend")
 		//fmt.Println("")
 	} else {
-		if Difference4.Negative == true {
+		if DecimalLessThan(tcpAmount,v3) == true {
 			U := DIFpr(IP, v3, tcpAmount)
 			//The Number of Atomic Units by which the computed OverSend is off
 			//Is only used in the comments for observation purpose
@@ -658,7 +858,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 			//fmt.Println("Computed OverSend was      ",OverSend)
 			//fmt.Println("Computed PerfectOverSend is",PerfectOverSend)
 			//fmt.Println("")
-		} else if Difference4.Negative == false {
+		} else if DecimalGreaterThan(tcpAmount,v3) == true {
 			U := DIFpr(IP, tcpAmount, v3)
 			//The Number of Atomic Units by which the computed OverSend is off
 			//Is only used in the comments for observation purpose
@@ -690,7 +890,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 18b - OverSpendDisplayFormat
+// Function 19b - OverSpendDisplayFormat
 //
 // OverSpendDisplayFormat computes the length of a string needed
 // in order to properly display when OverSend is running
@@ -716,4 +916,82 @@ func OverSpendDisplayFormat(Number *firefly.Decimal) string {
 	}
     }
     return Result
+}
+
+//================================================
+//
+// Function 20 - CPConvert2AU
+//
+// CPConvert2AU converts a CryptoPlasm amount into Atomic Units
+func CPConvert2AU(cpAmount *firefly.Decimal) *firefly.Decimal {
+    tcpAmount := TruncToCurrency(cpAmount)
+    NumberDigits := Count4Coma(cpAmount)
+    IP := uint32(NumberDigits) + CryptoplasmCurrencyPrecision
+    AU := MULpr(IP,tcpAmount,AUs)
+
+    return AU
+}
+//================================================
+//
+// Function 20b - YoctoPlasm2String
+//
+// YoctoPlasm2String converts a CryptoPlasm AUs (YoctoPlasms)
+// into a slice of strings
+func YoctoPlasm2String(Number *firefly.Decimal) []string {
+    var SliceStr []string
+    Ten := firefly.NFI(10)
+    AuDigits := Number.NumDigits()
+    Exp := AuDigits - 1
+    IP 	:= uint32(AuDigits)
+    //Exp := firefly.NFI(NumberDigitsAU - 1)
+    ToSequence := Number
+    for i := Exp; i >= 0; i-- {
+        idec := firefly.NFI(i)
+        Power := POWpr(IP,Ten,idec)
+        Division := DIVpr(IP,ToSequence,Power)
+
+        DigitIs := TruncateCustom(IP,Division,0)
+        DI,_ := DigitIs.Int64()
+        DigitIsString := strconv.Itoa(int(DI))
+        SliceStr = append(SliceStr,DigitIsString)
+
+        Rest := SUBpr(IP,Division,DigitIs)
+        SmallAU := MULpr(IP,Rest,Power)
+	ToSequence = SmallAU
+    }
+    return SliceStr
+}
+//================================================
+//
+// Function 20c - CPAmountConv2Print
+//
+// CPAmountConv2Print converts CryptoPlasm amount into a string
+// to be used for printing purposes.
+// For now only a "." as decimal character is implemented.
+// Different Schemas can be added (for instance using coma<,> as decimal separator
+// instead of point<.>; Or using points for thousand separator,
+// or even separating at 2 position for Lakhs and Crores.
+func CPAmountConv2Print (cpAmount *firefly.Decimal) string {
+    var (
+    	StringResult string
+	ComaPosition int32
+    )
+    AU := CPConvert2AU(cpAmount)
+    SliceStr := YoctoPlasm2String(AU)
+    NumberDigits := Count4Coma(AU)
+
+    if NumberDigits <= 25 {
+	ComaPosition = 1
+    } else {
+	ComaPosition = int32(NumberDigits) - 24
+    }
+
+    SliceStr = append(SliceStr,"")
+    copy(SliceStr[ComaPosition+1:],SliceStr[ComaPosition:])
+    SliceStr[ComaPosition] = ","
+
+    for i := 0; i < len(SliceStr); i++ {
+        StringResult = StringResult + SliceStr[i]
+    }
+    return StringResult
 }

@@ -138,7 +138,7 @@ Transaction size and Output Number are required as well`
 		Fee := b.FeePerByte(*flagPFE)
 		fmt.Println("")
 		fmt.Println("FeePerByte for BlockHeight", *flagPFE, "is:")
-		fmt.Println(Fee, "CP")
+		fmt.Println(b.CPAmountConv2Print(Fee), "CP")
 		elapsed := time.Since(start)
 		fmt.Println("Computing the FeePerByte took", elapsed)
 	}

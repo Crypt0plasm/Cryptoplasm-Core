@@ -1,9 +1,8 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
-	firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
-	"fmt"
-	"math"
+    firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
+    "fmt"
 )
 //================================================
 //
@@ -30,21 +29,14 @@ func FeePerByte(BlockHeight uint64) *firefly.Decimal {
 	var FpB = new(firefly.Decimal)
 	BH := firefly.NFI(int64(BlockHeight))
 
-	BHDigitsNumber := Count4Coma(BH)     //int64type
-	THDigitsNumber := Count4Coma(FpBThr) //int64type
-	//Max only works for floats
-	//Precision can only be uint32
-	Pr := uint32(math.Max(float64(BHDigitsNumber), float64(THDigitsNumber)))
-
-	Difference := SUBpr(Pr, BH, FpBThr)
-	if Difference.Negative == false {
+	if DecimalGreaterThanOrEqual(BH,FpBThr) == true {
 		//This is the case is BH is equal or greater than FeePerByteBHThreshold
 		//FeePerByteBHThreshold is BH 499.950.000
 		//This BH is when the FpBMin will be attained, the minimum FeePerByte.
 		FpB = FpBMin
 	} else {
-		FpBcP := CryptoplasmCurrencyPrecision //FpB computing Precision
-		FpB = SUBpr(FpBcP, FpBMax, MULpr(FpBcP, BH, FpBInt))
+		FpBcP := CryptoplasmCurrencyPrecision + 1 //FpB computing Precision
+		FpB = TruncToCurrency(SUBpr(FpBcP, FpBMax, MULpr(FpBcP, BH, FpBInt)))
 	}
 	return FpB
 }
@@ -54,13 +46,22 @@ func FeePerByte(BlockHeight uint64) *firefly.Decimal {
 //
 // FeeComputer returns all the possible fees for a given Block Height
 func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*firefly.Decimal {
-	FpB := FeePerByte(BlockHeight)
+    	var digmax uint32
+    	
+    	FpB := FeePerByte(BlockHeight)
 	ON := firefly.NFI(int64(OutputNumber))
 	TS := firefly.NFI(int64(TransactionSize))
 
-	ONd := Count4Coma(ON)
-	TSd := Count4Coma(TS)
-	Pr := uint32(math.Max(float64(TSd), float64(ONd))) + CryptoplasmCurrencyPrecision + 2
+    	xdig := ON.NumDigits()
+    	ydig := TS.NumDigits()
+    	digdiff := xdig - ydig
+    	if digdiff <= 0 {
+		digmax = uint32(ydig)
+    	} else if digdiff >= 0{
+		digmax = uint32(xdig)
+    	}
+
+	Pr := digmax + CryptoplasmCurrencyPrecision + 2
 
 	TransxSizeFee := MULpr(Pr, FpB, TS)
 	BaseOutputFee := MULpr(Pr, FpB, ON)
