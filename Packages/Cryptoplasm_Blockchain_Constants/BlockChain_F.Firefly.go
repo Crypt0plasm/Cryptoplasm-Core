@@ -29,17 +29,8 @@ var c = CryptoplasmPrecisionContext
 // Only works with valid Decimal type numbers.
 func DecimalEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-        digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
-    ComparisonContextPrecision := uint32(digmax) + 1
+    digmax := DigMax(x,y)
+    ComparisonContextPrecision := digmax + 1
 
     Difference := SUBpr(ComparisonContextPrecision, x, y)
     IsThreshold := Difference.IsZero()
@@ -60,17 +51,8 @@ func DecimalEqual(x, y *firefly.Decimal) bool {
 // Only works with valid Decimal type numbers.
 func DecimalNotEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-	digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
-    ComparisonContextPrecision := uint32(digmax) + 1
+    digmax := DigMax(x,y)
+    ComparisonContextPrecision := digmax + 1
 
     Difference := SUBpr(ComparisonContextPrecision, x, y)
     IsThreshold := Difference.IsZero()
@@ -92,17 +74,8 @@ func DecimalNotEqual(x, y *firefly.Decimal) bool {
 // x equals y would return false as in this case x isnt less than y
 func DecimalLessThan(x, y *firefly.Decimal) bool {
     var Result bool
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-	digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
-    ComparisonContextPrecision := uint32(digmax) + 1
+    digmax := DigMax(x,y)
+    ComparisonContextPrecision := digmax + 1
 
     Difference := SUBpr(ComparisonContextPrecision, x, y)
     //IsThreshold := Difference.IsZero()
@@ -124,17 +97,8 @@ func DecimalLessThan(x, y *firefly.Decimal) bool {
 // Only works with valid Decimal type numbers.
 func DecimalLessThanOrEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-	digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
-    ComparisonContextPrecision := uint32(digmax) + 1
+    digmax := DigMax(x,y)
+    ComparisonContextPrecision := digmax + 1
 
     Difference := SUBpr(ComparisonContextPrecision, x, y)
     IsThreshold := Difference.IsZero()
@@ -156,17 +120,8 @@ func DecimalLessThanOrEqual(x, y *firefly.Decimal) bool {
 // x equals y would return false as in this case x isn't less than y
 func DecimalGreaterThan(x, y *firefly.Decimal) bool {
     var Result bool
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-	digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
-    ComparisonContextPrecision := uint32(digmax) + 1
+    digmax := DigMax(x,y)
+    ComparisonContextPrecision := digmax + 1
 
     Difference := SUBpr(ComparisonContextPrecision, y, x)
     //IsThreshold := Difference.IsZero()
@@ -188,16 +143,7 @@ func DecimalGreaterThan(x, y *firefly.Decimal) bool {
 // Only works with valid Decimal type numbers.
 func DecimalGreaterThanOrEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-	digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
+    digmax := DigMax(x,y)
     ComparisonContextPrecision := uint32(digmax) + 1
 
     Difference := SUBpr(ComparisonContextPrecision, y, x)
@@ -211,20 +157,59 @@ func DecimalGreaterThanOrEqual(x, y *firefly.Decimal) bool {
 
     return Result
 }
-//Basic Operations done under CryptoplasmPrecisionContext without
-//Condition and error reporting as supported by Firefly
 //================================================
 //
-// Function 01 - NFS
+// Function 01 - DivInt
 //
-// NFS reads a string and converts it to a firefly decimal type.
-// It has no restriction on precision. Tested Accepted characters are "." and "-" for a negative sign
-func NFS(String2BeRead string) *firefly.Decimal {
-    DecimalNumber,_,_ := firefly.NewFromString(String2BeRead)
-    //Further Tests can be added to detect wrong string construction.
-    //It is always assumed the string number used with this function is of correct construction.
-    return DecimalNumber
+// DivInt returns the integer part of x divided by y
+// It is equal to x // y
+// Returned Value is also of decimal Type
+func DivInt (x, y *firefly.Decimal) *firefly.Decimal {
+    var result = new(firefly.Decimal)
+    digmax := DigMax(x,y)
+    DCP := digmax + 1		//DivisionContextPrecision
+    cc := c.WithPrecision(DCP)
+    _,_ = cc.QuoInteger(result,x,y)
+    return result
 }
+//================================================
+//
+// Function 01 - DivMod
+//
+// DivMod returns the remainder from the division of x to y
+// It is equal to x % y
+// Returned Value is also of decimal Type
+func DivMod (x, y *firefly.Decimal) *firefly.Decimal {
+    var result = new(firefly.Decimal)
+    digmax := DigMax(x,y)
+    DCP := digmax + 1		//DivisionContextPrecision
+    divresult := TruncateCustom(DCP,DivInt(x,y),0)
+    result = SUBpr(DCP,x,MULpr(DCP,y,divresult))
+    return result
+}
+//================================================
+//
+// Function 01 - DigMax
+//
+// DigMax returns maximum between the number of digits of two Decimals
+// Used for autoscaling precision for operations over Decimals
+func DigMax (x, y *firefly.Decimal) uint32 {
+    var digmax int64
+
+    xdig := x.NumDigits()
+    ydig := y.NumDigits()
+    digdiff := xdig - ydig
+    if digdiff <= 0 {
+	digmax = ydig
+    } else if digdiff >= 0{
+	digmax = xdig
+    }
+    return uint32(digmax)
+}
+
+//Basic Operations done under CryptoplasmPrecisionContext without
+//Condition and error reporting as supported by Firefly
+
 //Basic Operations done under CryptoplasmPrecisionContext without
 //Condition and error reporting as supported by Firefly
 //================================================
@@ -632,7 +617,7 @@ func OverspendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
 	DigitsOperatingPrecision := Count4Coma(DND)
 
 	Exponent := SUBpr(uint32(DigitsOperatingPrecision), DND, firefly.NFI(2))
-	e, _ := Exponent.Int64()
+	e := firefly.INT64(Exponent)
 	for i := e; i >= 0; i-- {
 		idec := firefly.NFI(i)
 		Value := MULpr(uint32(DigitsNumber), POWpr(uint32(DigitsNumber), firefly.NFI(10), idec), firefly.NFI(7))
@@ -951,7 +936,7 @@ func YoctoPlasm2String(Number *firefly.Decimal) []string {
         Division := DIVpr(IP,ToSequence,Power)
 
         DigitIs := TruncateCustom(IP,Division,0)
-        DI,_ := DigitIs.Int64()
+        DI := firefly.INT64(DigitIs)
         DigitIsString := strconv.Itoa(int(DI))
         SliceStr = append(SliceStr,DigitIsString)
 

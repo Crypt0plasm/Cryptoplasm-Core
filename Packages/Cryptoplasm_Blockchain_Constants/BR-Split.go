@@ -1,8 +1,28 @@
 package Cryptoplasm_Blockchain_Constants
 
-import firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
+import p "Cryptoplasm-Core/Packages/Firefly_Precision"
 
-func BaseStakingPercent(BlockHeight string) *firefly.Decimal {
+//================================================
+//
+// Func 03 - BlockRewardS
+//
+// BlockRewardS returns the Block Staking Reward % for a given Block-Height
+// The Block-Height Type is string.
+func BaseStakingPercentS(BlockHeightS string) *p.Decimal {
+    //start := time.Now()
+    BHd 	:= p.NFS(BlockHeightS)
+    BSP 	:= BaseStakingPercentD(BHd)
+    return BSP
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 03 - BlockRewardD
+//
+// BlockRewardD returns the Block Staking Reward % for a given Block-Height
+// The Block-Height Type is a decimal.
+func BaseStakingPercentD(BlockHeightD *p.Decimal) *p.Decimal {
     var (
 	Gray	 	= int64(91)
 	PurpleInt,_ 	= Purple.Int64()
@@ -150,98 +170,98 @@ func BaseStakingPercent(BlockHeight string) *firefly.Decimal {
     	YellowArray	= [6][2]int64{No32,No33,No34,No35,No36,No37}
     	OrangeArray	= [6][2]int64{No38,No39,No40,No41,No42,No01}
     	STAr		= [7][6][2]int64{GrayArray,PurpleArray,IndigoArray,BlueArray,GreenArray,YellowArray,OrangeArray}
-    	DecimalBH	= NFS(BlockHeight)
-	BH,_ 		= DecimalBH.Int64()
-
-	BSP		= new(firefly.Decimal)
+	BH 		= BlockHeightD
+	BSP		= new(p.Decimal)
     )
 
-    if STAr[6][5][0] <= BH && BH <= STAr[6][5][1] {
-	BSP,_,_		= firefly.NewFromString("1.1")
-    } else if STAr[0][0][0] <= BH && BH <= STAr[0][0][1] {
-	BSP,_,_		= firefly.NewFromString("2.2")
-    } else if STAr[0][1][0] <= BH && BH <= STAr[0][1][1] {
-	BSP,_,_		= firefly.NewFromString("3.3")
-    } else if STAr[0][2][0] <= BH && BH <= STAr[0][2][1] {
-	BSP,_,_		= firefly.NewFromString("4.4")
-    } else if STAr[0][3][0] <= BH && BH <= STAr[0][3][1] {
-	BSP,_,_		= firefly.NewFromString("5.5")
-    } else if STAr[0][4][0] <= BH && BH <= STAr[0][4][1] {
-	BSP,_,_		= firefly.NewFromString("6.6")
-    } else if STAr[0][5][0] <= BH && BH <= STAr[0][5][1] {
-	BSP,_,_		= firefly.NewFromString("7.7")
-    } else if STAr[1][0][0] <= BH && BH <= STAr[1][0][1] {
-	BSP,_,_		= firefly.NewFromString("8.8")
-    } else if STAr[1][1][0] <= BH && BH <= STAr[1][1][1] {
-	BSP,_,_		= firefly.NewFromString("9.9")
-    } else if STAr[1][2][0] <= BH && BH <= STAr[1][2][1] {
-	BSP,_,_		= firefly.NewFromString("11")
-    } else if STAr[1][3][0] <= BH && BH <= STAr[1][3][1] {
-	BSP,_,_		= firefly.NewFromString("12.1")
-    } else if STAr[1][4][0] <= BH && BH <= STAr[1][4][1] {
-	BSP,_,_		= firefly.NewFromString("13.2")
-    } else if STAr[1][5][0] <= BH && BH <= STAr[1][5][1] {
-	BSP,_,_		= firefly.NewFromString("14.3")
-    } else if STAr[2][0][0] <= BH && BH <= STAr[2][0][1] {
-	BSP,_,_		= firefly.NewFromString("15.4")
-    } else if STAr[2][1][0] <= BH && BH <= STAr[2][1][1] {
-	BSP,_,_		= firefly.NewFromString("16.5")
-    } else if STAr[2][2][0] <= BH && BH <= STAr[2][2][1] {
-	BSP,_,_		= firefly.NewFromString("17.6")
-    } else if STAr[2][3][0] <= BH && BH <= STAr[2][3][1] {
-	BSP,_,_		= firefly.NewFromString("18.7")
-    } else if STAr[2][4][0] <= BH && BH <= STAr[2][4][1] {
-	BSP,_,_		= firefly.NewFromString("19.8")
-    } else if STAr[2][5][0] <= BH && BH <= STAr[2][5][1] {
-	BSP,_,_		= firefly.NewFromString("20.9")
-    } else if STAr[3][0][0] <= BH && BH <= STAr[3][0][1] {
-	BSP,_,_		= firefly.NewFromString("22")
-    } else if STAr[3][1][0] <= BH && BH <= STAr[3][1][1] {
-	BSP,_,_		= firefly.NewFromString("23.1")
-    } else if STAr[3][2][0] <= BH && BH <= STAr[3][2][1] {
-	BSP,_,_		= firefly.NewFromString("24.2")
-    } else if STAr[3][3][0] <= BH && BH <= STAr[3][3][1] {
-	BSP,_,_		= firefly.NewFromString("25.3")
-    } else if STAr[3][4][0] <= BH && BH <= STAr[3][4][1] {
-	BSP,_,_		= firefly.NewFromString("26.4")
-    } else if STAr[3][5][0] <= BH && BH <= STAr[3][5][1] {
-	BSP,_,_		= firefly.NewFromString("27.5")
-    } else if STAr[4][0][0] <= BH && BH <= STAr[4][0][1] {
-	BSP,_,_		= firefly.NewFromString("28.6")
-    } else if STAr[4][1][0] <= BH && BH <= STAr[4][1][1] {
-	BSP,_,_		= firefly.NewFromString("29.7")
-    } else if STAr[4][2][0] <= BH && BH <= STAr[4][2][1] {
-	BSP,_,_		= firefly.NewFromString("30.8")
-    } else if STAr[4][3][0] <= BH && BH <= STAr[4][3][1] {
-	BSP,_,_		= firefly.NewFromString("31.9")
-    } else if STAr[4][4][0] <= BH && BH <= STAr[4][4][1] {
-	BSP,_,_		= firefly.NewFromString("33")
-    } else if STAr[4][5][0] <= BH && BH <= STAr[4][5][1] {
-	BSP,_,_		= firefly.NewFromString("34.1")
-    } else if STAr[5][0][0] <= BH && BH <= STAr[5][0][1] {
-	BSP,_,_		= firefly.NewFromString("35.2")
-    } else if STAr[5][1][0] <= BH && BH <= STAr[5][1][1] {
-	BSP,_,_		= firefly.NewFromString("36.3")
-    } else if STAr[5][2][0] <= BH && BH <= STAr[5][2][1] {
-	BSP,_,_		= firefly.NewFromString("37.4")
-    } else if STAr[5][3][0] <= BH && BH <= STAr[5][3][1] {
-	BSP,_,_		= firefly.NewFromString("38.5")
-    } else if STAr[5][4][0] <= BH && BH <= STAr[5][4][1] {
-	BSP,_,_		= firefly.NewFromString("39.6")
-    } else if STAr[5][5][0] <= BH && BH <= STAr[5][5][1] {
-	BSP,_,_		= firefly.NewFromString("40.7")
-    } else if STAr[6][0][0] <= BH && BH <= STAr[6][0][1] {
-	BSP,_,_		= firefly.NewFromString("41.8")
-    } else if STAr[6][1][0] <= BH && BH <= STAr[6][1][1] {
-	BSP,_,_		= firefly.NewFromString("42.9")
-    } else if STAr[6][2][0] <= BH && BH <= STAr[6][2][1] {
-	BSP,_,_		= firefly.NewFromString("44")
-    } else if STAr[6][3][0] <= BH && BH <= STAr[6][3][1] {
-	BSP,_,_		= firefly.NewFromString("45.1")
-    } else if STAr[6][4][0] <= BH && BH <= STAr[6][4][1] {
-	BSP,_,_		= firefly.NewFromString("46.2")
+    
+    
+    if DecimalLessThanOrEqual(p.NFI(STAr[6][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][5][1])) == true {
+	BSP		= p.NFS("1.1")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[0][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][0][1])) == true {
+	BSP		= p.NFS("2.2")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[0][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][1][1])) == true {
+	BSP		= p.NFS("3.3")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[0][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][2][1])) == true {
+	BSP		= p.NFS("4.4")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[0][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][3][1])) == true {
+	BSP		= p.NFS("5.5")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[0][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][4][1])) == true {
+	BSP		= p.NFS("6.6")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[0][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][5][1])) == true {
+	BSP		= p.NFS("7.7")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[1][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[1][0][1])) == true {
+	BSP		= p.NFS("8.8")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[1][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[1][1][1])) == true {
+	BSP		= p.NFS("9.9")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[1][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[1][2][1])) == true {
+	BSP		= p.NFS("11")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[1][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[1][3][1])) == true {
+	BSP		= p.NFS("12.1")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[1][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[1][4][1])) == true {
+	BSP		= p.NFS("13.2")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[1][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[1][5][1])) == true {
+	BSP		= p.NFS("14.3")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[2][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[2][0][1])) == true {
+	BSP		= p.NFS("15.4")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[2][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[2][1][1])) == true {
+	BSP		= p.NFS("16.5")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[2][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[2][2][1])) == true {
+	BSP		= p.NFS("17.6")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[2][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[2][3][1])) == true {
+	BSP		= p.NFS("18.7")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[2][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[2][4][1])) == true {
+	BSP		= p.NFS("19.8")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[2][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[2][5][1])) == true {
+	BSP		= p.NFS("20.9")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[3][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[3][0][1])) == true {
+	BSP		= p.NFS("22")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[3][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[3][1][1])) == true {
+	BSP		= p.NFS("23.1")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[3][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[3][2][1])) == true {
+	BSP		= p.NFS("24.2")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[3][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[3][3][1])) == true {
+	BSP		= p.NFS("25.3")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[3][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[3][4][1])) == true {
+	BSP		= p.NFS("26.4")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[3][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[3][5][1])) == true {
+	BSP		= p.NFS("27.5")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[4][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[4][0][1])) == true {
+	BSP		= p.NFS("28.6")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[4][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[4][1][1])) == true {
+	BSP		= p.NFS("29.7")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[4][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[4][2][1])) == true {
+	BSP		= p.NFS("30.8")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[4][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[4][3][1])) == true {
+	BSP		= p.NFS("31.9")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[4][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[4][4][1])) == true {
+	BSP		= p.NFS("33")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[4][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[4][5][1])) == true {
+	BSP		= p.NFS("34.1")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[5][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[5][0][1])) == true {
+	BSP		= p.NFS("35.2")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[5][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[5][1][1])) == true {
+	BSP		= p.NFS("36.3")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[5][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[5][2][1])) == true {
+	BSP		= p.NFS("37.4")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[5][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[5][3][1])) == true {
+	BSP		= p.NFS("38.5")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[5][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[5][4][1])) == true {
+	BSP		= p.NFS("39.6")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[5][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[5][5][1])) == true {
+	BSP		= p.NFS("40.7")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[6][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][0][1])) == true {
+	BSP		= p.NFS("41.8")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[6][1][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][1][1])) == true {
+	BSP		= p.NFS("42.9")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[6][2][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][2][1])) == true {
+	BSP		= p.NFS("44")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[6][3][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][3][1])) == true {
+	BSP		= p.NFS("45.1")
+    } else if DecimalLessThanOrEqual(p.NFI(STAr[6][4][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][4][1])) == true {
+	BSP		= p.NFS("46.2")
     } else {
-	BSP,_,_		= firefly.NewFromString("47.3")
+	BSP		= p.NFS("47.3")
     }
 
     return BSP

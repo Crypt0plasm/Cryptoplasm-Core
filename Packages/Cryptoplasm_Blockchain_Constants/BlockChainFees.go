@@ -46,21 +46,12 @@ func FeePerByte(BlockHeight uint64) *firefly.Decimal {
 //
 // FeeComputer returns all the possible fees for a given Block Height
 func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*firefly.Decimal {
-    	var digmax uint32
-    	
+
     	FpB := FeePerByte(BlockHeight)
 	ON := firefly.NFI(int64(OutputNumber))
 	TS := firefly.NFI(int64(TransactionSize))
 
-    	xdig := ON.NumDigits()
-    	ydig := TS.NumDigits()
-    	digdiff := xdig - ydig
-    	if digdiff <= 0 {
-		digmax = uint32(ydig)
-    	} else if digdiff >= 0{
-		digmax = uint32(xdig)
-    	}
-
+    	digmax := DigMax(ON,TS)
 	Pr := digmax + CryptoplasmCurrencyPrecision + 2
 
 	TransxSizeFee := MULpr(Pr, FpB, TS)

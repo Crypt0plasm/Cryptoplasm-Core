@@ -266,12 +266,26 @@ func CryptoplasmGeometricKamelSequence() []string {
 }
 //================================================
 //
+// Func 03 - BlockRewardS
+//
+// BlockRewardS returns the Block Reward for a given Block-Height
+// The Block-Height Type is string.
+func BlockRewardS(BlockHeightS string) *p.Decimal {
+    //start := time.Now()
+    BHd 	:= p.NFS(BlockHeightS)
+    BR 		:= BlockRewardD(BHd)
+    return BR
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
 // Func 03 - BlockReward
 //
 // BlockReward returns the Block Reward for a given Block Height
-func BlockReward(BlockHeight uint64) *p.Decimal {
+func BlockRewardD(BlockHeightD *p.Decimal) *p.Decimal {
 	//start := time.Now()
-	GH := BlockGeometricHeight(BlockHeight)
+	GH := BlockGeometricHeight(BlockHeightD)
 	BR := ConvGH(GH)
 	//elapsed := time.Since(start)
 	//fmt.Println("Computing took", elapsed)
@@ -299,7 +313,6 @@ func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
 	}
 	return TruncatedBR
 }
-
 //================================================
 //
 // Func 03c - BlockGeometricHeight
@@ -307,7 +320,7 @@ func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
 // BlockGeometricHeight returns the geometric height
 // for a given BlockHeight on the Kamel Graph
 // Used to calculate the BlockRewards
-func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
+func BlockGeometricHeight(BlockHeight *p.Decimal) *p.Decimal {
 	//Using uint64 as BlockHeight type makes this following code work
 	//until BH 18.446.744.073.709.551.615. A higher value will overflow
 	//the variable and cause the code to not work
@@ -317,15 +330,16 @@ func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
 	//Implementing ERAs will make this code last until the end of the Universe
 	//1 Era equals 524.596.891 Blocks. Next Block would be Era2.Block1. Rewards will repeat.
 	var (
-		GH             = new(p.Decimal)
-		CryptoplasmDNA = CryptoplasmGeometricKamelSequence()
-		Purples        = BlockHeight / 637
-		Rest           = BlockHeight % 637
+		GH             	= new(p.Decimal)
+		CryptoplasmDNA 	= CryptoplasmGeometricKamelSequence()
+		Purples		= DivInt(BlockHeight,Purple)
+	    	Rest		= DivMod(BlockHeight,Purple)
+	    	RestInt 	= p.INT64(Rest)
 	)
-	if Purples == 0 {
-		GH = Ax[Rest-1]
-	} else if Purples != 0 && Purples <= uint64(len(CryptoplasmDNA)) {
-		for i := 0; i < int(Purples); i++ {
+	if DecimalEqual(Purples,p.NFI(0)) == true {
+		GH = Ax[RestInt-1]
+	} else if DecimalNotEqual(Purples,p.NFI(0)) == true && DecimalLessThanOrEqual(Purples,p.NFI(int64(len(CryptoplasmDNA)))) {
+		for i := 0; i < int(p.INT64(Purples)); i++ {
 			element := CryptoplasmDNA[i]
 			if element == "A" {
 				GH = ADDcp(GH, LastDE(Ax))
@@ -359,41 +373,41 @@ func BlockGeometricHeight(BlockHeight uint64) *p.Decimal {
 				GH = ADDcp(GH, LastDE(Ox))
 			}
 		}
-		GH = SUBcp(GH, MULcp(p.NFI(int64(Purples)), Seed1st))
-		if Rest == 0 {
+		GH = SUBcp(GH, MULcp(Purples, Seed1st))
+		if DecimalEqual(Rest,p.NFI(0)) == true {
 			GH = ADDcp(GH, Seed1st)
-		} else if Purples < uint64(len(CryptoplasmDNA)) {
-			element := CryptoplasmDNA[Purples]
+		} else if DecimalLessThan(Purples,p.NFI(int64(len(CryptoplasmDNA)))) {
+			element := CryptoplasmDNA[p.INT64(Purples)]
 			if element == "A" {
-				GH = ADDcp(GH, Ax[Rest-1])
+				GH = ADDcp(GH, Ax[RestInt-1])
 			} else if element == "B" {
-				GH = ADDcp(GH, Bx[Rest-1])
+				GH = ADDcp(GH, Bx[RestInt-1])
 			} else if element == "C" {
-				GH = ADDcp(GH, Cx[Rest-1])
+				GH = ADDcp(GH, Cx[RestInt-1])
 			} else if element == "D" {
-				GH = ADDcp(GH, Dx[Rest-1])
+				GH = ADDcp(GH, Dx[RestInt-1])
 			} else if element == "E" {
-				GH = ADDcp(GH, Ex[Rest-1])
+				GH = ADDcp(GH, Ex[RestInt-1])
 			} else if element == "F" {
-				GH = ADDcp(GH, Fx[Rest-1])
+				GH = ADDcp(GH, Fx[RestInt-1])
 			} else if element == "G" {
-				GH = ADDcp(GH, Gx[Rest-1])
+				GH = ADDcp(GH, Gx[RestInt-1])
 			} else if element == "H" {
-				GH = ADDcp(GH, Hx[Rest-1])
+				GH = ADDcp(GH, Hx[RestInt-1])
 			} else if element == "I" {
-				GH = ADDcp(GH, Ix[Rest-1])
+				GH = ADDcp(GH, Ix[RestInt-1])
 			} else if element == "J" {
-				GH = ADDcp(GH, Jx[Rest-1])
+				GH = ADDcp(GH, Jx[RestInt-1])
 			} else if element == "K" {
-				GH = ADDcp(GH, Kx[Rest-1])
+				GH = ADDcp(GH, Kx[RestInt-1])
 			} else if element == "L" {
-				GH = ADDcp(GH, Lx[Rest-1])
+				GH = ADDcp(GH, Lx[RestInt-1])
 			} else if element == "M" {
-				GH = ADDcp(GH, Mx[Rest-1])
+				GH = ADDcp(GH, Mx[RestInt-1])
 			} else if element == "N" {
-				GH = ADDcp(GH, Nx[Rest-1])
+				GH = ADDcp(GH, Nx[RestInt-1])
 			} else {
-				GH = ADDcp(GH, Ox[Rest-1])
+				GH = ADDcp(GH, Ox[RestInt-1])
 			}
 		}
 	} else {

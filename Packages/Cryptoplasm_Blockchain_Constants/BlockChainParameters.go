@@ -1,7 +1,7 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
-    firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
+    p "Cryptoplasm-Core/Packages/Firefly_Precision"
     "fmt"
     "time"
 )
@@ -130,90 +130,90 @@ const (
 
 var (
     //
-    // Cryptoplasm Firefly Decimal Context Definition
+    // Cryptoplasm p Decimal Context Definition
     //=============================================================================================
-    CryptoplasmPrecisionContext 	= firefly.Context{
+    CryptoplasmPrecisionContext 	= p.Context{
         Precision:   		CryptoplasmContextPrecision,
-        MaxExponent: 		firefly.MaxExponent,
-        MinExponent: 		firefly.MinExponent,
-        Rounding:    		firefly.RoundDown,
+        MaxExponent: 		p.MaxExponent,
+        MinExponent: 		p.MinExponent,
+        Rounding:    		p.RoundDown,
         // Default error conditions.
-        Traps: 			firefly.InvalidOperation,
+        Traps: 			p.InvalidOperation,
     }
     //
     //
     // Blockchain Premine and Emission variable Declarations
     //=============================================================================================
-    TotalEmission,_,_ 		= firefly.NewFromString(TheoreticalEraEmission)
-    PreMine,_,_       		= firefly.NewFromString(PreMinedAmount)
-    StartBRd,_,_     		= firefly.NewFromString(TheoreticalStartBlockReward)
-    AUs,_,_          		= firefly.NewFromString(AuPerUnit)
+    TotalEmission 		= p.NFS(TheoreticalEraEmission)
+    PreMine       		= p.NFS(PreMinedAmount)
+    StartBRd     		= p.NFS(TheoreticalStartBlockReward)
+    AUs          		= p.NFS(AuPerUnit)
     CamelSupportReward  	= MULcp(White, StartBRd)                            		//Sum of Reward equivalent to the Camel-Support-Area
     CamelReward         	= DIFcp(TotalEmission, PreMine, CamelSupportReward) 		//Sum of Reward equivalent to the Camel Emission only (without its Support)
     //===============================
     //
     // Fee per byte variable Declaration
     //
-    FpBMax,_,_ 			= firefly.NewFromString(MaxFeePerByte)
-    FpBInt,_,_ 			= firefly.NewFromString(FeePerByteDecrement)
-    FpBMin,_,_ 			= firefly.NewFromString(MinFeePerByte)
-    FpBThr,_,_ 			= firefly.NewFromString(FeePerByteBHThreshold)
+    FpBMax 			= p.NFS(MaxFeePerByte)
+    FpBInt 			= p.NFS(FeePerByteDecrement)
+    FpBMin 			= p.NFS(MinFeePerByte)
+    FpBThr 			= p.NFS(FeePerByteBHThreshold)
     //===============================
     //
     // Intervals and Seeds variable Declaration
     //=============================================================================================
-    Purple,_,_ 			= firefly.NewFromString(IntervalPurple)
-    Indigo,_,_ 			= firefly.NewFromString(IntervalIndigo)
-    Blue,_,_   			= firefly.NewFromString(IntervalBlue)
-    Green,_,_  			= firefly.NewFromString(IntervalGreen)
-    Yellow,_,_ 			= firefly.NewFromString(IntervalYellow)
-    Orange,_,_ 			= firefly.NewFromString(IntervalOrange)
-    Red,_,_   			= firefly.NewFromString(IntervalRed)
-    White,_,_  			= firefly.NewFromString(IntervalWhite)
+    Purple 			= p.NFS(IntervalPurple)
+    Indigo 			= p.NFS(IntervalIndigo)
+    Blue   			= p.NFS(IntervalBlue)
+    Green  			= p.NFS(IntervalGreen)
+    Yellow 			= p.NFS(IntervalYellow)
+    Orange 			= p.NFS(IntervalOrange)
+    Red   			= p.NFS(IntervalRed)
+    White  			= p.NFS(IntervalWhite)
     //===============================
-    Seed1st,_,_ 		= firefly.NewFromString(BaseAreaSeed)
-    Seed2nd,_,_ 		= firefly.NewFromString(BaseHeightSeed)
-    Seed3rd,_,_ 		= firefly.NewFromString(CPAreaRatioSeed)
-    Seed4th,_,_ 		= firefly.NewFromString(TotalComputedSum)
-    Seed5th,_,_ 		= firefly.NewFromString(HighestComputedBR)
+    Seed1st 		= p.NFS(BaseAreaSeed)
+    Seed2nd 		= p.NFS(BaseHeightSeed)
+    Seed3rd 		= p.NFS(CPAreaRatioSeed)
+    Seed4th 		= p.NFS(TotalComputedSum)
+    Seed5th 		= p.NFS(HighestComputedBR)
     //===============================
-    Seed01,_,_ 			= firefly.NewFromString(PurpleUpHeightSeed)
-    Seed02,_,_ 			= firefly.NewFromString(PurpleUpAreaSeed)
-    Seed03,_,_ 			= firefly.NewFromString(PurpleDownHeightSeed)
-    Seed04,_,_ 			= firefly.NewFromString(PurpleDownAreaSeed)
+    Seed01 			= p.NFS(PurpleUpHeightSeed)
+    Seed02 			= p.NFS(PurpleUpAreaSeed)
+    Seed03 			= p.NFS(PurpleDownHeightSeed)
+    Seed04 			= p.NFS(PurpleDownAreaSeed)
     //===============================
-    Seed05,_,_ 			= firefly.NewFromString(IndigoUpHeightPeakSeed)
-    Seed06,_,_ 			= firefly.NewFromString(IndigoUpAreaPeakSeed)
-    Seed07,_,_ 			= firefly.NewFromString(IndigoDownHeightPeakSeed)
-    Seed08,_,_ 			= firefly.NewFromString(IndigoDownAreaPeakSeed)
+    Seed05 			= p.NFS(IndigoUpHeightPeakSeed)
+    Seed06 			= p.NFS(IndigoUpAreaPeakSeed)
+    Seed07 			= p.NFS(IndigoDownHeightPeakSeed)
+    Seed08 			= p.NFS(IndigoDownAreaPeakSeed)
     //===============================
-    Seed09,_,_ 			= firefly.NewFromString(BlueUpHeightPeakSeed)
-    Seed10,_,_ 			= firefly.NewFromString(BlueUpAreaPeakSeed)
-    Seed11,_,_ 			= firefly.NewFromString(BlueDownHeightPeakSeed)
-    Seed12,_,_ 			= firefly.NewFromString(BlueDownAreaPeakSeed)
+    Seed09 			= p.NFS(BlueUpHeightPeakSeed)
+    Seed10 			= p.NFS(BlueUpAreaPeakSeed)
+    Seed11 			= p.NFS(BlueDownHeightPeakSeed)
+    Seed12 			= p.NFS(BlueDownAreaPeakSeed)
     //===============================
-    Seed13,_,_ 			= firefly.NewFromString(GreenUpHeightPeakSeed)
-    Seed14,_,_ 			= firefly.NewFromString(GreenUpAreaPeakSeed)
-    Seed15,_,_ 			= firefly.NewFromString(GreenDownHeightPeakSeed)
-    Seed16,_,_ 			= firefly.NewFromString(GreenDownAreaPeakSeed)
+    Seed13 			= p.NFS(GreenUpHeightPeakSeed)
+    Seed14 			= p.NFS(GreenUpAreaPeakSeed)
+    Seed15 			= p.NFS(GreenDownHeightPeakSeed)
+    Seed16 			= p.NFS(GreenDownAreaPeakSeed)
     //===============================
-    Seed17,_,_ 			= firefly.NewFromString(YellowUpHeightPeakSeed)
-    Seed18,_,_ 			= firefly.NewFromString(YellowUpAreaPeakSeed)
-    Seed19,_,_ 			= firefly.NewFromString(YellowDownHeightPeakSeed)
-    Seed20,_,_ 			= firefly.NewFromString(YellowDownAreaPeakSeed)
+    Seed17 			= p.NFS(YellowUpHeightPeakSeed)
+    Seed18 			= p.NFS(YellowUpAreaPeakSeed)
+    Seed19 			= p.NFS(YellowDownHeightPeakSeed)
+    Seed20 			= p.NFS(YellowDownAreaPeakSeed)
     //===============================
-    Seed21,_,_ 			= firefly.NewFromString(OrangeUpHeightPeakSeed)
-    Seed22,_,_ 			= firefly.NewFromString(OrangeUpAreaPeakSeed)
-    Seed23,_,_ 			= firefly.NewFromString(OrangeDownHeightPeakSeed)
-    Seed24,_,_ 			= firefly.NewFromString(OrangeDownAreaPeakSeed)
+    Seed21 			= p.NFS(OrangeUpHeightPeakSeed)
+    Seed22 			= p.NFS(OrangeUpAreaPeakSeed)
+    Seed23 			= p.NFS(OrangeDownHeightPeakSeed)
+    Seed24 			= p.NFS(OrangeDownAreaPeakSeed)
     //===============================
-    Seed25,_,_ 			= firefly.NewFromString(RedUpHeightPeakSeed)
-    Seed26,_,_ 			= firefly.NewFromString(RedUpAreaPeakSeed)
-    Seed27,_,_ 			= firefly.NewFromString(RedDownHeightPeakSeed)
-    Seed28,_,_ 			= firefly.NewFromString(RedDownAreaPeakSeed)
+    Seed25 			= p.NFS(RedUpHeightPeakSeed)
+    Seed26 			= p.NFS(RedUpAreaPeakSeed)
+    Seed27 			= p.NFS(RedDownHeightPeakSeed)
+    Seed28 			= p.NFS(RedDownAreaPeakSeed)
     //===============================
-    Seed29,_,_ 			= firefly.NewFromString(WhiteHeightPeakSeed)
-    Seed30,_,_ 			= firefly.NewFromString(WhiteAreaPeakSeed)
+    Seed29 			= p.NFS(WhiteHeightPeakSeed)
+    Seed30 			= p.NFS(WhiteAreaPeakSeed)
     //===============================
     Seed31 			= PurpleUpPeakSeed
     Seed32 			= PurpleDownPeakSeed
@@ -235,9 +235,9 @@ var (
     // Cryptoplasm Geometric Height Intervals
     //
     //=============================================================================================
-    ngSeed03 			= SUBcp(firefly.NFI(0), Seed03)
-    ngSeed09 			= SUBcp(firefly.NFI(0), Seed09)
-    ngSeed29 			= SUBcp(firefly.NFI(0), Seed29)
+    ngSeed03 			= SUBcp(p.NFI(0), Seed03)
+    ngSeed09 			= SUBcp(p.NFI(0), Seed09)
+    ngSeed29 			= SUBcp(p.NFI(0), Seed29)
     //
     // Geometric Heights List Definition
     //=============================================================================================
@@ -401,24 +401,24 @@ func CryptoplasmIntervals() {
     fmt.Println("Printing took", elapsed)
 }
 
-func ConvertIntervals(interval *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *firefly.Decimal, *firefly.Decimal) {
+func ConvertIntervals(interval *p.Decimal) (*p.Decimal, *p.Decimal, *p.Decimal, *p.Decimal) {
     var (
-        pHours = new(firefly.Decimal)
-        pDays  = new(firefly.Decimal)
-        pYears = new(firefly.Decimal)
+        pHours = new(p.Decimal)
+        pDays  = new(p.Decimal)
+        pYears = new(p.Decimal)
     )
 
-    Years := DIVcp(interval, firefly.NFI(525600))
+    Years := DIVcp(interval, p.NFI(525600))
     _, _ = c.Quantize(pYears, Years, 0)
-    Rest := SUBcp(interval, MULcp(pYears, firefly.NFI(525600)))
+    Rest := SUBcp(interval, MULcp(pYears, p.NFI(525600)))
 
-    Days := DIVcp(Rest, firefly.NFI(1440))
+    Days := DIVcp(Rest, p.NFI(1440))
     _, _ = c.Quantize(pDays, Days, 0)
-    Rest = SUBcp(Rest, MULcp(pDays, firefly.NFI(1440)))
+    Rest = SUBcp(Rest, MULcp(pDays, p.NFI(1440)))
 
-    Hours := DIVcp(Rest, firefly.NFI(60))
+    Hours := DIVcp(Rest, p.NFI(60))
     _, _ = c.Quantize(pHours, Hours, 0)
-    Rest = SUBcp(Rest, MULcp(pHours, firefly.NFI(60)))
+    Rest = SUBcp(Rest, MULcp(pHours, p.NFI(60)))
 
     Minutes := Rest
 
