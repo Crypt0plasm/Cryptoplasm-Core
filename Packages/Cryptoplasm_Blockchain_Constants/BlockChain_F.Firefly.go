@@ -1057,31 +1057,32 @@ func CPAmountConv2Print (cpAmount *firefly.Decimal) string {
     copy(SliceStr[ComaPosition+1:],SliceStr[ComaPosition:])
     SliceStr[ComaPosition] = ","
 
-    //Computing the 1000 Separator positions
-    Difference := NumberDigits - 25
-    if Difference  % 3 == 0 {
-        DigitTier = 1
-    } else if Difference  % 3 == 1 {
-    DigitTier = 2
-    } else if Difference  % 3 == 2{
-    DigitTier = 3
-    }
-    TSNumber := (NumberDigits - 25 ) / 3
+    if NumberDigits >= 28 {
+	//Computing the 1000 Separator positions
+	Difference := NumberDigits - 25
+	if Difference  % 3 == 0 {
+	    DigitTier = 1
+	} else if Difference  % 3 == 1 {
+	    DigitTier = 2
+	} else if Difference  % 3 == 2{
+	    DigitTier = 3
+	}
+	TSNumber := (NumberDigits - 25 ) / 3
 
-    //Adding the 1000 Separator as points
-    for i := 1; i<=int(TSNumber); i++ {
-	PointPosition = (int32(i)-1) * 4 + DigitTier
-	SliceStr = append(SliceStr,"")
-	copy(SliceStr[PointPosition+1:],SliceStr[PointPosition:])
-	SliceStr[PointPosition] = "."
-    }
-
-    //Modifying the 24 decimals
-    if NumberDigits == 24 {
-	NewSlicePositions = NumberDigits + TSNumber + 2
-    } else {
+	//Adding the 1000 Separator as points
+	for i := 1; i<=int(TSNumber); i++ {
+	    PointPosition = (int32(i)-1) * 4 + DigitTier
+	    SliceStr = append(SliceStr,"")
+	    copy(SliceStr[PointPosition+1:],SliceStr[PointPosition:])
+	    SliceStr[PointPosition] = "."
+	}
 	NewSlicePositions = NumberDigits + TSNumber + 1
+    } else if NumberDigits < 28 && NumberDigits > 24 {
+	NewSlicePositions = NumberDigits + 1
+    } else {
+	NewSlicePositions = 26
     }
+
     for i:=0; i<=9; i++{
         var x, y, z, s int
         var Insert string
@@ -1121,8 +1122,9 @@ func CPAmountConv2Print (cpAmount *firefly.Decimal) string {
 	    z = x + 1
 	    Insert = InsertFront
 	}
-
+	//fmt.Println("SliceStr este inainte",SliceStr,i)
 	SliceStr = append(SliceStr,"")
+	//fmt.Println("SliceStr este dupa",SliceStr,i)
 	copy(SliceStr[int(NewSlicePositions)-x:],SliceStr[int(NewSlicePositions)-z:])
 	SliceStr[int(NewSlicePositions)-y] = Insert
 	NewSlicePositions = NewSlicePositions + 1
