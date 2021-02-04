@@ -749,7 +749,6 @@ func CPTxTax(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *fi
 
 	//Setting IP(internal precision) and truncating cpAmount to 24 decimals
 	NumberDigits := Count4Coma(cpAmount)
-	//IP := 2 * CryptoplasmCurrencyPrecision + uint32(NumberDigits)
 	IP := CryptoplasmCurrencyPrecision + uint32(NumberDigits) + 1
 	tcpAmount := TruncToCurrency(cpAmount)
 

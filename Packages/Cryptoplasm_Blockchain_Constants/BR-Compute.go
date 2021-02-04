@@ -21,6 +21,10 @@ import (
 //	03c - ConvGH						computes the BR from the Geometric Height
 //	04  - BlockGeometricHeight				computes the Geometric Height from decimal BH
 //	04b - ExportBr						Exports all Block Rewards to a file
+//	05a - BHRewardSumSeqS					Computes BR Sum from string BH sequentially
+//	05b - BHRewardSumSeqD					Computes BR Sum from decimal BH sequentially
+//	05c - BHRewardSumIntS					Computes BR Sum from string BH intermittently
+//	05d - BHRewardSumIntD					Computes BR Sum from decimal BH intermittently
 //
 //================================================
 //
@@ -452,7 +456,7 @@ func ExportBr(Name string) {
 	//UsedName := fmt.Sprintf("BlockRewardsGolang_%d.txt", CryptoplasmContextPrecision)
 	fmt.Println("")
 	fmt.Println("Creating ", Name, "..., exporting started...,")
-	fmt.Println("Please be patient as the first Blue Interval is computed...")
+	fmt.Println("Please be patient as the first Green Interval is computed...")
 	fmt.Println("")
 	OutputFile, err := os.Create(Name)
 	if err != nil {
@@ -464,8 +468,8 @@ func ExportBr(Name string) {
 		if (i+1)%343 == 0 {
 			Periods := (i + 1) / 343
 			intermediary := time.Since(start)
-			BlocksNo := 31213 * Periods
-			fmt.Println("Written", Periods, "/2041 Blue Periods, ", BlocksNo, "Blocks, Elapsed Time ", intermediary)
+			BlocksNo := int(p.INT64(Green)) * Periods
+			fmt.Println("Written", Periods, "/2041 Green Periods, ", BlocksNo, "Blocks, Elapsed Time ", intermediary)
 			//defer timeTrack(time.Now(), "Written")
 		}
 		element := CryptoplasmDNA[i]
@@ -626,4 +630,544 @@ func ExportBr(Name string) {
 	fmt.Println("=========================================================")
 	elapsed := time.Since(start)
 	fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 05a - BHRewardSumSeqS
+//
+// BHRewardSumSeqS returns the Reward Sum for the given BlockHeight
+// when BlockHeight as input is a String. Method used is sequentially.
+// The recommended method to compute the Reward Sum for a given Block Height
+func BHRewardSumSeqS(BlockHeightS string) *p.Decimal {
+    //start := time.Now()
+    BHd 	:= p.NFS(BlockHeightS)
+    Sum		:= BHRewardSumSeqD(BHd)
+    return Sum
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+
+//================================================
+//
+// Func 04b - BHRewardSumSeqD
+//
+// BHRewardSumSeqD returns the Reward Sum for the given BlockHeight
+// when BlockHeight as input is of Decimal type. Method used is sequentially.
+// The recommended method to compute the Reward Sum for a given Block Height
+func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
+    start := time.Now()
+    var (
+	GH             	= new(p.Decimal)
+	BR             	= new(p.Decimal)
+	B              	= new(p.Decimal)
+	S              	= new(p.Decimal)
+	SP		uint32
+	Ipr		int64
+	CryptoplasmDNA 	= CryptoplasmGeometricKamelSequence()
+	Purples		= DivInt(BlockHeightD,Purple)
+	Rest		= DivMod(BlockHeightD,Purple)
+	RestInt 	= p.INT64(Rest)
+    )
+
+    Ipr = Count4Coma(Purples)		//iprecision
+    i := p.NFI(0)
+    SP = 4 + CryptoplasmCurrencyPrecision
+
+    for DecimalLessThanOrEqual(i,Purples) == true {
+
+	if DecimalEqual(DivMod(ADDpr(uint32(Ipr),i,p.NFI(1)),p.NFI(343)),p.NFI(0)) == true {
+	    fmt.Println("i este", i)
+	    Periods := DIVcp(ADDpr(uint32(Ipr),i,p.NFI(1)),p.NFI(343))
+	    intermediary := time.Since(start)
+
+	    //BlocksNoPr := uint32(Count4Coma(Periods)) + 6
+	    BlocksNo := MULcp(Green,Periods)
+
+	    fmt.Println("Written", Periods, "/2041 Green Periods, ", BlocksNo, "Blocks, Elapsed Time ", intermediary)
+	    //defer timeTrack(time.Now(), "Written")
+	}
+	element := CryptoplasmDNA[p.INT64(i)]
+	if element == "A" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Ax[j])
+		    BR = ConvGH(GH)
+		    //fmt.Println("Bloku e",BR)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Ax[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "B" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Bx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Bx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "C" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Cx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Cx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "D" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Dx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Dx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "E" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Ex[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Ex[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "F" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Fx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Fx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "G" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Gx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Gx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "H" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Hx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Hx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "I" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Ix[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Ix[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "J" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Jx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Jx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "K" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Kx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Kx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "L" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Lx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Lx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "M" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Mx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Mx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "N" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Nx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Nx[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	} else if element == "O" {
+	    if DecimalEqual(i,Purples) == true {
+		for j := 0; j < int(RestInt); j++ {
+		    GH = ADDcp(B, Ox[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    } else {
+		for j := 0; j < 637; j++ {
+		    GH = ADDcp(B, Ox[j])
+		    BR = ConvGH(GH)
+
+		    S = ADDpr(SP,S,BR)
+		    SumNumberDigits := Count4Coma(S)
+		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
+
+		    if j == 636 {
+			B = SUBcp(GH, Seed1st)
+		    }
+		}
+	    }
+	}
+
+	//Incrementing i
+	i = ADDpr(uint32(Ipr),i,p.NFI(1))
+    }
+    elapsed := time.Since(start)
+    fmt.Println("Computing took", elapsed)
+    fmt.Println("Computing Sum sequentially for BH",BlockHeightD,"took", elapsed, "and is ",S)
+    return S
+}
+
+//================================================
+//
+// Func 05c - BHRewardSumIntS
+//
+// BHRewardSumIntS returns the Reward Sum for the given BlockHeight
+// when BlockHeight as input is a String. Method used is intermittently.
+// This method isn't recommended to compute the Reward Sum for a given Block Height
+// As it is several orders of magnitude slower than the sequential method
+// The logic behind this method can be used when a single Block-Reward must be computed.
+func BHRewardSumIntS(BlockHeightS string) *p.Decimal {
+    //start := time.Now()
+    BHd 	:= p.NFS(BlockHeightS)
+    Sum		:= BHRewardSumIntD(BHd)
+    return Sum
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 05d - BHRewardSumIntS
+//
+// BHRewardSumIntS returns the Reward Sum for the given BlockHeight
+// when BlockHeight as input is a Decimal. Method used is intermittently.
+// This method isn't recommended to compute the Reward Sum for a given Block Height
+// As it is several orders of magnitude slower than the sequential method
+// The logic behind this method can be used when a single Block-Reward must be computed.
+func BHRewardSumIntD(BlockHeightD *p.Decimal) *p.Decimal {
+    start := time.Now()
+    var BrSum = new(p.Decimal)
+
+    BHDigits := Count4Coma(BlockHeightD)	//Count4Coma can be used because BlockHeightD has no decimals
+    i := p.NFI(1)
+    BrSum = BlockRewardD(i)
+    //fmt.Println("Primu Block adunat e",BrSum)
+
+    SumNumberDigits := Count4Coma(BrSum)
+    SP := CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 1
+    i = ADDpr(uint32(BHDigits),i,p.NFI(1))
+
+    for DecimalLessThanOrEqual(i,BlockHeightD) == true {
+        fmt.Println("Adding BlockReward at BH,",i,"...")
+        BR2add := BlockRewardD(i)
+	//fmt.Println("Bloku adaugat e",BR2add)
+	BrSum = ADDpr(SP,BrSum,BR2add)
+	SumNumberDigits = Count4Coma(BrSum)
+	SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 1
+	i = ADDpr(uint32(BHDigits),i,p.NFI(1))
+    }
+    elapsed := time.Since(start)
+    fmt.Println("Computing Sum intermittently for BH",BlockHeightD,"took", elapsed, "and is ",BrSum)
+    return BrSum
 }
