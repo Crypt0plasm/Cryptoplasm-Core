@@ -5,9 +5,18 @@ import (
     "fmt"
     "time"
 )
-
-//Setting Cryptoplasm Math Precision:
-//Context Name is CryptoplasmPrecision
+//
+//	BlockChainParameters.go		                Cryptoplasm Blockchain Parameters variable and constants
+//
+//================================================
+// Function List
+//
+//	01  - CryptoplasmDecimalSeedPrinter		prints the Decimal Seeds
+//      02  - CryptoplasmIntegerSeedPrinter             prints the Integer Seeds
+//      03  - CryptoplasmIntervals                      prints Cryptoplasm time intervals
+//      03b - ConvertIntervals                          converts interval duration in time duration.
+//
+//=================================================================================================
 
 //BlockChain Intervals
 const (
@@ -171,11 +180,11 @@ var (
     Red   			= p.NFS(IntervalRed)
     White  			= p.NFS(IntervalWhite)
     //===============================
-    Seed1st 		= p.NFS(BaseAreaSeed)
-    Seed2nd 		= p.NFS(BaseHeightSeed)
-    Seed3rd 		= p.NFS(CPAreaRatioSeed)
-    Seed4th 		= p.NFS(TotalComputedSum)
-    Seed5th 		= p.NFS(HighestComputedBR)
+    Seed1st 		        = p.NFS(BaseAreaSeed)
+    Seed2nd 		        = p.NFS(BaseHeightSeed)
+    Seed3rd 		        = p.NFS(CPAreaRatioSeed)
+    Seed4th 		        = p.NFS(TotalComputedSum)
+    Seed5th 		        = p.NFS(HighestComputedBR)
     //===============================
     Seed01 			= p.NFS(PurpleUpHeightSeed)
     Seed02 			= p.NFS(PurpleUpAreaSeed)
@@ -287,7 +296,11 @@ var (
     //Miasma_List = [ 5, 35, 2000,14000]
 
 )
-
+//================================================
+//
+// Function 01 - CryptoplasmDecimalSeedPrinter
+//
+// CryptoplasmDecimalSeedPrinter prints all the Decimal Seeds
 func CryptoplasmDecimalSeedPrinter() {
     start := time.Now()
     fmt.Println("=======PRIMARY DECIMAL SEEDS============================")
@@ -336,7 +349,11 @@ func CryptoplasmDecimalSeedPrinter() {
     elapsed := time.Since(start)
     fmt.Println("Printing took", elapsed)
 }
-
+//================================================
+//
+// Function 02 - CryptoplasmIntegerSeedPrinter
+//
+// CryptoplasmIntegerSeedPrinter prints all the Decimal Seeds
 func CryptoplasmIntegerSeedPrinter() {
     start := time.Now()
     fmt.Println("=======INTEGER SEEDS====================================")
@@ -359,7 +376,11 @@ func CryptoplasmIntegerSeedPrinter() {
     elapsed := time.Since(start)
     fmt.Println("Printing took", elapsed)
 }
-
+//================================================
+//
+// Function 03 - CryptoplasmIntervals
+//
+// CryptoplasmIntervals prints the Cryptoplasm Time Intervals
 func CryptoplasmIntervals() {
     start := time.Now()
     fmt.Println("=======Cryptoplasm Intervals======================================================")
@@ -400,7 +421,11 @@ func CryptoplasmIntervals() {
     elapsed := time.Since(start)
     fmt.Println("Printing took", elapsed)
 }
-
+//================================================
+//
+// Function 03b - ConvertIntervals
+//
+// ConvertIntervals converts interval duration in time duration
 func ConvertIntervals(interval *p.Decimal) (*p.Decimal, *p.Decimal, *p.Decimal, *p.Decimal) {
     var (
         pHours = new(p.Decimal)

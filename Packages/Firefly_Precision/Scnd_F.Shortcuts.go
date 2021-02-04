@@ -1,6 +1,15 @@
 package Firefly_Precision
-
 //
+//	Scnd_F.Shortcuts.go					Secondary Function Shortcuts
+//
+//================================================
+// 	Function List:
+//
+//	01 - NFS						new from string
+//	02 - NFI						new from integer
+//	03 - INT64						decimal to int64
+//
+//================================================
 // Shortcuts functions of Main Functions
 // Eases up function usage, discarding the Condition and Error outputs
 //

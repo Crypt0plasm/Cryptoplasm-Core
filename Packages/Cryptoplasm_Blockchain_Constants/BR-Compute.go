@@ -7,7 +7,21 @@ import (
 	"os"
 	"time"
 )
-
+//
+//	BR_Compute.go						Block Reward Compute Functions
+//
+//================================================
+// 	Function List:
+//
+//	01  - CryptoplasmPrimaryGeometricListing		creates list if geometric heights
+//	01b - CryptoplasmSecondaryGeometricListing		creates list if geometric heights
+//	02  - CryptoplasmGeometricKamelSequence			creates the Kamel DNA
+//	03  - BlockRewardS					computes BR from BH as string
+//	03b - BlockRewardD					computes BR from BH as decimal
+//	03c - ConvGH						computes the BR from the Geometric Height
+//	04  - BlockGeometricHeight				computes the Geometric Height from decimal BH
+//	04b - ExportBr						Exports all Block Rewards to a file
+//
 //================================================
 //
 // Slices/Lists Functions
@@ -70,10 +84,9 @@ func CryptoplasmSecondaryGeometricListing(x1 int, x2, x3 *p.Decimal) []*p.Decima
 	ResultList := AppDec(SliceFront, RevSlice)
 	return ResultList
 }
-
 //================================================
 //
-// Func 02 - CryptoplasmGeometricKamelSequence
+// Func 03 - CryptoplasmGeometricKamelSequence
 //
 // Creates the Geometric Kamel Sequences upon which
 // the BlockRewards are computed. Result is a slice
@@ -280,9 +293,9 @@ func BlockRewardS(BlockHeightS string) *p.Decimal {
 }
 //================================================
 //
-// Func 03 - BlockReward
+// Func 03b - BlockRewardD
 //
-// BlockReward returns the Block Reward for a given Block Height
+// BlockRewardD returns the Block Reward for a given Block Height
 func BlockRewardD(BlockHeightD *p.Decimal) *p.Decimal {
 	//start := time.Now()
 	GH := BlockGeometricHeight(BlockHeightD)
@@ -293,7 +306,7 @@ func BlockRewardD(BlockHeightD *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Func 03b - ConvGH
+// Func 03c - ConvGH
 //
 // ConvGH returns the Block Reward for a Geometric Height
 func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
@@ -315,7 +328,7 @@ func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Func 03c - BlockGeometricHeight
+// Func 04 - BlockGeometricHeight
 //
 // BlockGeometricHeight returns the geometric height
 // for a given BlockHeight on the Kamel Graph
@@ -421,7 +434,7 @@ func BlockGeometricHeight(BlockHeight *p.Decimal) *p.Decimal {
 
 //================================================
 //
-// Func 4 - ExportBr
+// Func 04b - ExportBr
 //
 // ExportBR exports the whole 524.596.891 BlockRewards
 // to an output file.

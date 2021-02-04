@@ -5,7 +5,8 @@ import (
 	firefly "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"flag"
 	"fmt"
-	"time"
+    "strings"
+    "time"
 )
 
 func main() {
@@ -66,25 +67,36 @@ Transaction size and Output Number are required as well`
 	flag.Parse()
 
 	if *flagVer == true {
+	    	fmt.Println("")
 		fmt.Println("CryptoPlasm Demo version:", version)
+	    	fmt.Println("")
 	}
 	if *flagCDS == true {
+	    	fmt.Println("")
 		fmt.Println("Computing and Printing Secondary and Primary Decimal Seeds")
+	    	fmt.Println("")
 		b.CryptoplasmDecimalSeedComputer()
 	}
 	if *flagPSD == true {
+	    	fmt.Println("")
 		fmt.Println("Printing Primary and Secondary Decimal Seeds")
+	    	fmt.Println("")
 		b.CryptoplasmDecimalSeedPrinter()
 	}
 	if *flagPSI == true {
+	    	fmt.Println("")
 		fmt.Println("Printing Integer Seeds")
+	    	fmt.Println("")
 		b.CryptoplasmIntegerSeedPrinter()
 	}
 	if *flagPIN == true {
+	    	fmt.Println("")
 		fmt.Println("Printing Intervals")
+	    	fmt.Println("")
 		b.CryptoplasmIntervals()
 	}
 	if *flagEBR == true {
+	    	fmt.Println("")
 		fmt.Println("Exporting BlockRewards:")
 		var answer, filename string
 		fmt.Println("Are you sure you want to export all 524.596.891 BlockRewards ?")
@@ -108,30 +120,33 @@ Transaction size and Output Number are required as well`
 	if *flagCUS != "0" {
 		cpAmount, _, _ := firefly.NewFromString(*flagCUS)
 		tcpAmount := b.TruncToCurrency(cpAmount)
-		FPM, AF, R := b.CPSend(cpAmount)
-		fmt.Println("Sending", tcpAmount, "CP, will cost an Amount-Fee of", FPM, "promille")
-		fmt.Println("The Amount-Fee amounts to", AF, "CP")
-		fmt.Println("You send", tcpAmount, "CP, the Recipient gets", R, "CP")
+		FPM, AF, R := b.CPTxTax(cpAmount)
+		fmt.Println("")
+		fmt.Println("Sending", b.CPAmountConv2Print(tcpAmount), "CP, will cost an Amount-Fee of", FPM, "promille")
+		fmt.Println("The Tx-Tax amounts to", b.CPAmountConv2Print(AF), "CP")
+		fmt.Println("You send", b.CPAmountConv2Print(tcpAmount), "CP, the Recipient gets", b.CPAmountConv2Print(R), "CP")
 	}
 	if *flagCOS != "0" {
 		cpAmount, _, _ := firefly.NewFromString(*flagCOS)
 		tcpAmount := b.TruncToCurrency(cpAmount)
 		PerfectOverSend := b.CPOverSend(cpAmount)
 
-	    	FPMx, AFx, Rx := b.CPSend(PerfectOverSend)
+	    	FPMx, AFx, Rx := b.CPTxTax(PerfectOverSend)
+	    	x := len(b.CPAmountConv2Print(tcpAmount)) - len(b.CPAmountConv2Print(AFx))
+	    	DisplayOffset := strings.Repeat(" ",x-1)
 	    	fmt.Println("")
-	    	fmt.Println("The Tx-Tax for:", tcpAmount, "CP")
-	    	fmt.Println("is equal to ...", AFx, "CP")
+	    	fmt.Println("The Tx-Tax for:",b.CPAmountConv2Print(tcpAmount), "CP")
+	    	fmt.Println("is equal to ...",DisplayOffset,b.CPAmountConv2Print(AFx), "CP")
 	    	fmt.Println("and represents:", FPMx, "promille")
 	    	fmt.Println("")
-	    	fmt.Println("For the Recipient to get", tcpAmount, "CP")
-	    	fmt.Println("A send of a total of....", PerfectOverSend, "CP, is required")
+	    	fmt.Println("For the Recipient to get", b.CPAmountConv2Print(tcpAmount), "CP")
+	    	fmt.Println("A send of a total of....", b.CPAmountConv2Print(PerfectOverSend), "CP, is required")
 	    	fmt.Println("")
 		fmt.Println("VERIFICATION:")
-		fmt.Println("The inputted Amount of CP...........:",tcpAmount, "must be equal to")
-	    	fmt.Println("The amount the Recipient gets.......:",Rx)
+		fmt.Println("The inputted Amount of CP...........:",b.CPAmountConv2Print(tcpAmount), "must be equal to")
+	    	fmt.Println("The amount the Recipient gets.......:",b.CPAmountConv2Print(Rx))
 		fmt.Println("Which was computed using the resulted PerfectOverSend.")
-		fmt.Println("PerfectOverSend is the big amount of:",PerfectOverSend)
+		fmt.Println("PerfectOverSend is the big amount of:",b.CPAmountConv2Print(PerfectOverSend))
 	}
 	if *flagPFE != 0 {
 		start := time.Now()
