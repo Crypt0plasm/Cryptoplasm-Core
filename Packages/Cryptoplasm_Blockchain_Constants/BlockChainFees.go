@@ -9,25 +9,11 @@ import (
 // Function 01 - FeePerByte
 //
 // FeePerByte returns the Fee per Byte for the given BlockHeight
-func FeePerByte(BlockHeight uint64) *firefly.Decimal {
-	//uint64 means BlockHeight can go as high as 18.446.744.073.709.551.615
-	//This BlockHeight would be reached before the End of the Universe,
-	//if we are to consider one Block per minute;
-	//Halfway before that would happen, converting it from uint64 to int64 would
-	//overflow int64 and would break the code.
-	//Also storing the BH in an uint64 would be enough until the End of the Universe.
-
-	//Therefore BlockHeight should be Stored as firefly.Decimal type
-	//with Negative = false, Finite Form = Finite, Exponent = 0
-	//Such a type would be suffice permanently.
-
-	//However implementing ERAs where one ERA represents 524.596.891 Blocks would mean
-	//Using uint64 as BlockHeight Type would suffice until the end of the Universe if
-	//after 524.596.891 Blocks, the BlockNumbers resets. ERAs are not implemented yet
-	//in this code.
-
-	var FpB = new(firefly.Decimal)
-	BH := firefly.NFI(int64(BlockHeight))
+func FeePerByte(BlockHeightS string) *firefly.Decimal {
+	var (
+		FpB 	= new(firefly.Decimal)
+	    	BH	= firefly.NFS(BlockHeightS)
+	)
 
 	if DecimalGreaterThanOrEqual(BH,FpBThr) == true {
 		//This is the case is BH is equal or greater than FeePerByteBHThreshold
@@ -45,7 +31,7 @@ func FeePerByte(BlockHeight uint64) *firefly.Decimal {
 // Function 02 - FeeComputer
 //
 // FeeComputer returns all the possible fees for a given Block Height
-func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*firefly.Decimal {
+func FeeComputer(BlockHeight string, TransactionSize, OutputNumber uint64) [2][3][3]*firefly.Decimal {
 
     	FpB := FeePerByte(BlockHeight)
 	ON := firefly.NFI(int64(OutputNumber))
@@ -100,9 +86,9 @@ func FeeComputer(BlockHeight, TransactionSize, OutputNumber uint64) [2][3][3]*fi
 // Function 03 - TxSimulator
 //
 // TxSimulator simulates a simple transaction
-func TxSimulator(BlockHeight, TransactionSize, OutputNumber uint64, cpAmount *firefly.Decimal) {
+func TxSimulator(BlockHeightS string, TransactionSize, OutputNumber uint64, cpAmount *firefly.Decimal) {
 	tcpAmount := TruncToCurrency(cpAmount)
-	Fees := FeeComputer(BlockHeight, TransactionSize, OutputNumber)
+	Fees := FeeComputer(BlockHeightS, TransactionSize, OutputNumber)
 	AmountValue := AmountTier(tcpAmount)
 
 	if AmountValue == 3 {
@@ -145,22 +131,15 @@ func AmountTier(cpAmount *firefly.Decimal) uint8 {
     var Result uint8
     Ten := firefly.NFI(10)
     One := firefly.NFI(1)
-
-    NumberDigits := Count4Coma(cpAmount)
-    IP := CryptoplasmCurrencyPrecision + uint32(NumberDigits) + 1
     tcpAmount := TruncToCurrency(cpAmount)
 
-    Difference1 := SUBpr(IP, tcpAmount, Ten)
-    IsThreshold1 := Difference1.IsZero()
-    Difference2 := SUBpr(IP, tcpAmount, One)
-    IsThreshold2 := Difference2.IsZero()
-
-    if IsThreshold1 == true || Difference1.Negative == false {
-        Result = 3
-    } else if Difference1.Negative == true && (IsThreshold2 == true || Difference2.Negative == false) {
+    if DecimalGreaterThanOrEqual(tcpAmount,Ten) == true {
+	Result = 3
+    } else if DecimalGreaterThanOrEqual(tcpAmount,One) == true && DecimalLessThan(tcpAmount,Ten) == true {
 	Result = 2
     } else {
-        Result = 1
+	Result = 1
     }
+
     return Result
 }

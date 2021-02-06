@@ -55,8 +55,8 @@ var (
 //		02  - LastDE					Returns the last element in a slice
 //		03  - AppDec					Unites 2 slices made of decimals
 //		04  - Reverse					Reverses a slice of decimals
-//		04  - PrintDL					Prints the "decimals" from a slice of strings
-//		04  - WriteList					Writes strings from a slice to an external file
+//		05  - PrintDL					Prints the "decimals" from a slice of strings
+//		06  - WriteList					Writes strings from a slice to an external file
 //	08 Digit Manipulation Functions
 //		01  - RemoveDecimals				removes the decimals of a number, uses floor function
 //		02  - Count4Coma				Counts the number of digits before precision

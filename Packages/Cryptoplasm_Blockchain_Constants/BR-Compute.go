@@ -1,30 +1,33 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
-	p "Cryptoplasm-Core/Packages/Firefly_Precision"
-	"fmt"
-	"log"
-	"os"
-	"time"
+    p "Cryptoplasm-Core/Packages/Firefly_Precision"
+    "fmt"
+    "log"
+    "os"
+    "time"
 )
 //
-//	BR_Compute.go						Block Reward Compute Functions
+//	BR_Compute.go					Block Reward Compute Functions
 //
 //================================================
 // 	Function List:
 //
-//	01  - CryptoplasmPrimaryGeometricListing		creates list if geometric heights
-//	01b - CryptoplasmSecondaryGeometricListing		creates list if geometric heights
-//	02  - CryptoplasmGeometricKamelSequence			creates the Kamel DNA
-//	03  - BlockRewardS					computes BR from BH as string
-//	03b - BlockRewardD					computes BR from BH as decimal
-//	03c - ConvGH						computes the BR from the Geometric Height
-//	04  - BlockGeometricHeight				computes the Geometric Height from decimal BH
-//	04b - ExportBr						Exports all Block Rewards to a file
-//	05a - BHRewardSumSeqS					Computes BR Sum from string BH sequentially
-//	05b - BHRewardSumSeqD					Computes BR Sum from decimal BH sequentially
-//	05c - BHRewardSumIntS					Computes BR Sum from string BH intermittently
-//	05d - BHRewardSumIntD					Computes BR Sum from decimal BH intermittently
+//	01  - CryptoplasmPrimaryGeometricListing	creates list if geometric heights
+//	01b - CryptoplasmSecondaryGeometricListing	creates list if geometric heights
+//	02  - CryptoplasmGeometricKamelSequence		creates the Kamel DNA
+//	03  - BlockRewardS				computes BR from BH as string
+//	03b - BlockRewardD				computes BR from BH as decimal
+//	03c - ConvGH					computes the BR from the Geometric Height
+//	04  - BlockGeometricHeight			computes the Geometric Height from decimal BH
+//	04b - ExportBr					Exports all Block Rewards to a file
+//	05a - BHRewardSeqSumS				Computes BR Sum from string BH sequentially
+//	05b - BHRewardSeqSumD				Computes BR Sum from decimal BH sequentially
+//	05c - BHRewardSeqSumCheckpointS			Computes BR Sum at specific Checkpoints, Checkpoint string
+//	05d - BHRewardSeqSumCheckpointD			Computes BR Sum at specific Checkpoints, Checkpoint decimal
+//	05e - BHRewardAdder				The Sequential BR sum computer
+//	05f - BHRewardIntSumS				Computes BR Sum from string BH intermittently. Slow !!!
+//	05g - BHRewardIntSumD				Computes BR Sum from decimal BH intermittently. Slow !!!
 //
 //================================================
 //
@@ -633,57 +636,121 @@ func ExportBr(Name string) {
 }
 //================================================
 //
-// Func 05a - BHRewardSumSeqS
+// Func 05a - BHRewardSeqSumS
 //
-// BHRewardSumSeqS returns the Reward Sum for the given BlockHeight
+// BHRewardSeqSumS returns the Block-Reward Sum for the given BlockHeight;
 // when BlockHeight as input is a String. Method used is sequentially.
 // The recommended method to compute the Reward Sum for a given Block Height
-func BHRewardSumSeqS(BlockHeightS string) *p.Decimal {
+func BHRewardSeqSumS(BlockHeightS string) *p.Decimal {
     //start := time.Now()
     BHd 	:= p.NFS(BlockHeightS)
-    Sum		:= BHRewardSumSeqD(BHd)
+    CPd		:= BHd
+    SumSlice	:= BHRewardAdder(BHd,CPd)
+    Sum := SumSlice[0]
     return Sum
     //elapsed := time.Since(start)
     //fmt.Println("Computing took", elapsed)
 }
-
 //================================================
 //
-// Func 04b - BHRewardSumSeqD
+// Func 05b - BHRewardSeqSumD
 //
-// BHRewardSumSeqD returns the Reward Sum for the given BlockHeight
+// BHRewardSeqSumD returns the Block-Reward Sum for the given BlockHeight;
+// when BlockHeight as input is a Decimal. Method used is sequentially.
+// The recommended method to compute the Reward Sum for a given Block Height
+func BHRewardSeqSumD(BlockHeightD *p.Decimal) *p.Decimal {
+    //start := time.Now()
+    BHd 	:= BlockHeightD
+    CPd		:= BlockHeightD
+    SumSlice	:= BHRewardAdder(BHd,CPd)
+    Sum := SumSlice[0]
+    return Sum
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 05c - BHRewardSeqSumCheckpointS
+//
+// BHRewardSeqSumCheckpointS returns multiple BlockReward Sums, computed each
+// inputted  BlockHeightCheckpoint - for the whole Emission Period (524.596.891 Blocks);
+// when BlockHeightCheckpoint as input is a String. Method used is sequentially.
+func BHRewardSeqSumCheckpointS(BlockHeightCheckpointS string) []*p.Decimal {
+    //start := time.Now()
+    BHd 	:= p.NFI(524596891)
+    CPd 	:= p.NFS(BlockHeightCheckpointS)
+    SumSlice	:= BHRewardAdder(BHd,CPd)
+    // Either Print oder List String list
+    return SumSlice
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 05d - BHRewardSeqSumCheckpointD
+//
+// BHRewardSeqSumCheckpointD returns multiple BlockReward Sums, computed each
+// inputted  BlockHeightCheckpoint - for the whole Emission Period (524.596.891 Blocks);
+// when BlockHeightCheckpoint as input is a Decimal. Method used is sequentially.
+func BHRewardSeqSumCheckpointD(BlockHeightCheckpointD *p.Decimal) []*p.Decimal {
+    //start := time.Now()
+    BHd 	:= p.NFI(524596891)
+    CPd 	:= BlockHeightCheckpointD
+    SumSlice	:= BHRewardAdder(BHd,CPd)
+    // Either Print oder List String list
+    return SumSlice
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 05c - BHRewardAdder
+//
+// BHRewardAdder returns the Reward Sum for the given BlockHeight
 // when BlockHeight as input is of Decimal type. Method used is sequentially.
 // The recommended method to compute the Reward Sum for a given Block Height
-func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
+func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
     start := time.Now()
     var (
-	GH             	= new(p.Decimal)
-	BR             	= new(p.Decimal)
-	B              	= new(p.Decimal)
-	S              	= new(p.Decimal)
-	SP		uint32
-	Ipr		int64
-	CryptoplasmDNA 	= CryptoplasmGeometricKamelSequence()
-	Purples		= DivInt(BlockHeightD,Purple)
-	Rest		= DivMod(BlockHeightD,Purple)
-	RestInt 	= p.INT64(Rest)
+	GH             		= new(p.Decimal)
+	BR             		= new(p.Decimal)
+	B              		= new(p.Decimal)
+	S              		= new(p.Decimal)
+	PurplesIt		= new(p.Decimal)
+	SP			uint32
+	Ipr			int64
+	CryptoplasmDNA 		= CryptoplasmGeometricKamelSequence()
+	GPeriods			= DivInt(BlockHeightD,Green)
+	Purples			= DivInt(BlockHeightD,Purple)
+	Rest			= DivMod(BlockHeightD,Purple)
+	RestInt 		= p.INT64(Rest)
+	CurrentBlock		= new(p.Decimal)
+	SliceSums		[]*p.Decimal
     )
 
-    Ipr = Count4Coma(Purples)		//iprecision
+    BlockHeightDigits := Count4Coma(BlockHeightD)
+    BHp := CryptoplasmCurrencyPrecision + uint32(BlockHeightDigits) + 1
+
+    Ipr = Count4Coma(Purples)		//i-precision
     i := p.NFI(0)
     SP = 4 + CryptoplasmCurrencyPrecision
 
-    for DecimalLessThanOrEqual(i,Purples) == true {
+    if DecimalEqual(Purples,p.NFI(823543)) == true {
+	PurplesIt = SUBpr(BHp,Purples,p.NFI(1))
+    } else {
+        PurplesIt = Purples
+    }
+
+    for DecimalLessThanOrEqual(i,PurplesIt) == true {
 
 	if DecimalEqual(DivMod(ADDpr(uint32(Ipr),i,p.NFI(1)),p.NFI(343)),p.NFI(0)) == true {
-	    fmt.Println("i este", i)
 	    Periods := DIVcp(ADDpr(uint32(Ipr),i,p.NFI(1)),p.NFI(343))
 	    intermediary := time.Since(start)
 
 	    //BlocksNoPr := uint32(Count4Coma(Periods)) + 6
 	    BlocksNo := MULcp(Green,Periods)
 
-	    fmt.Println("Written", Periods, "/2041 Green Periods, ", BlocksNo, "Blocks, Elapsed Time ", intermediary)
+	    fmt.Println("Computed",Periods,"/",GPeriods,"Green Periods,",BlocksNo,"Blocks, Elapsed Time ", intermediary)
 	    //defer timeTrack(time.Now(), "Written")
 	}
 	element := CryptoplasmDNA[p.INT64(i)]
@@ -692,9 +759,12 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		for j := 0; j < int(RestInt); j++ {
 		    GH = ADDcp(B, Ax[j])
 		    BR = ConvGH(GH)
-		    //fmt.Println("Bloku e",BR)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -708,6 +778,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -723,6 +797,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -736,6 +814,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -751,6 +833,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -764,6 +850,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -779,6 +869,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -792,6 +886,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -807,6 +905,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -820,6 +922,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -835,6 +941,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -848,6 +958,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -863,6 +977,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -876,6 +994,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -891,6 +1013,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -904,6 +1030,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -919,6 +1049,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -932,6 +1066,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -947,6 +1085,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -960,6 +1102,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -975,6 +1121,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -988,6 +1138,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1003,6 +1157,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1016,6 +1174,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1031,6 +1193,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1044,6 +1210,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1059,6 +1229,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1072,6 +1246,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1087,6 +1265,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1100,6 +1282,10 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 		    BR = ConvGH(GH)
 
 		    S = ADDpr(SP,S,BR)
+		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
+			SliceSums = append(SliceSums,S)
+		    }
 		    SumNumberDigits := Count4Coma(S)
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
@@ -1113,39 +1299,45 @@ func BHRewardSumSeqD(BlockHeightD *p.Decimal) *p.Decimal{
 	//Incrementing i
 	i = ADDpr(uint32(Ipr),i,p.NFI(1))
     }
-    elapsed := time.Since(start)
-    fmt.Println("Computing took", elapsed)
-    fmt.Println("Computing Sum sequentially for BH",BlockHeightD,"took", elapsed, "and is ",S)
-    return S
+    SliceSums = append(SliceSums,S)
+    //elapsed := time.Since(start)
+    //fmt.Println("Computing took", elapsed)
+    //fmt.Println("Computing Sum sequentially for BH",BlockHeightD,"took", elapsed, "and is ",S)
+    //if DecimalNotEqual(BlockHeightD,CheckPointD) == true && DecimalLessThan(CheckPointD,BlockHeightD) == true {
+    //	fmt.Println("Block-Reward-Sums for every",CheckPointD, "Blocks have been written to ",Name)
+    //} else {
+    //    fmt.Println("No CheckPoint Export file has been created")
+    //}
+    return SliceSums
 }
 
 //================================================
 //
-// Func 05c - BHRewardSumIntS
+// Func 05c - BHRewardIntSumS
 //
-// BHRewardSumIntS returns the Reward Sum for the given BlockHeight
+// BHRewardIntSumS returns the Reward Sum for the given BlockHeight
 // when BlockHeight as input is a String. Method used is intermittently.
 // This method isn't recommended to compute the Reward Sum for a given Block Height
 // As it is several orders of magnitude slower than the sequential method
 // The logic behind this method can be used when a single Block-Reward must be computed.
-func BHRewardSumIntS(BlockHeightS string) *p.Decimal {
+func BHRewardIntSumS(BlockHeightS string) *p.Decimal {
     //start := time.Now()
     BHd 	:= p.NFS(BlockHeightS)
-    Sum		:= BHRewardSumIntD(BHd)
+    Sum		:= BHRewardIntSumD(BHd)
     return Sum
     //elapsed := time.Since(start)
     //fmt.Println("Computing took", elapsed)
 }
 //================================================
 //
-// Func 05d - BHRewardSumIntS
+// Func 05d - BHRewardIntSumD
 //
-// BHRewardSumIntS returns the Reward Sum for the given BlockHeight
+// BHRewardIntSumD returns the Reward Sum for the given BlockHeight
 // when BlockHeight as input is a Decimal. Method used is intermittently.
 // This method isn't recommended to compute the Reward Sum for a given Block Height
 // As it is several orders of magnitude slower than the sequential method
 // The logic behind this method can be used when a single Block-Reward must be computed.
-func BHRewardSumIntD(BlockHeightD *p.Decimal) *p.Decimal {
+func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
     start := time.Now()
     var BrSum = new(p.Decimal)
 
@@ -1161,7 +1353,6 @@ func BHRewardSumIntD(BlockHeightD *p.Decimal) *p.Decimal {
     for DecimalLessThanOrEqual(i,BlockHeightD) == true {
         fmt.Println("Adding BlockReward at BH,",i,"...")
         BR2add := BlockRewardD(i)
-	//fmt.Println("Bloku adaugat e",BR2add)
 	BrSum = ADDpr(SP,BrSum,BR2add)
 	SumNumberDigits = Count4Coma(BrSum)
 	SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 1
