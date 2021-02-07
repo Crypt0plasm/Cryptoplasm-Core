@@ -5,10 +5,9 @@ import (
 	p "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"flag"
 	"fmt"
-    	"log"
-    	"os"
-    	"strings"
-    	"time"
+	"log"
+	"os"
+	"time"
 )
 
 func main() {
@@ -19,27 +18,25 @@ func main() {
 Computes and Prints the Primary and Secondary Decimal Seeds.
 The Decimal Seeds have a 40 decimal precision and are used to compute the BlockRewards.
 `
-	    	CmpTxTaxMinH = `--cmp-tx-tax-min=<cpAmount>
-cpAmount is a string of numbers that must be a valid cpAmount. It can have a decimal form.
-Computes how much the Recipient receives when the Sender pays the minimum Transaction-Tax
-The Tx-Tax is deducted from Recipient's amount. Therefore the Recipient "pays" the Tx-Tax'
-`
-	    	CmpTxTaxMaxH = `--cmp-tx-tax-max=<cpAmount>
+	    	CmpTxTaxH = `--cmp-tx-tax=<cpAmount>
 cpAmount is a String of Numbers that must be a valid cpAmount. It can have a decimal form.
-Computes how much the Sender has to pay when he/she pays the maximum Transaction Tax
-The Tx-Tax is added to the amount to be sent. Therefore the Sender "pays" the Tx-Tax'
+Computes the MIN-Tx-Tax and MAX-Tx-Tax; More information by running it.'
+
 `
 	    	CmpTxFeeH = `--cmp-tx-fee=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Transaction-Fee for the given Block-Height. It represents a FeePerByte cpAmount.
+
 `
 	    	CmpBrH = `--cmp-br=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Block-Reward for the given Block-Height. It represent a cpAmount
+
 `
 	    	CmpSummedBrH = `--cmp-br-sum=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Sum of all the Block-Rewards emitted up to and including the given Block-Height.
+
 `
 	    	ExpTotalsBrH = `--exp-br-all		NO VALUE TO PASS
 Computes and Exports to an external file, all the Block-Rewards for whole White Interval.
@@ -53,6 +50,7 @@ Considering 1 Minute Block-Time, choosing for example 525600 would compute and e
 would be emitted in total, in 1 year intervals. Useful if one wants to plot the resulted numbers to create
 an "Emission Graph" which displays "Total Emission" in year intervals.
 The Computation runs for the Whole White Period - 524.596.891 Blocks, until tail emission.
+
 `
 	    	PrtDeciSeedH = `--prt-seed-decimal	NO VALUE TO PASS
 Prints the Primary and Secondary Decimal Seeds, without computing them, as they are stored in the code.
@@ -70,81 +68,59 @@ Displays their lengths in Blocks and their time in years, days, hours and minute
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints all Transaction-Fee types for the given Block-Height. Normal and Blink Tx-Fees,
 GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
+
 `
 	)
 
 	const (
-		CmpDeciSeed = "cmp-seed-decimal"	// Bool
-	    	CmpTxTaxMin = "cmp-tx-tax-min"		// String - cpAmount
-	    	CmpTxTaxMax = "cmp-tx-tax-max"		// String - cpAmount
-	    	CmpTxFee    = "cmp-tx-fee"		// String - BH
-	    	CmpBr	    = "cmp-br"			// String - BH
-	    	CmpSummedBr = "cmp-br-sum"		// String - BH
-	    	ExpTotalsBr = "exp-br-all"		// Bool
+			CmpDeciSeed = "cmp-seed-decimal"	// Bool
+	    	CmpTxTax 	= "cmp-tx-tax"			// String - cpAmount
+	    	CmpTxFee    = "cmp-tx-fee"			// String - BH
+	    	CmpBr	    = "cmp-br"				// String - BH
+	    	CmpSummedBr = "cmp-br-sum"			// String - BH
+	    	ExpTotalsBr = "exp-br-all"			// Bool
 	    	ExpSumBrCkp = "exp-br-sum-ckp"		// String - BH Interval
 	    	PrtDeciSeed = "prt-seed-decimal"	// Bool
 	    	PrtIntSeed  = "prt-seed-integer"	// Bool
 	    	PrtInterval = "prt-intervals"		// Bool
-	    	SimulateFee = "sml-fee"			// String - BH
+	    	SimulateFee = "sml-fee"				// String - BH
 	)
 
 	FlagCmpDeciSeed := flag.Bool	(CmpDeciSeed,	false,	CmpDeciSeedH)
-    	FlagCmpTxTaxMin := flag.String	(CmpTxTaxMin,	"0", 	CmpTxTaxMinH)
-    	FlagCmpTxTaxMax := flag.String	(CmpTxTaxMax,	"0", 	CmpTxTaxMaxH)
-	FlagCmpTxFee 	:= flag.String	(CmpTxFee,	"0",	CmpTxFeeH)
-	FlagCmpBr	:= flag.String	(CmpBr,		"0",	CmpBrH)
-	FlagCmpSummedBr	:= flag.String	(CmpSummedBr,	"0",	CmpSummedBrH)
-	FlagExpSumBrCkp := flag.String	(ExpSumBrCkp,	"0",	ExpSumBrCkpH)
-    	FlagExpTotalsBr := flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
+	FlagCmpTxTax 	:= flag.String	(CmpTxTax,		"0", 		CmpTxTaxH)
+	FlagCmpTxFee 	:= flag.String	(CmpTxFee,		"0",		CmpTxFeeH)
+	FlagCmpBr		:= flag.String	(CmpBr,			"0",		CmpBrH)
+	FlagCmpSummedBr	:= flag.String	(CmpSummedBr,	"0",		CmpSummedBrH)
+	FlagExpSumBrCkp := flag.String	(ExpSumBrCkp,	"0",		ExpSumBrCkpH)
+	FlagExpTotalsBr := flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
 	FlagPrtDeciSeed := flag.Bool	(PrtDeciSeed,	false,	PrtDeciSeedH)
-    	FlagPrtIntSeed 	:= flag.Bool	(PrtIntSeed,	false,	PrtIntSeedH)
-    	FlagPrtInterval := flag.Bool	(PrtInterval,	false,	PrtIntervalH)
-    	FlagSimulateFee := flag.String	(SimulateFee,	"0",	SimulateFeeH)
-
+	FlagPrtIntSeed 	:= flag.Bool	(PrtIntSeed,	false,	PrtIntSeedH)
+	FlagPrtInterval := flag.Bool	(PrtInterval,	false,	PrtIntervalH)
+	FlagSimulateFee := flag.String	(SimulateFee,	"0",		SimulateFeeH)
+	//
 	flag.Parse()
-
-    	//01)CmpDeciSeed	Bool
-    	if *FlagCmpDeciSeed == true {
+	//
+	//01)CmpDeciSeed	Bool
+	//
+	if *FlagCmpDeciSeed == true {
 		fmt.Println("")
 		fmt.Println("Computing and Printing Secondary and Primary Decimal Seeds")
 		fmt.Println("")
 		b.CryptoplasmDecimalSeedComputer()
-    	}
-    	//02)CmpTxTaxMin	String - cpAmount
-    	if *FlagCmpTxTaxMin != "0" {
-		cpAmount:= p.NFS(*FlagCmpTxTaxMin)
-		tcpAmount := b.TruncToCurrency(cpAmount)
-		FPM, AF, R := b.CPTxTax(cpAmount)
-		fmt.Println("")
-		fmt.Println("Sending", b.CPAmountConv2Print(tcpAmount), "CP, will cost an Amount-Fee of", FPM, "promille")
-		fmt.Println("The Tx-Tax amounts to", b.CPAmountConv2Print(AF), "CP")
-		fmt.Println("You send", b.CPAmountConv2Print(tcpAmount), "CP, the Recipient gets", b.CPAmountConv2Print(R), "CP")
-    	}
-    	//03)CmpTxTaxMax	String - cpAmount
-    	if *FlagCmpTxTaxMax != "0" {
-		cpAmount:= p.NFS(*FlagCmpTxTaxMax)
-		tcpAmount := b.TruncToCurrency(cpAmount)
-		PerfectOverSend := b.CPOverSend(cpAmount)
+	}
+	//
+	//02)CmpTxTaxMax	String - cpAmount
+	//
+	if *FlagCmpTxTax != "0" {
+		cpAmount:= p.NFS(*FlagCmpTxTax)
 
-		FPMx, AFx, Rx := b.CPTxTax(PerfectOverSend)
-		x := len(b.CPAmountConv2Print(tcpAmount)) - len(b.CPAmountConv2Print(AFx))
-		DisplayOffset := strings.Repeat(" ",x-1)
 		fmt.Println("")
-		fmt.Println("The Tx-Tax for:",b.CPAmountConv2Print(tcpAmount), "CP")
-		fmt.Println("is equal to ...",DisplayOffset,b.CPAmountConv2Print(AFx), "CP")
-		fmt.Println("and represents:", FPMx, "promille")
-		fmt.Println("")
-		fmt.Println("For the Recipient to get", b.CPAmountConv2Print(tcpAmount), "CP")
-		fmt.Println("A send of a total of....", b.CPAmountConv2Print(PerfectOverSend), "CP, is required")
-		fmt.Println("")
-		fmt.Println("VERIFICATION:")
-		fmt.Println("The inputted Amount of CP...........:",b.CPAmountConv2Print(tcpAmount), "must be equal to")
-		fmt.Println("The amount the Recipient gets.......:",b.CPAmountConv2Print(Rx))
-		fmt.Println("Which was computed using the resulted PerfectOverSend.")
-		fmt.Println("PerfectOverSend is the big amount of:",b.CPAmountConv2Print(PerfectOverSend))
-    	}
-    	//04)CmpTxFee		String - BH
-    	if *FlagCmpTxFee != "0" {
+		b.TxTaxPrinter(cpAmount)
+	}
+	//
+	//03)CmpTxFee		String - BH
+	//
+	if *FlagCmpTxFee != "0" {
 		start := time.Now()
 		Fee := b.FeePerByte(*FlagCmpTxFee)
 		fmt.Println("")
@@ -152,27 +128,33 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 		fmt.Println(b.CPAmountConv2Print(Fee), "CP")
 		elapsed := time.Since(start)
 		fmt.Println("Computing the FeePerByte took", elapsed)
-    	}
-    	//05)CmpBr		String - BH
-    	if *FlagCmpBr != "0" {
+	}
+	//
+	//04)CmpBr		String - BH
+	//
+	if *FlagCmpBr != "0" {
 		start := time.Now()
 		BR := b.BlockRewardS(*FlagCmpBr)
 		fmt.Println("")
 		fmt.Println("BlockReward for Block-Height", *FlagCmpBr, "is:")
 	    	elapsed := time.Since(start)
 		fmt.Println(b.CPAmountConv2Print(BR),"CP, computed in",elapsed)
-    	}
-    	//06)CmpSummedBr	String - BH
-    	if *FlagCmpSummedBr != "0" {
-	    	fmt.Println("")
-	    	Sum := b.BHRewardSeqSumS(*FlagCmpSummedBr)
-	    	fmt.Println("")
-	    	fmt.Println("Cryptoplasm Emission at Block-Height", *FlagCmpSummedBr,"is:")
-	    	fmt.Println(b.CPAmountConv2Print(Sum))
-	    	fmt.Println("")
 	}
-	//07)ExpSumBrCkp	String - BH Interval
-    	if *FlagExpSumBrCkp != "0" {
+	//
+	//05)CmpSummedBr	String - BH
+	//
+	if *FlagCmpSummedBr != "0" {
+		fmt.Println("")
+		Sum := b.BHRewardSeqSumS(*FlagCmpSummedBr)
+		fmt.Println("")
+		fmt.Println("Cryptoplasm Emission at Block-Height", *FlagCmpSummedBr,"is:")
+		fmt.Println(b.CPAmountConv2Print(Sum))
+		fmt.Println("")
+	}
+	//
+	//06)ExpSumBrCkp	String - BH Interval
+	//
+	if *FlagExpSumBrCkp != "0" {
 	    var answer, answer2, Name string
 	    fmt.Println("")
 	    fmt.Println("Are you sure you want to compute and export Block-Rewards Sum")
@@ -210,12 +192,13 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 		    _, _ = fmt.Fprintln(OutputFile, SumSlice[i])
 		}
 		fmt.Println("Done Writing to file ...")
-
 	    }
-    	}
-	//08)ExpTotalsBr	Bool
-    	if *FlagExpTotalsBr == true {
-	    	var answer, filename string
+	}
+	//
+	//07)ExpTotalsBr	Bool
+	//
+	if *FlagExpTotalsBr == true {
+		var answer, filename string
 		fmt.Println("")
 		fmt.Println("Are you sure you want to export all 524.596.891 BlockRewards ?")
 		fmt.Println("This might take a couple of hours on slower systems....")
@@ -226,29 +209,37 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 	    		_, _ = fmt.Scanln(&filename)
 	    		b.ExportBr(filename)
 		}
-    	}
-    	//09)PrtDeciSeed	Bool
-    	if *FlagPrtDeciSeed == true {
+	}
+	//
+	//08)PrtDeciSeed	Bool
+	//
+	if *FlagPrtDeciSeed == true {
 		fmt.Println("")
 		fmt.Println("Printing Primary and Secondary Decimal Seeds:")
 		fmt.Println("")
 		b.CryptoplasmDecimalSeedPrinter()
-    	}
-    	//10)PrtIntSeed		Bool
+	}
+	//
+	//09)PrtIntSeed		Bool
+	//
 	if *FlagPrtIntSeed == true {
-	    	fmt.Println("")
+		fmt.Println("")
 		fmt.Println("Printing Integer Seeds:")
-	    	fmt.Println("")
+		fmt.Println("")
 		b.CryptoplasmIntegerSeedPrinter()
 	}
-	//11)PrtInterval	Bool
+	//
+	//10)PrtInterval	Bool
+	//
 	if *FlagPrtInterval == true {
-	    	fmt.Println("")
+		fmt.Println("")
 		fmt.Println("Printing Intervals:")
-	    	fmt.Println("")
+		fmt.Println("")
 		b.CryptoplasmIntervals()
 	}
-	//12)FlagSimulateFee
+	//
+	//11)FlagSimulateFee
+	//
 	if *FlagSimulateFee != "0" {
 		var txsize, outputno uint64
 		fmt.Println("")

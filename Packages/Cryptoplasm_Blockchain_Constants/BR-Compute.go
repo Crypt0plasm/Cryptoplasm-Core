@@ -16,18 +16,18 @@ import (
 //	01  - CryptoplasmPrimaryGeometricListing	creates list if geometric heights
 //	01b - CryptoplasmSecondaryGeometricListing	creates list if geometric heights
 //	02  - CryptoplasmGeometricKamelSequence		creates the Kamel DNA
-//	03  - BlockRewardS				computes BR from BH as string
-//	03b - BlockRewardD				computes BR from BH as decimal
-//	03c - ConvGH					computes the BR from the Geometric Height
-//	04  - BlockGeometricHeight			computes the Geometric Height from decimal BH
-//	04b - ExportBr					Exports all Block Rewards to a file
-//	05a - BHRewardSeqSumS				Computes BR Sum from string BH sequentially
-//	05b - BHRewardSeqSumD				Computes BR Sum from decimal BH sequentially
-//	05c - BHRewardSeqSumCheckpointS			Computes BR Sum at specific Checkpoints, Checkpoint string
-//	05d - BHRewardSeqSumCheckpointD			Computes BR Sum at specific Checkpoints, Checkpoint decimal
-//	05e - BHRewardAdder				The Sequential BR sum computer
-//	05f - BHRewardIntSumS				Computes BR Sum from string BH intermittently. Slow !!!
-//	05g - BHRewardIntSumD				Computes BR Sum from decimal BH intermittently. Slow !!!
+//	03  - BlockRewardS							computes BR from BH as string
+//	03b - BlockRewardD							computes BR from BH as decimal
+//	03c - ConvGH								computes the BR from the Geometric Height
+//	04  - BlockGeometricHeight					computes the Geometric Height from decimal BH
+//	04b - ExportBr								Exports all Block Rewards to a file
+//	05a - BHRewardSeqSumS						Computes BR Sum from string BH sequentially
+//	05b - BHRewardSeqSumD						Computes BR Sum from decimal BH sequentially
+//	05c - BHRewardSeqSumCheckpointS				Computes BR Sum at specific Checkpoints, Checkpoint string
+//	05d - BHRewardSeqSumCheckpointD				Computes BR Sum at specific Checkpoints, Checkpoint decimal
+//	05e - BHRewardAdder							The Sequential BR sum computer
+//	05f - BHRewardIntSumS						Computes BR Sum from string BH intermittently. Slow !!!
+//	05g - BHRewardIntSumD						Computes BR Sum from decimal BH intermittently. Slow !!!
 //
 //================================================
 //

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"os"
     	"strconv"
-    	"time"
+	"strings"
+	"time"
 )
 var (
 	c = CryptoplasmPrecisionContext
@@ -17,59 +18,66 @@ var (
 // 	Function List:
 //
 //	01 Comparison Functions operating on decimal type
-//		01  - DecimalEqual				x == y
+//		01  - DecimalEqual					x == y
 //		02  - DecimalNotEqual				x != y
 //		03  - DecimalLessThan				x < y
-//		04  - DecimalLessThanOrEqual			x <= y
+//		04  - DecimalLessThanOrEqual		x <= y
 //		05  - DecimalGreaterThan			x > y
-//		06  - DecimalGreaterThanOrEqual			x >= y
+//		06  - DecimalGreaterThanOrEqual		x >= y
 //	02 Addition Functions
-//		01  - ADDpr					adds 2 numbers within a specific precision context
-//		02  - ADDcp					adds 2 numbers within CryptoplasmPrecisionContext
-//		03  - SUMpr					adds multiple numbers within a specific precision context
-//		04  - SUMcp					adds multiple numbers within CryptoplasmPrecisionContext
+//		01  - ADDel							adds 2 numbers with elastic precision
+//		02  - ADDpr							adds 2 numbers within a specific precision context
+//		03  - ADDcp							adds 2 numbers within CryptoplasmPrecisionContext
+//		04  - SUMpr							adds multiple numbers within a specific precision context
+//		05  - SUMcp							adds multiple numbers within CryptoplasmPrecisionContext
 //	03 Subtraction Functions
-//		01  - SUBpr					subtracts 2 numbers within a specific precision context
-//		02  - SUBcp					subtracts 2 numbers within CryptoplasmPrecisionContext
-//		03  - DIFpr					subtracts multiple numbers within a specific precision context
-//		04  - DIFcp					subtracts multiple numbers within CryptoplasmPrecisionContext
+//		01  - SUBel							subtracts 2 numbers with elastic precision
+//		01  - SUBpr							subtracts 2 numbers within a specific precision context
+//		02  - SUBcp							subtracts 2 numbers within CryptoplasmPrecisionContext
+//		03  - DIFpr							subtracts multiple numbers within a specific precision context
+//		04  - DIFcp							subtracts multiple numbers within CryptoplasmPrecisionContext
 //	04 Multiplication Functions
-//		01  - MULpr					multiplies 2 numbers within a specific precision context
-//		02  - MULcp					multiplies 2 numbers within CryptoplasmPrecisionContext
-//		03  - PRDpr					multiplies multiple numbers within a specific precision context
-//		04  - PRDcp					multiplies multiple numbers within CryptoplasmPrecisionContext
-//		05  - POWpr					computes x ** y within a specific precision context
-//		06  - POWcp					computes x ** y within CryptoplasmPrecisionContext
+//		01  - MULpr							multiplies 2 numbers within a specific precision context
+//		02  - MULcp							multiplies 2 numbers within CryptoplasmPrecisionContext
+//		03  - PRDpr							multiplies multiple numbers within a specific precision context
+//		04  - PRDcp							multiplies multiple numbers within CryptoplasmPrecisionContext
+//		05  - POWpr							computes x ** y within a specific precision context
+//		06  - POWcp							computes x ** y within CryptoplasmPrecisionContext
 //	05 Division Functions
-//		01  - DIVpr					divides 2 numbers within a specific precision context
-//		02  - DIVcp					divides 2 numbers within CryptoplasmPrecisionContext
-//		03  - DivInt					returns x // y, uses elastic Precision (result is "integer")
-//		04  - DivMod					returns x % y, uses elastic Precision (result is the rest)
-//		05  - DigMax					max between the digit numbers of 2 Decimals
+//		01  - DIVpr							divides 2 numbers within a specific precision context
+//		02  - DIVcp							divides 2 numbers within CryptoplasmPrecisionContext
+//		03  - DivInt						returns x // y, uses elastic Precision (result is "integer")
+//		04  - DivMod						returns x % y, uses elastic Precision (result is the rest)
+//		05  - DigMax						max between the digit numbers of 2 Decimals
+//  05a Mean Functions
+//		01  - TwoMean						Returns the mean of two decimals
 //	06 Truncate Functions
 //		01  - TruncateCustom				Truncates using custom Precision (it must be know beforehand)
-//		02  - TruncSeed					Truncates elastically to CryptoplasmSeedPrecision
+//		02  - TruncSeed						Truncates elastically to CryptoplasmSeedPrecision
 //		03  - TruncToCurrency				Truncates elastically to CryptoplasmCurrencyPrecision
 //	07 List Functions
-//		01  - SumDL					Adds all the decimals in a slice of decimals
-//		02  - LastDE					Returns the last element in a slice
-//		03  - AppDec					Unites 2 slices made of decimals
-//		04  - Reverse					Reverses a slice of decimals
-//		05  - PrintDL					Prints the "decimals" from a slice of strings
-//		06  - WriteList					Writes strings from a slice to an external file
+//		01  - SumDL							Adds all the decimals in a slice of decimals
+//		02  - LastDE						Returns the last element in a slice
+//		03  - AppDec						Unites 2 slices made of decimals
+//		04  - Reverse						Reverses a slice of decimals
+//		05  - PrintDL						Prints the "decimals" from a slice of strings
+//		06  - WriteList						Writes strings from a slice to an external file
 //	08 Digit Manipulation Functions
 //		01  - RemoveDecimals				removes the decimals of a number, uses floor function
-//		02  - Count4Coma				Counts the number of digits before precision
+//		02  - Count4Coma					Counts the number of digits before precision
 //	09 Blockchain Specific Geometry Functions
-//		01  - ASApr					Computes an ASA triangle with specified precision without returning the Gamma Angle
-//	10 Overspend Functions
+//		01  - ASApr							Computes an ASA triangle with specified precision without returning the Gamma Angle
+//	10 OverSend Functions
 //		01  - OverSendLogBase				Returns the Logarithm Base used to computer the Overspend value for the given CP Amount
-//		02  - OVSLogarithm				Computes the Logarithm in Base 777...777 for the given CP Amount
-//		03  - CPTxTax					Computes the Transaction-Tax and its Per-Mille value, for the given CP Amount
-//		04  - CPOverSend				Computes the Oversend value for the given CP Amount
+//		02  - OVSLogarithm					Computes the Logarithm in Base 777...777 for the given CP Amount
+//		03  - CPTxTax						Computes the Transaction-Tax and its Per-Mille value, for the given CP Amount
+//		04  - CPOverSend					Computes the Oversend value for the given CP Amount
 //		05  - OverSendDisplayFormat			computes the number os "spaces" to add before displaying Overspend computing info
+//      06  - TxTaxPrinter					Computes and Prints all related TxTax information
+//		06a - TxTaxDisplayOffset			Auxiliary TxTaxPrinter function
+//		06b - TxTaxDisplayOffset			Auxiliary TxTaxPrinter function
 //	11 Cryptoplasm Amount String Manipulation Function
-//		01  - CPConvert2AU				Converts CP Amount to AtomicUnits (YoctoPlasms)
+//		01  - CPConvert2AU					Converts CP Amount to AtomicUnits (YoctoPlasms)
 //		02  - YoctoPlasm2String				Converts YoctoPlasms into a slice os strings
 //		03  - CPAmountConv2Print			Converts a CP Amount into a string that can be better used for display purposes
 //
@@ -223,7 +231,20 @@ func DecimalGreaterThanOrEqual(x, y *firefly.Decimal) bool {
 //		Condition and error reporting as supported by Firefly
 //================================================
 //
-// Function 02.01 - ADDpr
+// Function 02.01 - ADDel
+//
+// ADDel adds two decimals within and elastically modified Precision CryptoplasmPrecisionContext Context
+func ADDel(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	MaxDigits := DigMax(member1,member2)
+	AdditionPrecision := MaxDigits + 1
+	cc := c.WithPrecision(AdditionPrecision)
+	_, _ = cc.Add(result, member1, member2)
+	return result
+}
+//================================================
+//
+// Function 02.02 - ADDpr
 //
 // ADDpr adds two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
 func ADDpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
@@ -234,7 +255,7 @@ func ADDpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 }
 //================================================
 //
-// Function 02.02 - ADDcp
+// Function 02.03 - ADDcp
 //
 // ADDcp adds two decimals within CryptoplasmPrecisionContext Context
 func ADDcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
@@ -243,9 +264,10 @@ func ADDcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
     _, _ = c.Add(result, member1, member2)
     return result
 }
+
 //================================================
 //
-// Function 02.03 - SUMpr
+// Function 02.04 - SUMpr
 //
 // SUMpr adds multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
 func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
@@ -262,7 +284,7 @@ func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 }
 //================================================
 //
-// Function 02.04 - SUMcp
+// Function 02.05 - SUMcp
 //
 // SUMcp adds multiple decimals within CryptoplasmPrecisionContext Context
 func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
@@ -279,7 +301,21 @@ func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 03.01 - SUBpr
+// Function 03.01 - SUBel
+//
+// SUBel adds two decimals within and elastically modified Precision CryptoplasmPrecisionContext Context
+func SUBel(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	MaxDigits := DigMax(member1,member2)
+	AdditionPrecision := MaxDigits + 1
+	cc := c.WithPrecision(AdditionPrecision)
+	_, _ = cc.Sub(result, member1, member2)
+	return result
+}
+
+//================================================
+//
+// Function 03.02 - SUBpr
 //
 // SUBpr subtract two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
 func SUBpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
@@ -290,7 +326,7 @@ func SUBpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 }
 //================================================
 //
-// Function 03.02 - SUBcp
+// Function 03.03 - SUBcp
 //
 // SUBcp subtract two decimals within CryptoplasmPrecisionContext Context
 func SUBcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
@@ -301,7 +337,7 @@ func SUBcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 03.03 - DIFpr
+// Function 03.04 - DIFpr
 //
 // DIFpr subtract multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
 func DIFpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
@@ -318,7 +354,7 @@ func DIFpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 }
 //================================================
 //
-// Function 03.04 - DIFcp
+// Function 03.05 - DIFcp
 //
 // DIFcp subtract multiple decimals within CryptoplasmPrecisionContext Context
 func DIFcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
@@ -482,6 +518,18 @@ func DigMax (x, y *firefly.Decimal) uint32 {
 	digmax = xdig
     }
     return uint32(digmax)
+}
+//================================================
+//	05a Mean Functions:
+// 		Different types of means used for computing purposes
+//		In specific ways
+//================================================
+func TwoMean(number1, number2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	MaxDigits := DigMax(number1,number1)
+	DivisionPrecision := MaxDigits + 1
+	result = DIVpr(DivisionPrecision,ADDel(number1,number2),firefly.NFI(2))
+	return result
 }
 //================================================
 //	06 Truncate Functions:
@@ -765,20 +813,20 @@ func CPTxTax(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *fi
 //
 // Function 10.04 - CPOverSend
 //
-// CPOverSend computes the AmountFee-FeeProMille, the AmountFee and
-// how much the Recipient receives after the AmountFee is deducted from the AmountSent.
+// CPOverSend computes the OverSend amount by gradually searching for the TxTaxMax
 func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	start := time.Now()
 	var (
 		PerfectOverSend = new(firefly.Decimal)
 		OverSend        = new(firefly.Decimal)
-		OSA             = new(firefly.Decimal) //OverSendArgument
-		OSIA            = new(firefly.Decimal) //OverSendIterationArgument
-		FPM             = new(firefly.Decimal) //AmountFee-ProMille
-		AF              = new(firefly.Decimal) //AmountFee
-		R               = new(firefly.Decimal) //Recipient
-		OsiaPrec        uint32                 //Number of Digits after comma OSIA must have to be computed
-		Iteration       int                    //OverSpend Loop Iteration number
+		OSA             = new(firefly.Decimal) 		//OverSendArgument
+		OSIA            = new(firefly.Decimal) 		//OverSendIterationArgument
+		FPM             = new(firefly.Decimal) 		//AmountFee-ProMille
+		AF              = new(firefly.Decimal) 		//AmountFee
+		R               = new(firefly.Decimal) 		//Recipient
+		OsiaPrec        uint32                 		//Number of Digits after comma OSIA must have to be computed
+		OsiaDivPrec		uint32						//OSIA Division Precision
+		Iteration       int                    		//OverSpend Loop Iteration number
 	)
 
 	//Setting IP(internal precision) and truncating cpAmount to 24 decimals
@@ -786,14 +834,14 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	IP := CryptoplasmCurrencyPrecision + uint32(NumberDigits) + 1
 	tcpAmount := TruncToCurrency(cpAmount)
 
+	//The Logarithm Base (777...777) that is used for computing OverSend given amount cpAmountTrunc
+	OvSLogBase := OverSendLogBase(tcpAmount)
+
 	//OsiaDivPrec might need more Precision than this, so it gets its own precision
 	//OsiaPrec starts with 0, because OSAT is negative
 	//OsiaPrec is equal to the positive OSAT, as OSAT increases, so does OsiaPrec
 	//OsiaDivPrec starts with 3
-	OsiaDivPrec := uint32(3)
-
-	//The Logarithm Base (777...777) that is used for computing OverSend given amount cpAmountTrunc
-	OvSLogBase := OverSendLogBase(tcpAmount)
+	OsiaDivPrec = 3
 
 	OSAT := -2 //int type OverSend-Argument-Tier, starts at -2
 	//OSAT at -2 needs initially addition precision of 3 (-3 would need 4)
@@ -833,7 +881,7 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 			if DecimalLessThan(R,tcpAmount) == true {
 				if LoopDirection == "down" {
 					OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-				    	OsiaOffset = OverSendDisplayFormat(OSIA)
+					OsiaOffset = OverSendDisplayFormat(OSIA)
 					//
 					OSAT = OSAT + 1
 					//Setting Precisions derived from OSAT, OsiaPrec and OsiaDivPrec
@@ -854,15 +902,15 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 				R = TruncToCurrency(SUBpr(IP, OverSend, AF))
 
 				OSIA = TruncateCustom(OsiaDivPrec, ADDpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-			    	OsiaOffset = OverSendDisplayFormat(OSIA)
+				OsiaOffset = OverSendDisplayFormat(OSIA)
 				//Troubleshooting Comments can be commented away
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
-			    	fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
+				fmt.Println("Computing OverSend, refining argument...",OsiaOffset,OSIA)
 				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
 			} else if DecimalGreaterThan(R,tcpAmount) == true {
 				if LoopDirection == "up" {
 					OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-				    	OsiaOffset = OverSendDisplayFormat(OSIA)
+					OsiaOffset = OverSendDisplayFormat(OSIA)
 					//
 					OSAT = OSAT + 1
 					//Setting Precisions derived from OSAT, OsiaPrec and OsiaDivPrec
@@ -883,10 +931,10 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 				R = TruncToCurrency(SUBpr(IP, OverSend, AF))
 
 				OSIA = TruncateCustom(OsiaDivPrec, SUBpr(OsiaDivPrec, OSIA, OSA), OsiaPrec)
-			    	OsiaOffset = OverSendDisplayFormat(OSIA)
+				OsiaOffset = OverSendDisplayFormat(OSIA)
 				//Troubleshooting Comments can be commented away
 				//fmt.Println("Iteration ",Iteration,"OSIA is",OSIA,"R is", R)
-				fmt.Println("Computing Tx Tax, refining argument...",OsiaOffset,OSIA)
+				fmt.Println("Computing OverSend, refining argument...",OsiaOffset,OSIA)
 				OverSend = TruncToCurrency(ADDpr(IP, tcpAmount, MULpr(IP, AFo, ADDpr(IP, firefly.NFI(1), DIVpr(OsiaDivPrec, OSIA, firefly.NFI(1000))))))
 			}
 		}
@@ -943,10 +991,126 @@ func CPOverSend(cpAmount *firefly.Decimal) *firefly.Decimal {
 	//fmt.Println("Sending",PerfectOverSend,"CP, the Recipient gets",Rx,"CP")
 
 	elapsed := time.Since(start)
-	fmt.Println("")
 	fmt.Println("Computing OverSend took", elapsed, "with", Iteration, "Iterations")
+	fmt.Println("")
 	return PerfectOverSend
 }
+//================================================
+//
+// Function 10.06 - PseudoFiftyFiftyOverSendLong
+//
+// PseudoFiftyFiftyOverSendLong computes the TrueFiftyFiftyOverSend
+// The TrueFiftyFiftyOverSend is the OverSend value for which both the
+// Sender and the Receiver pay the same amount of Transaction Tax
+func PseudoFiftyFiftyOverSendLong (cpAmount *firefly.Decimal) *firefly.Decimal {
+	var PseudoOverSend = new(firefly.Decimal)
+	PerfectOverSend := CPOverSend(cpAmount)
+	PseudoOverSend = PseudoFiftyFiftyOverSendShort(cpAmount,PerfectOverSend)
+	return PseudoOverSend
+}
+//================================================
+//
+// Function 10.05 - PseudoFiftyFiftyOverSendShort
+//
+// PseudoFiftyFiftyOverSendShort computes a PseudoFiftyFiftyOverSend used to
+// later compute the TrueFiftyFiftyOverSend
+func PseudoFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *firefly.Decimal {
+	var PseudoOverSend = new(firefly.Decimal)
+	MaxDigits := DigMax(cpAmount,PerfectOverSend)
+	DivisionPrecision := MaxDigits + 1
+
+	tcpAmount := TruncToCurrency(cpAmount)
+	_, TxTaxMin, _ := CPTxTax(tcpAmount)
+	//PerfectOverSend := CPOverSend(cpAmount)
+	_, TxTaxMax, _ := CPTxTax(PerfectOverSend)
+
+	MeanTx := TwoMean(TxTaxMin,TxTaxMax)
+	HalfMeanTx := DIVpr(DivisionPrecision,MeanTx,firefly.NFI(2))
+	PseudoOverSend = ADDel(cpAmount,HalfMeanTx)
+	return PseudoOverSend
+}
+//================================================
+//
+// Function 10.06 - TrueFiftyFiftyOverSendLong
+//
+// TrueFiftyFiftyOverSendLong computes the TrueFiftyFiftyOverSend
+// The TrueFiftyFiftyOverSend is the OverSend value for which both the
+// Sender and the Receiver pay the same amount of Transaction Tax
+func TrueFiftyFiftyOverSendLong (cpAmount *firefly.Decimal) *firefly.Decimal {
+	var TrueFiftyFiftyOverSend = new(firefly.Decimal)
+	PerfectOverSend := CPOverSend(cpAmount)
+	TrueFiftyFiftyOverSend = TrueFiftyFiftyOverSendShort(cpAmount,PerfectOverSend)
+	//x1,x2 := TrueFiftyFiftyOverSendShort(cpAmount,PerfectOverSend)
+	return TrueFiftyFiftyOverSend
+	//return x1,x2
+}
+//================================================
+//
+// Function 10.06 - TrueFiftyFiftyOverSendShort
+//
+// TrueFiftyFiftyOverSendShort computes the TrueFiftyFiftyOverSend
+// The TrueFiftyFiftyOverSend is the OverSend value for which both the
+// Sender and the Receiver pay the same amount of Transaction Tax
+func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *firefly.Decimal {
+	start := time.Now()
+	var (
+		TrueFiftyFifty 			= new(firefly.Decimal)
+		MinimumDifference 		= new(firefly.Decimal)
+		YoctoPlasm				= firefly.NFS("0.000000000000000000000001")
+		Iteration       		int                     	//OverSpend Loop Iteration number
+	)
+
+	//Setting IP(internal precision) and truncating cpAmount to 24 decimals
+	NumberDigits := Count4Coma(PerfectOverSend)
+	IP := CryptoplasmCurrencyPrecision + uint32(NumberDigits) + 1
+	tcpAmount := TruncToCurrency(cpAmount)
+
+	OverSendFF := PseudoFiftyFiftyOverSendShort(cpAmount,PerfectOverSend)
+	_, _, RecipientFF := CPTxTax(OverSendFF)
+
+	TxTaxS := TruncToCurrency(SUBpr(IP,OverSendFF,tcpAmount))
+	TxTaxR := TruncToCurrency(SUBpr(IP,tcpAmount,RecipientFF))
+
+	FluctuatingOverSend := SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
+	for DecimalNotEqual(TxTaxS,TxTaxR) == true {
+		Iteration = Iteration + 1
+		if DecimalGreaterThan(TxTaxS,TxTaxR) == true {
+			MinimumDifference = SUBpr(IP,TxTaxS,TxTaxR)
+		} else {
+			MinimumDifference = SUBpr(IP,TxTaxR,TxTaxS)
+		}
+		if DecimalEqual(TxTaxS,TxTaxR) == true || DecimalEqual(MinimumDifference,YoctoPlasm) == true{
+			break
+		}
+		if DecimalGreaterThan(TxTaxS,TxTaxR) == true {
+			//Loop Down
+			_, _, RFiftyFifty := CPTxTax(FluctuatingOverSend)
+
+			TxTaxS = TruncToCurrency(SUBpr(IP,FluctuatingOverSend,tcpAmount))
+			TxTaxR = TruncToCurrency(SUBpr(IP,tcpAmount,RFiftyFifty))
+			FluctuatingOverSend = SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
+			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
+		} else if DecimalLessThan(TxTaxS,TxTaxR) == true {
+			//Loop Up
+			_, _, RFiftyFifty := CPTxTax(FluctuatingOverSend)
+
+			TxTaxS = TruncToCurrency(SUBpr(IP,FluctuatingOverSend,tcpAmount))
+			TxTaxR = TruncToCurrency(SUBpr(IP,tcpAmount,RFiftyFifty))
+			FluctuatingOverSend = SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
+			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
+		}
+	}
+	TrueFiftyFifty = FluctuatingOverSend
+	_, _, RecipientFiftyFifty := CPTxTax(TrueFiftyFifty)
+
+	TxTaxS = SUBpr(IP,TrueFiftyFifty,tcpAmount)
+	TxTaxR = SUBpr(IP,tcpAmount,RecipientFiftyFifty)
+	elapsed := time.Since(start)
+	fmt.Println("Computing FiftyFiftyOverSend took", elapsed, "with", Iteration, "Iterations")
+	fmt.Println("")
+	return TrueFiftyFifty
+}
+
 //================================================
 //
 // Function 10.05 - OverSendDisplayFormat
@@ -975,6 +1139,177 @@ func OverSendDisplayFormat(Number *firefly.Decimal) string {
 	}
     }
     return Result
+}
+//================================================
+//
+// Function 10.06 - TxTaxPrinter
+//
+// TxTaxPrinter computes and prints all OverSend related information
+// for the given cpAmount
+func TxTaxPrinter(cpAmount *firefly.Decimal) {
+	var (
+		BarNumberOffset			int
+		Len00					string
+	)
+	tcpAmount := TruncToCurrency(cpAmount)
+	//Computing Oversend and FiftyFiftyOverSend
+	Zero := "0,[000|000|000|000][000|000|000|000]"
+	OverSend := CPOverSend(tcpAmount)
+	FiftyFiftyOverSend := TrueFiftyFiftyOverSendShort(cpAmount,OverSend)
+
+	FeeProMilleMin, TxTaxMin, 	RecipientMin 	:= CPTxTax(tcpAmount)
+	FeeProMilleMax, TxTaxMax, 	RecipientMax 	:= CPTxTax(OverSend)
+	FeeProMilleFF, 	TxTaxFF, 	RecipientFF 	:= CPTxTax(FiftyFiftyOverSend)
+
+	SenderTxTax := SUBel(FiftyFiftyOverSend,tcpAmount)
+	RecipientTxTax := SUBel(tcpAmount,RecipientFF)
+
+	OverSendAmountLength 	:= len(CPAmountConv2Print(OverSend))
+	TargetAmountLength 		:= len(CPAmountConv2Print(tcpAmount))
+
+	if OverSendAmountLength > TargetAmountLength {
+		BarNumberOffset = len(CPAmountConv2Print(OverSend))
+		Len00 = TxTaxDisplayOffset(OverSend,tcpAmount)
+	} else if OverSendAmountLength == TargetAmountLength {
+		BarNumberOffset = len(CPAmountConv2Print(tcpAmount))
+	}
+
+	BarLength 		:= 33 + 1 + BarNumberOffset + 3
+	BarLengthString := strings.Repeat("=",BarLength)
+	Len01 			:= TxTaxDisplayOffset(OverSend,TxTaxMin)
+	Len02 			:= TxTaxDisplayOffset(OverSend,FeeProMilleMin)
+	Len04 			:= TxTaxDisplayOffsetS(OverSend,Zero)
+	Len01b			:= TxTaxDisplayOffset(OverSend,TxTaxMax)
+	Len02b			:= TxTaxDisplayOffset(OverSend,FeeProMilleMax)
+	Len01c			:= TxTaxDisplayOffset(OverSend,TxTaxFF)
+	Len02c			:= TxTaxDisplayOffset(OverSend,FeeProMilleFF)
+	Len04c			:= TxTaxDisplayOffset(OverSend,SenderTxTax)
+	Len04d			:= TxTaxDisplayOffset(OverSend,RecipientTxTax)
+
+	OptionNumber1 := `Option Number 1, Sender sends the Target-Amount:
+When the Tx-Tax is deducted from this amount, the Recipient gets the Target-Amount,
+minus the Tx-Tax. Therefore it is said that the Recipient lost/"payed" the Tx-Tax,
+while the Sender has spent no extra money on the Tx-Tax.
+`
+	OptionNumber2 := `Option Number 2, Sender sends the OverSend-Amount
+When the Tx-Tax is deducted from this amount, the Recipient receives the Target-Amount
+Therefore it is said that the Sender "payed" the Tx-Tax.
+While the Recipient has lost no money because he received the intended Target-Amount
+`
+	OptionNumber3 := `Option Number 3, Sender sends the FiftyFiftyOverSend-Amount, 
+Sender and Receiver "split" the Tx-Tax. The Tx-Tax deducted from this amount makes 
+it so, that when comparing to the Target-Amount, both Sender & Receiver have "lost" 
+the exact amount of money. The Tx-Tax Split lost/"paid" by both the Sender and the 
+Receiver is either perfectly equal, or differs by 1 YoctoPlasm. The difference 
+happens when the Tx-Tax last decimal is an uneven number.
+`
+
+	fmt.Println("")
+	fmt.Print(OptionNumber1)
+	fmt.Println("")
+	fmt.Print(OptionNumber2)
+	fmt.Println("")
+	fmt.Print(OptionNumber3)
+	fmt.Println("")
+	if OverSendAmountLength > TargetAmountLength {
+		fmt.Println("       Target Cryptoplasm Amount:",Len00,CPAmountConv2Print(tcpAmount),"CP")
+	} else if OverSendAmountLength == TargetAmountLength {
+		fmt.Println("       Target Cryptoplasm Amount:",CPAmountConv2Print(tcpAmount),"CP")
+	}
+	fmt.Println(BarLengthString)
+	//==================================================================================================================
+	fmt.Println("=============Option1=============")				//TARGET AMOUNT
+	// First Line
+	if OverSendAmountLength > TargetAmountLength {
+		fmt.Println("     Sender sends[Target Amount]:",Len00,CPAmountConv2Print(tcpAmount),"CP")
+	} else if OverSendAmountLength == TargetAmountLength {
+		fmt.Println("     Sender sends[Target Amount]:",CPAmountConv2Print(tcpAmount),"CP")
+	}
+	//Second and third Line
+	fmt.Println("       the Tx-Tax[Target Amount]:",Len01,CPAmountConv2Print(TxTaxMin),"CP")
+	fmt.Println("                  and represents:",Len02,FeeProMilleMin,"promille")
+	//Fourth Line
+	if len(CPAmountConv2Print(tcpAmount)) == len(CPAmountConv2Print(RecipientMin)) {
+		if OverSendAmountLength > TargetAmountLength {
+			fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMin),"CP")
+		} else if OverSendAmountLength == TargetAmountLength {
+			fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMin),"CP")
+		}
+	} else {
+		Len03 := TxTaxDisplayOffset(tcpAmount,RecipientMin)
+		fmt.Println("              Recipient receives:",Len03,CPAmountConv2Print(RecipientMin),"CP")
+	}
+	fmt.Println("=================================")
+	//Fifth and Sixth Line
+	fmt.Println("    Sender has payed a Tx-Tax of:",Len04,Zero,"CP")
+	fmt.Println(" Recipient has payed a Tx-Tax of:",Len01,CPAmountConv2Print(TxTaxMin),"CP")
+	fmt.Println(BarLengthString)
+	//==================================================================================================================
+	fmt.Println("=============Option2=============")				//OVERSEND
+	//First, Second and Third Line
+	fmt.Println("          Sender sends[OverSend]:",CPAmountConv2Print(OverSend),"CP")
+	fmt.Println("            the Tx-Tax[OverSend]:",Len01b,CPAmountConv2Print(TxTaxMax),"CP")
+	fmt.Println("                  and represents:",Len02b,FeeProMilleMax,"promille")
+	//Fourth Line
+	if len(CPAmountConv2Print(OverSend)) == len(CPAmountConv2Print(RecipientMax)) {
+		if OverSendAmountLength > TargetAmountLength {
+			fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMax),"CP")
+		} else if OverSendAmountLength == TargetAmountLength {
+			fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMax),"CP")
+		}
+	} else {
+		Len03b := TxTaxDisplayOffset(OverSend,RecipientMax)
+		fmt.Println("              Recipient receives:",Len03b,CPAmountConv2Print(RecipientMax),"CP")
+	}
+	fmt.Println("=================================")
+	//Fifth and Sixth Line
+	fmt.Println("    Sender has payed a Tx-Tax of:",Len01b,CPAmountConv2Print(TxTaxMax),"CP")
+	fmt.Println(" Recipient has payed a Tx-Tax of:",Len04,Zero,"CP")
+	fmt.Println(BarLengthString)
+	//==================================================================================================================
+	fmt.Println("=============Option3=============")				//FIFTYFIFTYOVERSEND
+	//First, Second and Third Line
+	fmt.Println("Sender sends[FiftyFiftyOverSend]:",CPAmountConv2Print(FiftyFiftyOverSend),"CP")
+	fmt.Println("  the Tx-Tax[FiftyFiftyOverSend]:",Len01c,CPAmountConv2Print(TxTaxFF),"CP")
+	fmt.Println("                  and represents:",Len02c,FeeProMilleFF,"promille")
+	//Fourth Line
+	if len(CPAmountConv2Print(FiftyFiftyOverSend)) == len(CPAmountConv2Print(RecipientFF)) {
+		if OverSendAmountLength > TargetAmountLength {
+			fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientFF),"CP")
+		} else if OverSendAmountLength == TargetAmountLength {
+			fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientFF),"CP")
+		}
+	} else {
+		Len03c := TxTaxDisplayOffset(FiftyFiftyOverSend,RecipientFF)
+		fmt.Println("              Recipient receives:",Len03c,CPAmountConv2Print(RecipientFF),"CP")
+	}
+	fmt.Println("=================================")
+	//Fifth and Sixth Line
+	fmt.Println("    Sender has payed a Tx-Tax of:",Len04c,CPAmountConv2Print(SenderTxTax),"CP")
+	fmt.Println(" Recipient has payed a Tx-Tax of:",Len04d,CPAmountConv2Print(RecipientTxTax),"CP")
+	fmt.Println(BarLengthString)
+	}
+
+//================================================
+//
+// Function 10.06a - TxTaxDisplayOffset
+//
+// TxTaxDisplayOffset in an auxiliary TxTaxPrinter function
+func TxTaxDisplayOffset (cpAmount1, cpAmount2 *firefly.Decimal) string {
+	var Result string
+	Length := len(CPAmountConv2Print(cpAmount1)) - len(CPAmountConv2Print(cpAmount2))
+	Result = strings.Repeat(" ",Length-1)
+	return Result
+}
+//
+// Function 10.06b - TxTaxDisplayOffsetS
+//
+// TxTaxDisplayOffsetS in an auxiliary TxTaxPrinter function
+func TxTaxDisplayOffsetS (cpAmount1 *firefly.Decimal, AmountAsString string) string {
+	var Result string
+	Length := len(CPAmountConv2Print(cpAmount1)) - len(AmountAsString)
+	Result = strings.Repeat(" ",Length-1)
+	return Result
 }
 //================================================
 //	11 CP Amount String Manipulation Function:
@@ -1036,10 +1371,10 @@ func YoctoPlasm2String(Number *firefly.Decimal) []string {
 func CPAmountConv2Print (cpAmount *firefly.Decimal) string {
     var (
     	StringResult 		string
-	ComaPosition 		int32
-	PointPosition 		int32
-	DigitTier		int32
-	NewSlicePositions 	int64
+		ComaPosition 		int32
+		PointPosition 		int32
+		DigitTier		int32
+		NewSlicePositions 	int64
     )
     AU := CPConvert2AU(cpAmount)
     SliceStr := YoctoPlasm2String(AU)
