@@ -94,7 +94,7 @@ func TxSimulator(BlockHeightS string, TransactionSize, OutputNumber uint64, cpAm
 	if AmountValue == 3 {
 		fmt.Println("Above or equal 10")
 		fmt.Println("")
-		OverSend := CPOverSend(tcpAmount)
+		OverSend := OverSendV2(tcpAmount)
 		NormalFee := Fees[0][0][0]
 		BlinkFee := Fees[1][0][0]
 		fmt.Println("")
