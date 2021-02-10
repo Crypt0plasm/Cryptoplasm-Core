@@ -180,11 +180,11 @@ var (
     Red   			= p.NFS(IntervalRed)
     White  			= p.NFS(IntervalWhite)
     //===============================
-    Seed1st 		        = p.NFS(BaseAreaSeed)
-    Seed2nd 		        = p.NFS(BaseHeightSeed)
-    Seed3rd 		        = p.NFS(CPAreaRatioSeed)
-    Seed4th 		        = p.NFS(TotalComputedSum)
-    Seed5th 		        = p.NFS(HighestComputedBR)
+    Seed1st 		= p.NFS(BaseAreaSeed)
+    Seed2nd 		= p.NFS(BaseHeightSeed)
+    Seed3rd 		= p.NFS(CPAreaRatioSeed)
+    Seed4th 		= p.NFS(TotalComputedSum)
+    Seed5th 		= p.NFS(HighestComputedBR)
     //===============================
     Seed01 			= p.NFS(PurpleUpHeightSeed)
     Seed02 			= p.NFS(PurpleUpAreaSeed)

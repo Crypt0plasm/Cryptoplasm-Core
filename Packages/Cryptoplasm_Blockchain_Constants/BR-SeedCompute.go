@@ -41,11 +41,11 @@ func CryptoplasmDecimalSeedComputer () {
 	PurpleUp := w
 	PurpleTotalUp := ADDpr(CSP+Pp,PurpleBaseUp, PurpleUp)
 
-	PurpleUpHeightSeed := TruncSeed(PurpleUpHeight)
-	fmt.Println("PurpleUpHeightSeed is:         ", PurpleUpHeightSeed)
+	PurpleUpHeightSeedC := TruncSeed(PurpleUpHeight)
+	fmt.Println("PurpleUpHeightSeed is:         ", PurpleUpHeightSeedC)
 
-	PurpleUpAreaSeed := TruncSeed(PurpleTotalUp)
-	fmt.Println("PurpleUpAreaSeed is:        ", PurpleUpAreaSeed)
+	PurpleUpAreaSeedC := TruncSeed(PurpleTotalUp)
+	fmt.Println("PurpleUpAreaSeed is:        ", PurpleUpAreaSeedC)
 	//
 	//
 	//Calculating PurpleDown

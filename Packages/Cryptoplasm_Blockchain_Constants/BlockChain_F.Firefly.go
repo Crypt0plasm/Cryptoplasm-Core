@@ -849,10 +849,15 @@ func CPTxTaxV2(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *
 	tcpAmount := TruncToCurrency(cpAmount)
 	BaseDigitNumberMain := tcpAmount.NumDigits()
 	MainDivPrecision := 2*CryptoplasmCurrencyPrecision + uint32(BaseDigitNumberMain)
-
+	//fmt.Println("Computing TxTax")
 	if DecimalGreaterThanOrEqual(tcpAmount,firefly.NFI(10)) == true {
 		AmountNumberSlice := CPAmount2StringDecomposer(cpAmount)
 		for i := 1; i < len(AmountNumberSlice); i++ {
+			BaseStringPoint := "START Computing TxTax"
+			StringPoint := strings.Repeat(".",i)
+			StringToPrint := BaseStringPoint + StringPoint
+			fmt.Print("\r",StringToPrint)
+
 			Number:=POWpr(uint32(i)+1,firefly.NFI(10),firefly.NFI(int64(i)))
 			LogBase := OverSendLogBase(Number)
 			ProMille := OVSLogarithm(LogBase,Number)
@@ -867,9 +872,11 @@ func CPTxTaxV2(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *
 			TxTax = ADDel(TxTax,MultipliedTax)
 		}
 	}
+	fmt.Println("DONE")
 	TxTax = TruncToCurrency(TxTax)
 	Recipient := SUBel(tcpAmount,TxTax)
 	CumulativeFeeProMille := TruncToCurrency(DIVpr(MainDivPrecision,MULel(TxTax,firefly.NFI(1000)),tcpAmount))
+	//fmt.Print("===")
 	return CumulativeFeeProMille, TxTax, Recipient
 }
 //================================================
@@ -878,15 +885,20 @@ func CPTxTaxV2(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *
 //
 // OverSendV2 computes the modified TxTax.
 func OverSendV2(cpAmount *firefly.Decimal) *firefly.Decimal {
+	fmt.Println("START Computing OverSend...")
 	tcpAmount := TruncToCurrency(cpAmount)
 	_,TxTaxAmount,_ := CPTxTaxV2(tcpAmount)
 	OverSend := ADDel(tcpAmount,TxTaxAmount)
+	Iteration := 0
 	for DecimalEqual(TxTaxAmount,firefly.NFI(0)) == false {
+		Iteration = Iteration + 1
 		_,TxTaxAmount,_ = CPTxTaxV2(TxTaxAmount)
 		OverSend = ADDel(OverSend,TxTaxAmount)
 	}
+	//fmt.Println("Last TxTax computation:")
 	_,LastTxTax,_ := CPTxTaxV2(OverSend)
 	LastOverSend := ADDel(tcpAmount,LastTxTax)
+	fmt.Println("DONE Computing OverSend, after ",Iteration," iteration(s) ...")
 	return LastOverSend
 }
 //================================================
@@ -948,7 +960,7 @@ func TrueFiftyFiftyOverSendLong (cpAmount *firefly.Decimal) *firefly.Decimal {
 // Sender and the Receiver pay the same amount of Transaction Tax.
 // It is called "short", because it relies on the OverSend value.
 func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *firefly.Decimal {
-	start := time.Now()
+	//start := time.Now()
 	var (
 		TrueFiftyFifty 			= new(firefly.Decimal)
 		MinimumDifference 		= new(firefly.Decimal)
@@ -980,22 +992,22 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *fi
 		}
 		if DecimalGreaterThan(TxTaxS,TxTaxR) == true {
 			//Loop Down
+			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
 			_, _, RFiftyFifty := CPTxTaxV2(FluctuatingOverSend)
-
 			TxTaxS = TruncToCurrency(SUBpr(IP,FluctuatingOverSend,tcpAmount))
 			TxTaxR = TruncToCurrency(SUBpr(IP,tcpAmount,RFiftyFifty))
 			FluctuatingOverSend = SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
 			//fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
-			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
+
 		} else if DecimalLessThan(TxTaxS,TxTaxR) == true {
 			//Loop Up
+			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
 			_, _, RFiftyFifty := CPTxTaxV2(FluctuatingOverSend)
 
 			TxTaxS = TruncToCurrency(SUBpr(IP,FluctuatingOverSend,tcpAmount))
 			TxTaxR = TruncToCurrency(SUBpr(IP,tcpAmount,RFiftyFifty))
 			FluctuatingOverSend = SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
 			//fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
-			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
 		}
 	}
 	TrueFiftyFifty = FluctuatingOverSend
@@ -1003,9 +1015,9 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *fi
 
 	TxTaxS = SUBpr(IP,TrueFiftyFifty,tcpAmount)
 	TxTaxR = SUBpr(IP,tcpAmount,RecipientFiftyFifty)
-	elapsed := time.Since(start)
-	fmt.Println("Computing FiftyFiftyOverSend took", elapsed, "with", Iteration, "Iterations")
-	fmt.Println("")
+	//elapsed := time.Since(start)
+	//fmt.Println("Computing FiftyFiftyOverSend took", elapsed, "with", Iteration, "Iterations")
+	//fmt.Println("")
 	return TrueFiftyFifty
 }
 //================================================
@@ -1015,6 +1027,7 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *fi
 // TxTaxPrinter computes and prints all OverSend related information
 // for the given cpAmount
 func TxTaxPrinter(cpAmount *firefly.Decimal) {
+	start := time.Now()
 	var (
 		BarNumberOffset			int
 		Len00					string
@@ -1022,12 +1035,23 @@ func TxTaxPrinter(cpAmount *firefly.Decimal) {
 	tcpAmount := TruncToCurrency(cpAmount)
 	//Computing Oversend and FiftyFiftyOverSend
 	Zero := "0,[000|000|000|000][000|000|000|000]"
-	OverSend := OverSendV2(tcpAmount)
-	FiftyFiftyOverSend := TrueFiftyFiftyOverSendShort(cpAmount,OverSend)
 
+	fmt.Println("\tPART 1 START - tcpAmount known, computing TxTax based on tcpAmount:")
 	FeeProMilleMin, TxTaxMin, 	RecipientMin 	:= CPTxTaxV2(tcpAmount)
+	fmt.Println("\tPART 1 FINISH - Done Computing TxTax based on tcpAmount")
+	fmt.Println("")
+
+	fmt.Println("\tPART 2 START - Computing OverSend, based on tcpAmount:")
+	OverSend := OverSendV2(tcpAmount)
 	FeeProMilleMax, TxTaxMax, 	RecipientMax 	:= CPTxTaxV2(OverSend)
+	fmt.Println("\tPART 2 FINISH - Done Computing TxTax based on OverSend")
+	fmt.Println("")
+
+	fmt.Println("\tPART 3 - Computing FiftyFiftyOverSend, based on tcpAmount amd OverSend")
+	FiftyFiftyOverSend := TrueFiftyFiftyOverSendShort(cpAmount,OverSend)
 	FeeProMilleFF, 	TxTaxFF, 	RecipientFF 	:= CPTxTaxV2(FiftyFiftyOverSend)
+	fmt.Println("\tPART 3 FINISH - Done Computing TxTax based on FiftyFiftyOverSend")
+	fmt.Println("")
 
 	SenderTxTax := SUBel(FiftyFiftyOverSend,tcpAmount)
 	RecipientTxTax := SUBel(tcpAmount,RecipientFF)
@@ -1059,25 +1083,25 @@ When the Tx-Tax is deducted from this amount, the Recipient gets the Target-Amou
 minus the Tx-Tax. Therefore it is said that the Recipient lost/"payed" the Tx-Tax,
 while the Sender has spent no extra money on the Tx-Tax.
 `
-	OptionNumber2 := `Option Number 2, Sender sends the OverSend-Amount
+	OptionNumber2 := `Option Number 2, Sender sends the OverSend-Amount:
 When the Tx-Tax is deducted from this amount, the Recipient receives the Target-Amount
 Therefore it is said that the Sender "payed" the Tx-Tax.
-While the Recipient has lost no money because he received the intended Target-Amount
+While the Recipient has lost no money because he received the intended Target-Amount.
 `
-	OptionNumber3 := `Option Number 3, Sender sends the FiftyFiftyOverSend-Amount, 
+	OptionNumber3 := `Option Number 3, Sender sends the FiftyFiftyOverSend-Amount: 
 Sender and Receiver "split" the Tx-Tax. The Tx-Tax deducted from this amount makes 
 it so, that when comparing to the Target-Amount, both Sender & Receiver have "lost" 
 the exact amount of money. The Tx-Tax Split lost/"paid" by both the Sender and the 
 Receiver is either perfectly equal, or differs by 1 YoctoPlasm. The difference 
-happens when the Tx-Tax last decimal is an uneven number.
+happens when the Tx-Tax's last decimal is an uneven number.
 `
 
 	fmt.Println("")
-	fmt.Print(OptionNumber1)
+	fmt.Print("\t",OptionNumber1)
 	fmt.Println("")
-	fmt.Print(OptionNumber2)
+	fmt.Print("\t",OptionNumber2)
 	fmt.Println("")
-	fmt.Print(OptionNumber3)
+	fmt.Print("\t",OptionNumber3)
 	fmt.Println("")
 	if OverSendAmountLength > TargetAmountLength {
 		fmt.Println("       Target Cryptoplasm Amount:",Len00,CPAmountConv2Print(tcpAmount),"CP")
@@ -1156,6 +1180,9 @@ happens when the Tx-Tax last decimal is an uneven number.
 	fmt.Println("    Sender has payed a Tx-Tax of:",Len04c,CPAmountConv2Print(SenderTxTax),"CP")
 	fmt.Println(" Recipient has payed a Tx-Tax of:",Len04d,CPAmountConv2Print(RecipientTxTax),"CP")
 	fmt.Println(BarLengthString)
+	elapsed := time.Since(start)
+	fmt.Println("Computing the TxTaxPrinter took", elapsed)
+	fmt.Println("")
 	}
 
 //================================================
