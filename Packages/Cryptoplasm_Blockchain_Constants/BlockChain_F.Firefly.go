@@ -13,11 +13,15 @@ var (
 )
 //
 //	BlockChain_F.Firefly.go					Blockchain specific Firefly Functions
-//
-//================================================
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 // 	Function List:
 //
 //	01 Comparison Functions operating on decimal type
+//		00  - SummedMaxLengthPlusOne		SummedMaxLength returns the sum of the maximums length of digits (b4 and after coma)
+//		00a - MaxInt32						returns the maximum between two int32 numbers
+//		00b - MaxInt64						returns the maximum between two int64 numbers
 //		01  - DecimalEqual					x == y
 //		02  - DecimalNotEqual				x != y
 //		03  - DecimalLessThan				x < y
@@ -25,37 +29,50 @@ var (
 //		05  - DecimalGreaterThan			x > y
 //		06  - DecimalGreaterThanOrEqual		x >= y
 //	02 Addition Functions
-//		01  - ADDel							adds 2 numbers with elastic precision
-//		02  - ADDpr							adds 2 numbers within a specific precision context
-//		03  - ADDcp							adds 2 numbers within CryptoplasmPrecisionContext
-//		04  - SUMpr							adds multiple numbers within a specific precision context
-//		05  - SUMcp							adds multiple numbers within CryptoplasmPrecisionContext
+//		01  - ADDx							adds 2 numbers with custom total precision
+//		02  - ADDs							adds 2 numbers within CryptoplasmPrecisionContext (70 total precision)
+//		03  - ADD							adds 2 numbers with custom decimal precision and elastic integer precision
+//		03a - ADDxs							adds 2 numbers with 70 decimal precision and elastic integer precision
+//		03b - ADDxc							adds 2 numbers with 100 decimal precision and elastic integer precision
+//		04  - SUMx							adds multiple numbers with custom total precision
+//		05  - SUMs							adds multiple numbers within CryptoplasmPrecisionContext (70 total precision)
+//		06  - SUM							adds multiple numbers with custom decimal precision and elastic integer precision
+//		06a - SUMxs							adds multiple numbers with 70 decimal precision and elastic integer precision
+//		06b - SUMxc							adds multiple numbers with 100 decimal precision and elastic integer precision
 //	03 Subtraction Functions
-//		01  - SUBel							subtracts 2 numbers with elastic precision
-//		01  - SUBpr							subtracts 2 numbers within a specific precision context
-//		02  - SUBcp							subtracts 2 numbers within CryptoplasmPrecisionContext
-//		03  - DIFpr							subtracts multiple numbers within a specific precision context
-//		04  - DIFcp							subtracts multiple numbers within CryptoplasmPrecisionContext
+//		01  - SUBx							subtracts 2 numbers with custom total precision
+//		02  - SUBs							subtracts 2 numbers within CryptoplasmPrecisionContext (70 total precision)
+//		03  - SUB							subtracts 2 numbers with custom decimal precision and elastic integer precision
+//		03a - SUBxs							subtracts 2 numbers with 70 decimal precision and elastic integer precision
+//		03b - SUBxc							subtracts 2 numbers with 100 decimal precision and elastic integer precision
+//		04  - DIFx							subtracts multiple numbers with custom total precision
+//		05  - DIFs							subtracts multiple numbers within CryptoplasmPrecisionContext (70 total precision)
+//		06  - DIF							subtracts multiple numbers with custom decimal precision and elastic integer precision
+//		06a - DIFxs							subtracts multiple numbers with 70 decimal precision and elastic integer precision
+//		06b - DIFxc							subtracts multiple numbers with 100 decimal precision and elastic integer precision
 //	04 Multiplication Functions
-//		01  - MULel							multiplies 2 numbers with elastic precision
-//		01  - MULpr							multiplies 2 numbers within a specific precision context
-//		02  - MULcp							multiplies 2 numbers within CryptoplasmPrecisionContext
-//		03  - PRDpr							multiplies multiple numbers within a specific precision context
-//		04  - PRDcp							multiplies multiple numbers within CryptoplasmPrecisionContext
-//		05  - POWpr							computes x ** y within a specific precision context
-//		06  - POWcp							computes x ** y within CryptoplasmPrecisionContext
+//		01  - MULx							multiplies 2 numbers with custom total precision
+//		02  - MULs							multiplies 2 numbers within CryptoplasmPrecisionContext (70 total precision)
+//		03  - MULxc							multiplies 2 numbers with elastic integer precision and 100 max decimal precision
+//		04  - PRDx							multiplies multiple numbers within a specific precision context
+//		05  - PRDs							multiplies multiple numbers within CryptoplasmPrecisionContext
+//		06  - PRDxc							multiplies multiple numbers with elastic integer precision and 100 max decimal precision
+//		07  - POWx							computes x ** y within a specific precision context
+//		08  - POWs							computes x ** y within CryptoplasmPrecisionContext
+//		09  - POWxc							computes x ** y with elastic integer precision and 100 max decimal precision
 //	05 Division Functions
-//		01  - DIVpr							divides 2 numbers within a specific precision context
-//		02  - DIVcp							divides 2 numbers within CryptoplasmPrecisionContext
-//		03  - DivInt						returns x // y, uses elastic Precision (result is "integer")
-//		04  - DivMod						returns x % y, uses elastic Precision (result is the rest)
-//		05  - DigMax						max between the digit numbers of 2 Decimals
+//		01  - DIVx							divides 2 numbers within a specific precision context
+//		02  - DIVs							divides 2 numbers within CryptoplasmPrecisionContext
+//		03	- DIVxc							divides 2 numbers with elastic integer precision and 100/101 max decimal precision
+//		04  - DivInt						returns x // y, uses elastic Precision (result is "integer")
+//		05  - DivMod						returns x % y, uses elastic Precision (result is the rest)
 //  05a Mean Functions
 //		01  - TwoMean						Returns the mean of two decimals
 //	06 Truncate Functions
 //		01  - TruncateCustom				Truncates using custom Precision (it must be know beforehand)
 //		02  - TruncSeed						Truncates elastically to CryptoplasmSeedPrecision
 //		03  - TruncToCurrency				Truncates elastically to CryptoplasmCurrencyPrecision
+//		04  - TruncPercent					Truncates elastically to CryptoplasmPercentPrecision
 //	07 List Functions
 //		01  - SumDL							Adds all the decimals in a slice of decimals
 //		02  - LastDE						Returns the last element in a slice
@@ -86,24 +103,83 @@ var (
 //		02  - YoctoPlasm2String				Converts YoctoPlasms into a slice os strings
 //		03  - CPAmountConv2Print			Converts a CP Amount into a string that can be better used for display purposes
 //
-//================================================
-//	01 Comparison Functions:
-// 		The functions use the CryptoplasmPrecisionContext as base Context upon wherewith
-// 		scaling happens automatically to accommodate their size
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
+//
+// Function 01.00 - SummedMaxLength
+//
+// SummedMaxLength returns the sum of the maximums length of digits.
+// before and after the coma for two decimals.
+// Used in comparison operation, and to elastically increase precision based on integer part size of the decimals
+// Even thought it on itself is enough to secure total operation precision, it is used as extra buffer when computing
+// total operation precision for ADD SUB MUL and DIV functions. (because an additional DecimalPrecision is added on top of it)
+func SummedMaxLengthPlusOne (x, y *firefly.Decimal) uint32 {
+	var SML uint32
+	IntegerDigitsMember1 := Count4Coma(x)		//int64
+	IntegerDigitsMember2 := Count4Coma(y)		//int64
+	DecimalDigitsMember1 := 0 - x.Exponent		//int32
+	DecimalDigitsMember2 := 0 - y.Exponent		//int32
+
+	MaxIntegerDigitsInt64 := MaxInt64(IntegerDigitsMember1,IntegerDigitsMember2)			//int64
+	MaxDecimalDigitsInt32 := MaxInt32(DecimalDigitsMember1,DecimalDigitsMember2)			//int32
+
+	// Observation1
+	// Converting Int64 to Int32, going down from 9.223.372.036.854.775.807 to 2.147.483.647
+	// As 2.147.483.647 are already a huge number, no check is implemented here.
+	MaxIntegerDigitsInt32 := int32(MaxIntegerDigitsInt64)
+
+	// Observation 2
+	// SML is of uint32 type, this means this function works reliably for numbers with up to
+	// 2.147.483.647 digits each.
+	// Two times this is 4.294.967.294. Adding another 1 equals 4.294.967.295.
+	// This is the maximum number representable by uint32.
+	//
+	// So the maximum length x and y can have is 2.147.483.647 digits before and after the coma.
+	SML = uint32(MaxDecimalDigitsInt32) + uint32(MaxIntegerDigitsInt32) + 1
+	return SML
+}
+//================================================================================================
+//	01 Comparison Functions between integers:
 //================================================
 //
-// Function 01.01 - DecimalEqual
+// Function 01.00a - MaxInt32
 //
-// DecimalEqual returns true if decimal x is equal to decimal y.
-// The decimals must be equal to the last decimal, in this case their decimal length is similar
-// They can be equal with dissimilar decimal length when one of them has extra zeros in the back
-// Only works with valid Decimal type numbers.
+// MaxInt32 returns the maximum between two int32 numbers
+func MaxInt32(x, y int32) int32 {
+	var max int32
+	digdiff := x - y
+	if digdiff <= 0 {
+		max = y
+	} else if digdiff >= 0{
+		max = x
+	}
+	return max
+}
+//================================================
+//
+// Function 01.00b - MaxInt64
+//
+// MaxInt64 returns the maximum between two int64 numbers
+func MaxInt64(x, y int64) int64 {
+	var max int64
+	digdiff := x - y
+	if digdiff <= 0 {
+		max = y
+	} else if digdiff >= 0{
+		max = x
+	}
+	return max
+}
+//================================================================================================
+//	01 Comparison Functions between decimals:
+//	The functions use the SummedMaxLengthPlusOne function to set the ComparisonContextPrecision
+//================================================================================================
 func DecimalEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    digmax := DigMax(x,y)
-    ComparisonContextPrecision := digmax + 1
+    ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)
 
-    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    Difference := SUBx(ComparisonContextPrecision, x, y)
     IsThreshold := Difference.IsZero()
 
     if IsThreshold == true {
@@ -122,10 +198,9 @@ func DecimalEqual(x, y *firefly.Decimal) bool {
 // Only works with valid Decimal type numbers.
 func DecimalNotEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    digmax := DigMax(x,y)
-    ComparisonContextPrecision := digmax + 1
+	ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)
 
-    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    Difference := SUBx(ComparisonContextPrecision, x, y)
     IsThreshold := Difference.IsZero()
 
     if IsThreshold == true {
@@ -145,10 +220,9 @@ func DecimalNotEqual(x, y *firefly.Decimal) bool {
 // x equals y would return false as in this case x isnt less than y
 func DecimalLessThan(x, y *firefly.Decimal) bool {
     var Result bool
-    digmax := DigMax(x,y)
-    ComparisonContextPrecision := digmax + 1
+	ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)
 
-    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    Difference := SUBx(ComparisonContextPrecision, x, y)
     //IsThreshold := Difference.IsZero()
 
     if Difference.Negative == true {
@@ -168,10 +242,9 @@ func DecimalLessThan(x, y *firefly.Decimal) bool {
 // Only works with valid Decimal type numbers.
 func DecimalLessThanOrEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    digmax := DigMax(x,y)
-    ComparisonContextPrecision := digmax + 1
+	ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)
 
-    Difference := SUBpr(ComparisonContextPrecision, x, y)
+    Difference := SUBx(ComparisonContextPrecision, x, y)
     IsThreshold := Difference.IsZero()
 
     if Difference.Negative == true || IsThreshold == true{
@@ -191,10 +264,9 @@ func DecimalLessThanOrEqual(x, y *firefly.Decimal) bool {
 // x equals y would return false as in this case x isn't less than y
 func DecimalGreaterThan(x, y *firefly.Decimal) bool {
     var Result bool
-    digmax := DigMax(x,y)
-    ComparisonContextPrecision := digmax + 1
+	ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)
 
-    Difference := SUBpr(ComparisonContextPrecision, y, x)
+    Difference := SUBx(ComparisonContextPrecision, y, x)
     //IsThreshold := Difference.IsZero()
 
     if Difference.Negative == true {
@@ -214,10 +286,9 @@ func DecimalGreaterThan(x, y *firefly.Decimal) bool {
 // Only works with valid Decimal type numbers.
 func DecimalGreaterThanOrEqual(x, y *firefly.Decimal) bool {
     var Result bool
-    digmax := DigMax(x,y)
-    ComparisonContextPrecision := uint32(digmax) + 1
+	ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)
 
-    Difference := SUBpr(ComparisonContextPrecision, y, x)
+    Difference := SUBx(ComparisonContextPrecision, y, x)
     IsThreshold := Difference.IsZero()
 
     if Difference.Negative == true || IsThreshold == true{
@@ -228,57 +299,85 @@ func DecimalGreaterThanOrEqual(x, y *firefly.Decimal) bool {
 
     return Result
 }
-//================================================
+//================================================================================================
 //	02,03,04,05 Mathematical operator Functions:
 // 		Mathematical operating functions used for computing
 //		Addition, Subtraction, Div, Multiplication, etc
 //		Basic Operations done under CryptoplasmPrecisionContext without
 //		Condition and error reporting as supported by Firefly
-//================================================
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 //
-// Function 02.01 - ADDel
+// Function 02.01 - ADDx
 //
-// ADDel adds two decimals within and elastically modified Precision CryptoplasmPrecisionContext Context
-func ADDel(member1, member2 *firefly.Decimal) *firefly.Decimal {
+// ADDx adds two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func ADDx(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
 	var result = new(firefly.Decimal)
-	MaxDigits := DigMax(member1,member2)
-	AdditionPrecision := MaxDigits + 1
-	cc := c.WithPrecision(AdditionPrecision)
+	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Add(result, member1, member2)
 	return result
 }
 //================================================
 //
-// Function 02.02 - ADDpr
+// Function 02.02 - ADDs
 //
-// ADDpr adds two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func ADDpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-    var result = new(firefly.Decimal)
-    cc := c.WithPrecision(TotalDecimalPrecision)
-    _, _ = cc.Add(result, member1, member2)
-    return result
+// ADDs adds two decimals within CryptoplasmPrecisionContext Context
+func ADDs(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	_, _ = c.Add(result, member1, member2)
+	return result
 }
 //================================================
 //
-// Function 02.03 - ADDcp
+// Function 02.03 - ADD
 //
-// ADDcp adds two decimals within CryptoplasmPrecisionContext Context
-func ADDcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-    var result = new(firefly.Decimal)
+// ADD adds two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has "DecimalPrecision" decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to "DecimalPrecision" decimals.
+func ADD(DecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	DNBDP := SummedMaxLengthPlusOne(member1,member2) 	//DigitNumberBasedDecimalPrecision
+	//Observation
+	// As "SummedMaxLengthPlusOne" returns a uint32 variable (maximum of 4.294.967.295)
+	// TotalDecimalPrecision will overflow uint32 if adding the "DecimalPrecision" on top of DNBDP because
+	// it (TotalDecimalPrecision) would get bigger than 4.294.967.295.
+	// However, this isn't expected to happen, which is why no check or error detection is implemented.
+	TotalDecimalPrecision := DNBDP + DecimalPrecision
 
-    _, _ = c.Add(result, member1, member2)
-    return result
+	cc := c.WithPrecision(TotalDecimalPrecision)
+	_, _ = cc.Add(result, member1, member2)
+	return result
 }
-
 //================================================
 //
-// Function 02.04 - SUMpr
+// Function 02.03a - ADDxs
 //
-// SUMpr adds multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+// ADDxs adds two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 70 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 70 decimals.
+func ADDxs(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	return ADD(CryptoplasmStdMathPrecision, member1, member2)
+}
+//================================================
+//
+// Function 02.03b - ADDxc
+//
+// ADDxc adds two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 100 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 100 decimals.
+func ADDxc(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	return ADD(CryptoplasmMaxMathPrecision, member1, member2)
+}
+//================================================
+//
+// Function 02.04 - SUMx
+//
+// SUMx adds multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func SUMx(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
     var (
-	sum     = new(firefly.Decimal)
-	restsum = firefly.NFI(0)
+		sum     = new(firefly.Decimal)
+		restsum = firefly.NFI(0)
     )
     cc := c.WithPrecision(TotalDecimalPrecision)
     for _, item := range rest {
@@ -289,10 +388,10 @@ func SUMpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 }
 //================================================
 //
-// Function 02.05 - SUMcp
+// Function 02.05 - SUMs
 //
-// SUMcp adds multiple decimals within CryptoplasmPrecisionContext Context
-func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+// SUMs adds multiple decimals within CryptoplasmPrecisionContext Context
+func SUMs(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
     var (
 	sum     = new(firefly.Decimal)
 	restsum = firefly.NFI(0)
@@ -306,120 +405,247 @@ func SUMcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 03.01 - SUBel
+// Function 02.06 - SUM
 //
-// SUBel adds two decimals within and elastically modified Precision CryptoplasmPrecisionContext Context
-func SUBel(member1, member2 *firefly.Decimal) *firefly.Decimal {
+// SUM sums multiple decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has "DecimalPrecision" decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to "DecimalPrecision" decimals.
+func SUM(DecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	var (
+		sum     = new(firefly.Decimal)
+		restsum = firefly.NFI(0)
+	)
+	for _, item := range rest {
+		restsum = ADD(DecimalPrecision,restsum,item)
+	}
+	sum = ADD(DecimalPrecision,first,restsum)
+	return sum
+}
+//================================================
+//
+// Function 02.06a - SUMxs
+//
+// SUMxs adds two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 70 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 70 decimals.
+func SUMxs(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	return SUM(CryptoplasmStdMathPrecision, first, rest...)
+}
+//================================================
+//
+// Function 02.06b - SUMxc
+//
+// SUMxc adds two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 100 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 100 decimals.
+func SUMxc(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	return SUM(CryptoplasmMaxMathPrecision, first, rest...)
+}
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
+//
+// Function 03.01 - SUBx
+//
+// SUBx subtract two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func SUBx(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
 	var result = new(firefly.Decimal)
-	MaxDigits := DigMax(member1,member2)
-	AdditionPrecision := MaxDigits + 1
-	cc := c.WithPrecision(AdditionPrecision)
+	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Sub(result, member1, member2)
 	return result
 }
-
 //================================================
 //
-// Function 03.02 - SUBpr
+// Function 03.02 - SUBs
 //
-// SUBpr subtract two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func SUBpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-    var result = new(firefly.Decimal)
-    cc := c.WithPrecision(TotalDecimalPrecision)
-    _, _ = cc.Sub(result, member1, member2)
-    return result
-}
-//================================================
-//
-// Function 03.03 - SUBcp
-//
-// SUBcp subtract two decimals within CryptoplasmPrecisionContext Context
-func SUBcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-    var result = new(firefly.Decimal)
-
-    _, _ = c.Sub(result, member1, member2)
-    return result
-}
-//================================================
-//
-// Function 03.04 - DIFpr
-//
-// DIFpr subtract multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func DIFpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
-    var (
-	difference = new(firefly.Decimal)
-	restsum    = firefly.NFI(0)
-    )
-    cc := c.WithPrecision(TotalDecimalPrecision)
-    for _, item := range rest {
-	_, _ = cc.Add(restsum, restsum, item)
-    }
-    _, _ = cc.Sub(difference, first, restsum)
-    return difference
-}
-//================================================
-//
-// Function 03.05 - DIFcp
-//
-// DIFcp subtract multiple decimals within CryptoplasmPrecisionContext Context
-func DIFcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
-    var (
-	difference = new(firefly.Decimal)
-	restsum    = firefly.NFI(0)
-    )
-    for _, item := range rest {
-	_, _ = c.Add(restsum, restsum, item)
-    }
-    _, _ = c.Sub(difference, first, restsum)
-    return difference
-}
-//================================================
-//
-// Function 03.01 - MULel
-//
-// MULel multiplies two decimals within and elastically modified Precision CryptoplasmPrecisionContext Context
-func MULel(member1, member2 *firefly.Decimal) *firefly.Decimal {
+// SUBs subtract two decimals within CryptoplasmPrecisionContext Context
+func SUBs(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	var result = new(firefly.Decimal)
+	_, _ = c.Sub(result, member1, member2)
+	return result
+}
+//================================================
+//
+// Function 03.03 - SUB
+//
+// SUB subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has "DecimalPrecision" decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to "DecimalPrecision" decimals.
 
-	NumberDigitsMember1 := member1.NumDigits()
-	NumberDigitsMember2 := member2.NumDigits()
-	MultiplicationPrecision := NumberDigitsMember1 + NumberDigitsMember2
+func SUB(DecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	DNBDP := SummedMaxLengthPlusOne(member1,member2)	//DigitNumberBasedDecimalPrecision
+	//Observation
+	// As "SummedMaxLengthPlusOne" returns a uint32 variable (maximum of 4.294.967.295)
+	// TotalDecimalPrecision will overflow uint32 if adding the "DecimalPrecision" on top of DNBDP because
+	// it (TotalDecimalPrecision) would get bigger than 4.294.967.295.
+	// However, this isn't expected to happen, which is why no check or error detection is implemented.
+	TotalDecimalPrecision := DNBDP + DecimalPrecision
 
-	//MaxDigits := DigMax(member1,member2)
-	//MultiplicationPrecision := MaxDigits + 1
-	cc := c.WithPrecision(uint32(MultiplicationPrecision))
+	cc := c.WithPrecision(TotalDecimalPrecision)
+	_, _ = cc.Sub(result, member1, member2)
+	return result
+}
+//================================================
+//
+// Function 03.03a - SUBxs
+//
+// ADDxs subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 70 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 70 decimals.
+func SUBxs(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	return SUB(CryptoplasmStdMathPrecision, member1, member2)
+}
+//================================================
+//
+// Function 03.03b - SUBxc
+//
+// SUBxc subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 100 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 100 decimals.
+func SUBxc(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	return SUB(CryptoplasmMaxMathPrecision, member1, member2)
+}
+//================================================
+//
+// Function 03.04 - DIFx
+//
+// DIFx subtracts multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func DIFx(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	var (
+		sum     = new(firefly.Decimal)
+		restsum = firefly.NFI(0)
+	)
+	cc := c.WithPrecision(TotalDecimalPrecision)
+	for _, item := range rest {
+		_, _ = cc.Add(restsum, restsum, item)
+	}
+	_, _ = cc.Sub(sum, first, restsum)
+	return sum
+}
+//================================================
+//
+// Function 03.05 - DIFs
+//
+// DIFs subtracts multiple decimals within CryptoplasmPrecisionContext Context
+func DIFs(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	var (
+		sum     = new(firefly.Decimal)
+		restsum = firefly.NFI(0)
+	)
+
+	for _, item := range rest {
+		_, _ = c.Add(restsum, restsum, item)
+	}
+	_, _ = c.Sub(sum, first, restsum)
+	return sum
+}
+//================================================
+//
+// Function 03.06 - DIF
+//
+// DIF subtracts multiple decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has "DecimalPrecision" decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to "DecimalPrecision" decimals.
+func DIF(DecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	var (
+		sum     = new(firefly.Decimal)
+		restsum = firefly.NFI(0)
+	)
+	for _, item := range rest {
+		restsum = ADD(DecimalPrecision,restsum,item)
+	}
+	sum = SUB(DecimalPrecision,first,restsum)
+	return sum
+}
+//================================================
+//
+// Function 03.06a - DIFxs
+//
+// DIFxs subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 70 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 70 decimals.
+func DIFxs(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	return DIF(CryptoplasmStdMathPrecision, first, rest...)
+}
+//================================================
+//
+// Function 03.06b - DIFxc
+//
+// DIFxc subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// The Precision has 100 decimal Precision plus elastic integer Precision.
+// The Precision scales with the number size, but is limited to 100 decimals.
+func DIFxc(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	return DIF(CryptoplasmMaxMathPrecision, first, rest...)
+}
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
+//
+// Function 04.01 - MULx
+//
+// MULx multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func MULx(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	cc := c.WithPrecision(TotalDecimalPrecision)
 	_, _ = cc.Mul(result, member1, member2)
 	return result
 }
-
 //================================================
 //
-// Function 04.01 - MULpr
+// Function 04.02 - MULs
 //
-// MULpr multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func MULpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
-    var result = new(firefly.Decimal)
-    cc := c.WithPrecision(TotalDecimalPrecision)
-    _, _ = cc.Mul(result, member1, member2)
-    return result
+// MULs multiplies two decimals within CryptoplasmPrecisionContext Context
+func MULs(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result = new(firefly.Decimal)
+	_, _ = c.Mul(result, member1, member2)
+	return result
 }
 //================================================
 //
-// Function 04.02 - MULcp
+// Function 04.03 - MULxc
 //
-// MULcp multiplies two decimals within CryptoplasmPrecisionContext Context
-func MULcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
-    var result = new(firefly.Decimal)
+// MULxc multiplies two decimals within an elastically modified Precision CryptoplasmPrecisionContext Context
+// The elastic Precision's decimal limit is set to 100, while the integer precision scales without any "limits".
+// Any limits means only a theoretical hard limit of 4.294.967.195 digits, 100 units less than uint32.
+// This is however expected never to be achieved.
+func MULxc(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var (
+		result = new(firefly.Decimal)
+		DecimalPrecision uint32
+	)
 
-    _, _ = c.Mul(result, member1, member2)
-    return result
+	IntegerDigitsMember1 := Count4Coma(member1)			//int64
+	IntegerDigitsMember2 := Count4Coma(member2)			//int64
+	DecimalDigitsMember1 := 0 - member1.Exponent		//int32
+	DecimalDigitsMember2 := 0 - member2.Exponent		//int32
+	IntegerSumInt64 := IntegerDigitsMember1 + IntegerDigitsMember2		//int64 9.223.372.036.854.775.807
+	DecimalSumInt32 := DecimalDigitsMember1 + DecimalDigitsMember2		//int32 2.147.483.647
+
+	IntegerSumUint32 := uint32(IntegerSumInt64)			// from 9.223.372.036.854.775.807 to max 4.294.967.295
+	DecimalSumUint32 := uint32(DecimalSumInt32)			// from 2.147.483.647 to max 4.294.967.295
+
+	//Max IntegerSum can be 4.294.967.295
+	//Max DecimalSum is limited to 100.
+	//As these are added to give the total precision, Max IntegerSum can be as high as 4.294.967.195
+
+	if DecimalSumUint32 < CryptoplasmMaxMathPrecision {
+		DecimalPrecision = DecimalSumUint32
+	} else {
+		DecimalPrecision = CryptoplasmMaxMathPrecision
+	}
+	MultiplicationPrecision := IntegerSumUint32 + DecimalPrecision
+
+	cc := c.WithPrecision(MultiplicationPrecision)
+	_, _ = cc.Mul(result, member1, member2)
+	return result
 }
 //================================================
 //
-// Function 04.03 - PRDpr
+// Function 04.04 - PRDx
 //
-// PRDpr multiplies multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func PRDpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+// PRDx multiplies multiple decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func PRDx(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
     var (
 	product     = new(firefly.Decimal)
 	restproduct = firefly.NFI(1)
@@ -434,10 +660,10 @@ func PRDpr(TotalDecimalPrecision uint32, first *firefly.Decimal, rest ...*firefl
 }
 //================================================
 //
-// Function 04.04 - PRDcp
+// Function 04.05 - PRDs
 //
-// PRDcp multiplies multiple decimals within CryptoplasmPrecisionContext Context
-func PRDcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+// PRDs multiplies multiple decimals within CryptoplasmPrecisionContext Context
+func PRDs(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
     var (
 	product     = new(firefly.Decimal)
 	restproduct = firefly.NFI(1)
@@ -452,32 +678,78 @@ func PRDcp(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
 }
 //================================================
 //
-// Function 04.05 - POWpr
+// Function 04.06 - PRDxc
 //
-// POWpr multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func POWpr(TotalDecimalPrecision uint32, x, y *firefly.Decimal) *firefly.Decimal {
+// PRDxc multiplies two decimals within an elastically modified Precision CryptoplasmPrecisionContext Context
+// The elastic Precision's decimal limit is set to 100, while the integer precision scales without any "limits".
+// Any limits means only a theoretical hard limit of 4.294.967.195 digits, 100 units less than uint32.
+// This is however expected never to happen.
+func PRDxc(first *firefly.Decimal, rest ...*firefly.Decimal) *firefly.Decimal {
+	var (
+		product     = new(firefly.Decimal)
+		restproduct = firefly.NFI(1)
+	)
+
+	for _, item := range rest {
+		restproduct = MULxc(restproduct,item)
+	}
+	product = MULxc(first,restproduct)
+	_, _ = c.Mul(product, first, restproduct)
+
+	return product
+}
+
+//================================================
+//
+// Function 04.07 - POWx
+//
+// POWx computes x ** y within a custom Precision modified CryptoplasmPrecisionContext Context
+func POWx(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
     cc := c.WithPrecision(TotalDecimalPrecision)
-    _, _ = cc.Pow(result, x, y)
+    _, _ = cc.Pow(result, member1, member2)
     return result
 }
 //================================================
 //
-// Function 04.06 - POWcp
+// Function 04.08 - POWs
 //
-// POWcp multiplies two decimals within CryptoplasmPrecisionContext Context
-func POWcp(x, y *firefly.Decimal) *firefly.Decimal {
+// POWs computes x ** y within CryptoplasmPrecisionContext Context
+func POWs(member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
 
-    _, _ = c.Pow(result, x, y)
+    _, _ = c.Pow(result, member1, member2)
     return result
 }
 //================================================
 //
-// Function 05.01 - DIVpr
+// Function 04.06 - POWxc
 //
-// DIVpr multiplies two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
-func DIVpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
+// POWxc computes x ** y within an elastically modified Precision CryptoplasmPrecisionContext Context
+// The elastic Precision's decimal limit is set to 100, while the integer precision scales without any "limits".
+// Any limits means only a theoretical hard limit of 4.294.967.195 digits, 100 units less than uint32.
+// This is however expected never to happen.
+func POWxc(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var result     = new(firefly.Decimal)
+
+	IntegerDigitsMember1 	:= Count4Coma(member1)							//int64
+	IntegerMember2 			:= firefly.INT64(RemoveDecimals(member2))		//int64
+	IntegerPrecision 		:= IntegerDigitsMember1 * (IntegerMember2 + 1)	//int64
+	//Observation, if above values are greater than uint32, the conversion below ov overflows.
+	//This is however expected never to happen.
+	TotalPowerPrecision		:= uint32(IntegerPrecision) + CryptoplasmMaxMathPrecision
+
+	cc := c.WithPrecision(TotalPowerPrecision)
+	_, _ = cc.Pow(result, member1, member2)
+
+	return result
+}
+//================================================
+//
+// Function 05.01 - DIVx
+//
+// DIVx divides two decimals within a custom Precision modified CryptoplasmPrecisionContext Context
+func DIVx(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
     cc := c.WithPrecision(TotalDecimalPrecision)
     _, _ = cc.Quo(result, member1, member2)
@@ -485,74 +757,148 @@ func DIVpr(TotalDecimalPrecision uint32, member1, member2 *firefly.Decimal) *fir
 }
 //================================================
 //
-// Function 05.02 - DIVcp
+// Function 05.02 - DIVs
 //
-// DIVcp multiplies two decimals within CryptoplasmPrecisionContext Context
-func DIVcp(member1, member2 *firefly.Decimal) *firefly.Decimal {
+// DIVs multiplies two decimals within CryptoplasmPrecisionContext Context
+func DIVs(member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
-
     _, _ = c.Quo(result, member1, member2)
     return result
 }
 //================================================
 //
-// Function 05.03 - DivInt
+// Function 05.02 - DIVxc
+//
+// DIVxc divides 2 numbers with elastic integer precision and 100 max decimal precision
+func DIVxc(member1, member2 *firefly.Decimal) *firefly.Decimal {
+	var (
+		result = new(firefly.Decimal)
+		IntegerPrecision uint32
+	)
+
+	IntegerDigitsMember1 := Count4Coma(member1)			//int64		//Number of integer digits
+	IntegerDigitsMember2 := Count4Coma(member2)			//int64		//Number of integer digits
+
+	DecimalDigitsMember1 := 0 - member1.Exponent		//int32		//Number of decimals digits
+	DecimalDigitsMember2 := 0 - member2.Exponent		//int32		//Number of decimals digits
+
+	NumberDigitsMember1 := member1.NumDigits()			//Total Number of digits
+	NumberDigitsMember2 := member2.NumDigits()			//Total Number of digits
+
+	IntegerMember1 := RemoveDecimals(member1)			//Integer Value without decimals
+	IntegerMember2 := RemoveDecimals(member2)			//Integer Value without decimals
+
+	if DecimalGreaterThan(IntegerMember1,firefly.NFI(0)) == true  && DecimalGreaterThan(IntegerMember2,firefly.NFI(0)) {
+		//Case 1 Integer Part is similar
+		fmt.Println("Case1")
+		if DecimalEqual(IntegerMember1,IntegerMember2) == true {
+			fmt.Println("Case1.1")
+			if DecimalGreaterThanOrEqual(member1,member2) == true {
+				fmt.Println("Case1.1.1")
+				IntegerPrecision = 1
+			} else {
+				fmt.Println("Case1.1.2")
+				IntegerPrecision = 0
+			}
+		} else if DecimalGreaterThan(IntegerMember1,IntegerMember2) == true {
+			fmt.Println("Case1.2")
+			if IntegerDigitsMember1 == IntegerDigitsMember2 {
+				fmt.Println("Case1.2.1")
+				IntegerPrecision = 1
+			} else if IntegerDigitsMember1 > IntegerDigitsMember2 {
+				fmt.Println("Case1.2.2")
+				IntegerPrecision = uint32(IntegerDigitsMember1) - uint32(IntegerDigitsMember2) + 1
+				fmt.Println("IntegerPrecision is",IntegerPrecision)
+			}
+		} else  {
+			fmt.Println("Case1.3")
+			IntegerPrecision = 0
+		}
+	} else if DecimalGreaterThan(IntegerMember1,firefly.NFI(0)) == true && DecimalEqual(IntegerMember2,firefly.NFI(0)) {
+		//Case 2 Integer Part of member2 is zero
+		fmt.Println("Case2")
+		if int32(NumberDigitsMember2) == DecimalDigitsMember2 {
+			fmt.Println("Case2.1")
+			IntegerPrecision = uint32(IntegerDigitsMember1) + 1
+		} else {
+			fmt.Println("Case2.2")
+			Zeros := DecimalDigitsMember2 - int32(NumberDigitsMember2)
+			IntegerPrecision = uint32(IntegerDigitsMember1) + 1 + uint32(Zeros)
+		}
+	} else if  DecimalGreaterThan(IntegerMember2,firefly.NFI(0)) == true && DecimalEqual(IntegerMember1,firefly.NFI(0)) {
+		//Case 3 Integer Part of member1 is zero
+		fmt.Println("Case3")
+		IntegerPrecision = 0
+	} else if DecimalEqual(IntegerMember1,firefly.NFI(0)) && DecimalEqual(IntegerMember2,firefly.NFI(0)) {
+		//Case 4 both Integer Parts are zero
+		fmt.Println("Case4")
+		Zeros1 := DecimalDigitsMember1 - int32(NumberDigitsMember1)
+		Zeros2 := DecimalDigitsMember2 - int32(NumberDigitsMember2)
+		if Zeros1 < Zeros2 {
+			fmt.Println("Case4.1")
+			IntegerPrecision = uint32(Zeros2 - Zeros1) + 1
+		} else if Zeros1 > Zeros2 {
+			fmt.Println("Case4.2")
+			IntegerPrecision = 0
+		} else if Zeros1 == Zeros2 {
+			fmt.Println("Case4.3")
+			if DecimalLessThan(member1,member2) == true {
+				fmt.Println("Case4.3.1")
+				IntegerPrecision = 0
+			} else {
+				fmt.Println("Case4.3.2")
+				IntegerPrecision = 1
+			}
+		}
+	}
+
+	TotalDivisionPrecision := IntegerPrecision + CryptoplasmMaxMathPrecision
+	result = DIVx(TotalDivisionPrecision,member1,member2)
+	return result
+}
+
+//================================================
+//
+// Function 05.04 - DivInt
 //
 // DivInt returns the integer part of x divided by y
 // It is equal to x // y
 // Returned Value is also of decimal Type
-func DivInt (x, y *firefly.Decimal) *firefly.Decimal {
+func DivInt (member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
-    digmax := DigMax(x,y)
-    DCP := digmax + 1		//DivisionContextPrecision
+	DCP := SummedMaxLengthPlusOne(member1,member2)	//DivisionContextPrecision
     cc := c.WithPrecision(DCP)
-    _,_ = cc.QuoInteger(result,x,y)
+    _,_ = cc.QuoInteger(result,member1,member2)
     return result
 }
 //================================================
 //
-// Function 05.04 - DivMod
+// Function 05.05 - DivMod
 //
 // DivMod returns the remainder from the division of x to y
 // It is equal to x % y
 // Returned Value is also of decimal Type
-func DivMod (x, y *firefly.Decimal) *firefly.Decimal {
+func DivMod (member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
-    digmax := DigMax(x,y)
-    DCP := digmax + 1		//DivisionContextPrecision
-    divresult := TruncateCustom(DCP,DivInt(x,y),0)
-    result = SUBpr(DCP,x,MULpr(DCP,y,divresult))
+	DCP := SummedMaxLengthPlusOne(member1,member2)	//DivisionContextPrecision
+    //divresult := TruncateCustom(DCP,DivInt(member1,member2),0)
+	divresult := TruncateCustom(DivInt(member1,member2),0)
+    result = SUBx(DCP,member1,MULx(DCP,member2,divresult))
     return result
-}
-//================================================
-//
-// Function 05.05 - DigMax
-//
-// DigMax returns maximum between the number of digits of two Decimals
-// Used for autoscaling precision for operations over Decimals
-func DigMax (x, y *firefly.Decimal) uint32 {
-    var digmax int64
-
-    xdig := x.NumDigits()
-    ydig := y.NumDigits()
-    digdiff := xdig - ydig
-    if digdiff <= 0 {
-	digmax = ydig
-    } else if digdiff >= 0{
-	digmax = xdig
-    }
-    return uint32(digmax)
 }
 //================================================
 //	05a Mean Functions:
 // 		Different types of means used for computing purposes
 //		In specific ways
 //================================================
-func TwoMean(number1, number2 *firefly.Decimal) *firefly.Decimal {
+//
+// Function 05a.01 - TwoMean
+//
+// TwoMean returns the mean of two decimals
+func TwoMean(member1, member2 *firefly.Decimal) *firefly.Decimal {
 	var result = new(firefly.Decimal)
-	MaxDigits := DigMax(number1,number1)
-	DivisionPrecision := MaxDigits + 1
-	result = DIVpr(DivisionPrecision,ADDel(number1,number2),firefly.NFI(2))
+	DCP := SummedMaxLengthPlusOne(member1,member2)	//DivisionContextPrecision
+	result = DIVx(DCP,ADDxc(member2,member2),firefly.NFI(2))
 	return result
 }
 //================================================
@@ -564,29 +910,25 @@ func TwoMean(number1, number2 *firefly.Decimal) *firefly.Decimal {
 // Function 06.01 - TruncateCustom
 //
 // TruncateCustom truncates the decimal to the specified precision number
-func TruncateCustom(TotalDecimalPrecision uint32, number *firefly.Decimal, DecimalPrecision uint32) *firefly.Decimal {
+func TruncateCustom(Number *firefly.Decimal, DecimalPrecision uint32) *firefly.Decimal {
 	var result = new(firefly.Decimal)
-	ConvertedPrecision := int32(DecimalPrecision)
-	ConvertedPrecision = 0 - ConvertedPrecision
-	cc := c.WithPrecision(TotalDecimalPrecision)
-	_, _ = cc.Quantize(result, number, ConvertedPrecision)
+
+	NumberDigits := Count4Coma(Number)
+	TruncatingContextPrecision := uint32(NumberDigits) + DecimalPrecision
+	cc := c.WithPrecision(TruncatingContextPrecision)
+
+	CSP := 0 - int32(DecimalPrecision)
+	_, _ = cc.Quantize(result, Number, CSP)
 	return result
 }
+
 //================================================
 //
 // Function 06.02 - TruncSeed
 //
 // TruncSeed truncates the decimal to CryptoplasmSeedPrecision
 func TruncSeed(SeedNumber *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
-
-	NumberDigits := Count4Coma(SeedNumber)
-	TruncatingContextPrecision := uint32(NumberDigits) + CryptoplasmSeedPrecision
-	cc := c.WithPrecision(TruncatingContextPrecision)
-
-	CSP := 0 - int32(CryptoplasmSeedPrecision)
-	_, _ = cc.Quantize(result, SeedNumber, CSP)
-	return result
+	return TruncateCustom(SeedNumber,CryptoplasmSeedPrecision)
 }
 //================================================
 //
@@ -595,15 +937,16 @@ func TruncSeed(SeedNumber *firefly.Decimal) *firefly.Decimal {
 // TruncToCurrency truncates the decimal to CryptoplasmCurrencyPrecision
 // It is Context Precision Independent
 func TruncToCurrency(Amount2BecomeCP *firefly.Decimal) *firefly.Decimal {
-	var result = new(firefly.Decimal)
-
-	NumberDigits := Count4Coma(Amount2BecomeCP)
-	TruncatingContextPrecision := uint32(NumberDigits) + CryptoplasmCurrencyPrecision
-	cc := c.WithPrecision(TruncatingContextPrecision)
-
-	CCP := 0 - int32(CryptoplasmCurrencyPrecision)
-	_, _ = cc.Quantize(result, Amount2BecomeCP, CCP)
-	return result
+	return TruncateCustom(Amount2BecomeCP,CryptoplasmCurrencyPrecision)
+}
+//================================================
+//
+// Function 06.03 - TruncPercent
+//
+// TruncPercent truncates the decimal to CryptoplasmCurrencyPrecision
+// It is Context Precision Independent
+func TruncPercent(Amount2BecomeCP *firefly.Decimal) *firefly.Decimal {
+	return TruncateCustom(Amount2BecomeCP,CryptoplasmPercentPrecision)
 }
 //================================================
 //	07 List Function:
@@ -620,7 +963,7 @@ func SumDL(a []*firefly.Decimal) *firefly.Decimal {
 	var sum = new(firefly.Decimal)
 
 	for i := 0; i < len(a); i++ {
-		sum = ADDcp(sum, a[i])
+		sum = ADDs(sum, a[i])
 	}
 	return sum
 }
@@ -721,8 +1064,8 @@ func RemoveDecimals(Number *firefly.Decimal) *firefly.Decimal {
 // Count4Coma returns the number of digits before precision
 func Count4Coma(Number *firefly.Decimal) int64 {
 	Whole := RemoveDecimals(Number)
-	Digits := Whole.NumDigits()
-	return Digits
+	Int64Digits := Whole.NumDigits()	//int64, up to 9223372036854775807
+	return Int64Digits
 }
 //================================================
 //	09 Blockchain Specific Geometry Functions
@@ -763,12 +1106,12 @@ func OverSendLogBase(cpAmount *firefly.Decimal) *firefly.Decimal {
 	DND := firefly.NFI(DigitsNumber) //making decimal the Digit number
 	DigitsOperatingPrecision := Count4Coma(DND)
 
-	Exponent := SUBpr(uint32(DigitsOperatingPrecision), DND, firefly.NFI(2))
+	Exponent := SUBx(uint32(DigitsOperatingPrecision), DND, firefly.NFI(2))
 	e := firefly.INT64(Exponent)
 	for i := e; i >= 0; i-- {
 		idec := firefly.NFI(i)
-		Value := MULpr(uint32(DigitsNumber), POWpr(uint32(DigitsNumber), firefly.NFI(10), idec), firefly.NFI(7))
-		Base = ADDpr(uint32(DigitsNumber), Base, Value)
+		Value := MULx(uint32(DigitsNumber), POWx(uint32(DigitsNumber), firefly.NFI(10), idec), firefly.NFI(7))
+		Base = ADDx(uint32(DigitsNumber), Base, Value)
 	}
 	return Base
 }
@@ -808,7 +1151,7 @@ func OVSLogarithm(base, number *firefly.Decimal) *firefly.Decimal {
 	cc := c.WithPrecision(IP)
 	_, _ = cc.Ln(LogBase, base)
 	_, _ = cc.Ln(LogNumber, number)
-	CustomLog := DIVpr(IP, LogNumber, LogBase)
+	CustomLog := DIVx(IP, LogNumber, LogBase)
 	return CustomLog
 }
 //================================================
@@ -824,10 +1167,10 @@ func CPAmount2StringDecomposer(cpAmount *firefly.Decimal) []uint8 {
 	NumberDigits := tcpAmountInteger.NumDigits()
 	NumberToManipulate := tcpAmountInteger
 	for i := 0; i < int(NumberDigits); i++ {
-		Div10 := DIVpr(uint32(NumberDigits),NumberToManipulate,firefly.NFI(10))
+		Div10 := DIVx(uint32(NumberDigits),NumberToManipulate,firefly.NFI(10))
 		RemoveLast := RemoveDecimals(Div10)
-		Multiplication := MULel(RemoveLast,firefly.NFI(10))
-		LastDigit := SUBel(NumberToManipulate,Multiplication)
+		Multiplication := MULxc(RemoveLast,firefly.NFI(10))
+		LastDigit := SUBxs(NumberToManipulate,Multiplication)
 		LastDigitINT64 := firefly.INT64(LastDigit)
 		LastDigitSmall := uint8(LastDigitINT64)
 		NumberToManipulate = RemoveLast
@@ -858,24 +1201,24 @@ func CPTxTaxV2(cpAmount *firefly.Decimal) (*firefly.Decimal, *firefly.Decimal, *
 			StringToPrint := BaseStringPoint + StringPoint
 			fmt.Print("\r",StringToPrint)
 
-			Number:=POWpr(uint32(i)+1,firefly.NFI(10),firefly.NFI(int64(i)))
+			Number:=POWx(uint32(i)+1,firefly.NFI(10),firefly.NFI(int64(i)))
 			LogBase := OverSendLogBase(Number)
 			ProMille := OVSLogarithm(LogBase,Number)
 			BaseDigitNumber := Number.NumDigits()
 			DivPrecision := 2*CryptoplasmCurrencyPrecision + uint32(BaseDigitNumber)
-			Tax := DIVpr(DivPrecision,MULel(Number,ProMille),firefly.NFI(1000))
+			Tax := DIVx(DivPrecision,MULxc(Number,ProMille),firefly.NFI(1000))
 			if AmountNumberSlice[i] == 0 {
 				MultipliedTax = firefly.NFI(0)
 			} else {
-				MultipliedTax = MULel(Tax,firefly.NFI(int64(AmountNumberSlice[i])))
+				MultipliedTax = MULxc(Tax,firefly.NFI(int64(AmountNumberSlice[i])))
 			}
-			TxTax = ADDel(TxTax,MultipliedTax)
+			TxTax = ADDxs(TxTax,MultipliedTax)
 		}
 	}
 	fmt.Println("DONE")
 	TxTax = TruncToCurrency(TxTax)
-	Recipient := SUBel(tcpAmount,TxTax)
-	CumulativeFeeProMille := TruncToCurrency(DIVpr(MainDivPrecision,MULel(TxTax,firefly.NFI(1000)),tcpAmount))
+	Recipient := SUBxs(tcpAmount,TxTax)
+	CumulativeFeeProMille := TruncToCurrency(DIVx(MainDivPrecision,MULxc(TxTax,firefly.NFI(1000)),tcpAmount))
 	//fmt.Print("===")
 	return CumulativeFeeProMille, TxTax, Recipient
 }
@@ -888,16 +1231,16 @@ func OverSendV2(cpAmount *firefly.Decimal) *firefly.Decimal {
 	fmt.Println("START Computing OverSend...")
 	tcpAmount := TruncToCurrency(cpAmount)
 	_,TxTaxAmount,_ := CPTxTaxV2(tcpAmount)
-	OverSend := ADDel(tcpAmount,TxTaxAmount)
+	OverSend := ADDxs(tcpAmount,TxTaxAmount)
 	Iteration := 0
 	for DecimalEqual(TxTaxAmount,firefly.NFI(0)) == false {
 		Iteration = Iteration + 1
 		_,TxTaxAmount,_ = CPTxTaxV2(TxTaxAmount)
-		OverSend = ADDel(OverSend,TxTaxAmount)
+		OverSend = ADDxs(OverSend,TxTaxAmount)
 	}
 	//fmt.Println("Last TxTax computation:")
 	_,LastTxTax,_ := CPTxTaxV2(OverSend)
-	LastOverSend := ADDel(tcpAmount,LastTxTax)
+	LastOverSend := ADDxs(tcpAmount,LastTxTax)
 	fmt.Println("DONE Computing OverSend, after ",Iteration," iteration(s) ...")
 	return LastOverSend
 }
@@ -923,16 +1266,15 @@ func PseudoFiftyFiftyOverSendLong (cpAmount *firefly.Decimal) *firefly.Decimal {
 // It is called "short", because it relies on the OverSend value.
 func PseudoFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *firefly.Decimal {
 	var PseudoFFOverSend = new(firefly.Decimal)
-	MaxDigits := DigMax(cpAmount,PerfectOverSend)
-	DivisionPrecision := MaxDigits + 1
+	DCP := SummedMaxLengthPlusOne(cpAmount,PerfectOverSend)	//DivisionContextPrecision
 
 	tcpAmount := TruncToCurrency(cpAmount)
 	_, TxTaxMin, _ := CPTxTaxV2(tcpAmount)
 	_, TxTaxMax, _ := CPTxTaxV2(PerfectOverSend)
 
 	MeanTx := TwoMean(TxTaxMin,TxTaxMax)
-	HalfMeanTx := DIVpr(DivisionPrecision,MeanTx,firefly.NFI(2))
-	PseudoFFOverSend = ADDel(cpAmount,HalfMeanTx)
+	HalfMeanTx := DIVx(DCP,MeanTx,firefly.NFI(2))
+	PseudoFFOverSend = ADDxs(cpAmount,HalfMeanTx)
 	return PseudoFFOverSend
 }
 //================================================
@@ -976,16 +1318,16 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *fi
 	OverSendFF := PseudoFiftyFiftyOverSendShort(cpAmount,PerfectOverSend)
 	_, _, RecipientFF := CPTxTaxV2(OverSendFF)
 
-	TxTaxS := TruncToCurrency(SUBpr(IP,OverSendFF,tcpAmount))
-	TxTaxR := TruncToCurrency(SUBpr(IP,tcpAmount,RecipientFF))
+	TxTaxS := TruncToCurrency(SUBx(IP,OverSendFF,tcpAmount))
+	TxTaxR := TruncToCurrency(SUBx(IP,tcpAmount,RecipientFF))
 
-	FluctuatingOverSend := SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
+	FluctuatingOverSend := SUMx(IP,TxTaxR,DIVx(IP,SUBx(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
 	for DecimalNotEqual(TxTaxS,TxTaxR) == true {
 		Iteration = Iteration + 1
 		if DecimalGreaterThan(TxTaxS,TxTaxR) == true {
-			MinimumDifference = SUBpr(IP,TxTaxS,TxTaxR)
+			MinimumDifference = SUBx(IP,TxTaxS,TxTaxR)
 		} else {
-			MinimumDifference = SUBpr(IP,TxTaxR,TxTaxS)
+			MinimumDifference = SUBx(IP,TxTaxR,TxTaxS)
 		}
 		if DecimalEqual(TxTaxS,TxTaxR) == true || DecimalEqual(MinimumDifference,YoctoPlasm) == true{
 			break
@@ -994,9 +1336,9 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *fi
 			//Loop Down
 			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
 			_, _, RFiftyFifty := CPTxTaxV2(FluctuatingOverSend)
-			TxTaxS = TruncToCurrency(SUBpr(IP,FluctuatingOverSend,tcpAmount))
-			TxTaxR = TruncToCurrency(SUBpr(IP,tcpAmount,RFiftyFifty))
-			FluctuatingOverSend = SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
+			TxTaxS = TruncToCurrency(SUBx(IP,FluctuatingOverSend,tcpAmount))
+			TxTaxR = TruncToCurrency(SUBx(IP,tcpAmount,RFiftyFifty))
+			FluctuatingOverSend = SUMx(IP,TxTaxR,DIVx(IP,SUBx(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
 			//fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
 
 		} else if DecimalLessThan(TxTaxS,TxTaxR) == true {
@@ -1004,17 +1346,17 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *firefly.Decimal) *fi
 			fmt.Println("Computing FiftyFiftyOverSend, refining difference...")
 			_, _, RFiftyFifty := CPTxTaxV2(FluctuatingOverSend)
 
-			TxTaxS = TruncToCurrency(SUBpr(IP,FluctuatingOverSend,tcpAmount))
-			TxTaxR = TruncToCurrency(SUBpr(IP,tcpAmount,RFiftyFifty))
-			FluctuatingOverSend = SUMpr(IP,TxTaxR,DIVpr(IP,SUBpr(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
+			TxTaxS = TruncToCurrency(SUBx(IP,FluctuatingOverSend,tcpAmount))
+			TxTaxR = TruncToCurrency(SUBx(IP,tcpAmount,RFiftyFifty))
+			FluctuatingOverSend = SUMx(IP,TxTaxR,DIVx(IP,SUBx(IP,TxTaxS,TxTaxR),firefly.NFI(2)),tcpAmount)
 			//fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
 		}
 	}
 	TrueFiftyFifty = FluctuatingOverSend
 	_, _, RecipientFiftyFifty := CPTxTaxV2(TrueFiftyFifty)
 
-	TxTaxS = SUBpr(IP,TrueFiftyFifty,tcpAmount)
-	TxTaxR = SUBpr(IP,tcpAmount,RecipientFiftyFifty)
+	TxTaxS = SUBx(IP,TrueFiftyFifty,tcpAmount)
+	TxTaxR = SUBx(IP,tcpAmount,RecipientFiftyFifty)
 	//elapsed := time.Since(start)
 	//fmt.Println("Computing FiftyFiftyOverSend took", elapsed, "with", Iteration, "Iterations")
 	//fmt.Println("")
@@ -1053,8 +1395,8 @@ func TxTaxPrinter(cpAmount *firefly.Decimal) {
 	fmt.Println("\tPART 3 FINISH - Done Computing TxTax based on FiftyFiftyOverSend")
 	fmt.Println("")
 
-	SenderTxTax := SUBel(FiftyFiftyOverSend,tcpAmount)
-	RecipientTxTax := SUBel(tcpAmount,RecipientFF)
+	SenderTxTax := SUBxs(FiftyFiftyOverSend,tcpAmount)
+	RecipientTxTax := SUBxs(tcpAmount,RecipientFF)
 
 	OverSendAmountLength 	:= len(CPAmountConv2Print(OverSend))
 	TargetAmountLength 		:= len(CPAmountConv2Print(tcpAmount))
@@ -1219,7 +1561,7 @@ func CPConvert2AU(cpAmount *firefly.Decimal) *firefly.Decimal {
     tcpAmount := TruncToCurrency(cpAmount)
     NumberDigits := Count4Coma(cpAmount)
     IP := uint32(NumberDigits) + CryptoplasmCurrencyPrecision
-    AU := MULpr(IP,tcpAmount,AUs)
+    AU := MULx(IP,tcpAmount,AUs)
 
     return AU
 }
@@ -1239,16 +1581,16 @@ func YoctoPlasm2String(Number *firefly.Decimal) []string {
     ToSequence := Number
     for i := Exp; i >= 0; i-- {
         idec := firefly.NFI(i)
-        Power := POWpr(IP,Ten,idec)
-        Division := DIVpr(IP,ToSequence,Power)
-
-        DigitIs := TruncateCustom(IP,Division,0)
+        Power := POWx(IP,Ten,idec)
+        Division := DIVx(IP,ToSequence,Power)
+		DigitIs := TruncateCustom(Division,0)
+        //DigitIs := TruncateCustom(IP,Division,0)
         DI := firefly.INT64(DigitIs)
         DigitIsString := strconv.Itoa(int(DI))
         SliceStr = append(SliceStr,DigitIsString)
 
-        Rest := SUBpr(IP,Division,DigitIs)
-        SmallAU := MULpr(IP,Rest,Power)
+        Rest := SUBx(IP,Division,DigitIs)
+        SmallAU := MULx(IP,Rest,Power)
 	ToSequence = SmallAU
     }
     return SliceStr

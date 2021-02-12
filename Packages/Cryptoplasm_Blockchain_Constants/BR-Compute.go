@@ -42,13 +42,13 @@ import (
 func CryptoplasmPrimaryGeometricListing(a *p.Decimal, b int) []*p.Decimal {
 	HeightFront := a
 	AreaFront := a
-	FirstElement := ADDcp(AreaFront, Seed1st)
+	FirstElement := ADDs(AreaFront, Seed1st)
 	Carnatz := make([]*p.Decimal, 1)
 	Carnatz[0] = FirstElement
 
 	for i := 2; i < b; i++ {
-		HeightFront = ADDcp(HeightFront, Seed2nd)
-		AreaFront = ADDcp(HeightFront, Seed1st)
+		HeightFront = ADDs(HeightFront, Seed2nd)
+		AreaFront = ADDs(HeightFront, Seed1st)
 		Carnatz = append(Carnatz, AreaFront)
 	}
 	return Carnatz
@@ -80,11 +80,11 @@ func CryptoplasmSecondaryGeometricListing(x1 int, x2, x3 *p.Decimal) []*p.Decima
 	Sum1 := SumDL(SliceFront)
 	Sum2 := SumDL(SliceBack)
 	if d.Negative == false {
-		Missing = DIFcp(e, Sum1, Sum2)
+		Missing = DIFs(e, Sum1, Sum2)
 	} else {
 		SliceBack2 = CryptoplasmPrimaryGeometricListing(p.NFI(0), 638-intc)
 		Sum3 := SumDL(SliceBack2)
-		Missing = ADDcp(MULcp(ci, d), DIFcp(e, Sum1, Sum3))
+		Missing = ADDs(MULs(ci, d), DIFs(e, Sum1, Sum3))
 	}
 	SliceFront = append(SliceFront, Missing)
 	RevSlice := Reverse(SliceBack)
@@ -321,15 +321,15 @@ func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
 	GHDigits := Count4Coma(GH)
 	MP := uint32(GHDigits) + CryptoplasmSeedPrecision
 
-	BR := ADDpr(MP, StartBRd, MULpr(MP, GH, Seed3rd))
+	BR := ADDx(MP, StartBRd, MULx(MP, GH, Seed3rd))
 	TruncatedBR := TruncToCurrency(BR)
 
 	//Increasing highest Block for the whole BR sum to be exactly
 	//TheoreticalEraEmission - PreMinedAmount
-	Exception := SUBcp(TruncatedBR, Seed5th)
+	Exception := SUBs(TruncatedBR, Seed5th)
 	IsHighestBlock := Exception.IsZero()
 	if IsHighestBlock == true {
-		TruncatedBR = ADDcp(DIFcp(TotalEmission, PreMine, Seed4th), TruncatedBR)
+		TruncatedBR = ADDs(DIFs(TotalEmission, PreMine, Seed4th), TruncatedBR)
 	}
 	return TruncatedBR
 }
@@ -362,72 +362,72 @@ func BlockGeometricHeight(BlockHeight *p.Decimal) *p.Decimal {
 		for i := 0; i < int(p.INT64(Purples)); i++ {
 			element := CryptoplasmDNA[i]
 			if element == "A" {
-				GH = ADDcp(GH, LastDE(Ax))
+				GH = ADDs(GH, LastDE(Ax))
 			} else if element == "B" {
-				GH = ADDcp(GH, LastDE(Bx))
+				GH = ADDs(GH, LastDE(Bx))
 			} else if element == "C" {
-				GH = ADDcp(GH, LastDE(Cx))
+				GH = ADDs(GH, LastDE(Cx))
 			} else if element == "D" {
-				GH = ADDcp(GH, LastDE(Dx))
+				GH = ADDs(GH, LastDE(Dx))
 			} else if element == "E" {
-				GH = ADDcp(GH, LastDE(Ex))
+				GH = ADDs(GH, LastDE(Ex))
 			} else if element == "F" {
-				GH = ADDcp(GH, LastDE(Fx))
+				GH = ADDs(GH, LastDE(Fx))
 			} else if element == "G" {
-				GH = ADDcp(GH, LastDE(Gx))
+				GH = ADDs(GH, LastDE(Gx))
 			} else if element == "H" {
-				GH = ADDcp(GH, LastDE(Hx))
+				GH = ADDs(GH, LastDE(Hx))
 			} else if element == "I" {
-				GH = ADDcp(GH, LastDE(Ix))
+				GH = ADDs(GH, LastDE(Ix))
 			} else if element == "J" {
-				GH = ADDcp(GH, LastDE(Jx))
+				GH = ADDs(GH, LastDE(Jx))
 			} else if element == "K" {
-				GH = ADDcp(GH, LastDE(Kx))
+				GH = ADDs(GH, LastDE(Kx))
 			} else if element == "L" {
-				GH = ADDcp(GH, LastDE(Lx))
+				GH = ADDs(GH, LastDE(Lx))
 			} else if element == "M" {
-				GH = ADDcp(GH, LastDE(Mx))
+				GH = ADDs(GH, LastDE(Mx))
 			} else if element == "N" {
-				GH = ADDcp(GH, LastDE(Nx))
+				GH = ADDs(GH, LastDE(Nx))
 			} else {
-				GH = ADDcp(GH, LastDE(Ox))
+				GH = ADDs(GH, LastDE(Ox))
 			}
 		}
-		GH = SUBcp(GH, MULcp(Purples, Seed1st))
+		GH = SUBs(GH, MULs(Purples, Seed1st))
 		if DecimalEqual(Rest,p.NFI(0)) == true {
-			GH = ADDcp(GH, Seed1st)
+			GH = ADDs(GH, Seed1st)
 		} else if DecimalLessThan(Purples,p.NFI(int64(len(CryptoplasmDNA)))) {
 			element := CryptoplasmDNA[p.INT64(Purples)]
 			if element == "A" {
-				GH = ADDcp(GH, Ax[RestInt-1])
+				GH = ADDs(GH, Ax[RestInt-1])
 			} else if element == "B" {
-				GH = ADDcp(GH, Bx[RestInt-1])
+				GH = ADDs(GH, Bx[RestInt-1])
 			} else if element == "C" {
-				GH = ADDcp(GH, Cx[RestInt-1])
+				GH = ADDs(GH, Cx[RestInt-1])
 			} else if element == "D" {
-				GH = ADDcp(GH, Dx[RestInt-1])
+				GH = ADDs(GH, Dx[RestInt-1])
 			} else if element == "E" {
-				GH = ADDcp(GH, Ex[RestInt-1])
+				GH = ADDs(GH, Ex[RestInt-1])
 			} else if element == "F" {
-				GH = ADDcp(GH, Fx[RestInt-1])
+				GH = ADDs(GH, Fx[RestInt-1])
 			} else if element == "G" {
-				GH = ADDcp(GH, Gx[RestInt-1])
+				GH = ADDs(GH, Gx[RestInt-1])
 			} else if element == "H" {
-				GH = ADDcp(GH, Hx[RestInt-1])
+				GH = ADDs(GH, Hx[RestInt-1])
 			} else if element == "I" {
-				GH = ADDcp(GH, Ix[RestInt-1])
+				GH = ADDs(GH, Ix[RestInt-1])
 			} else if element == "J" {
-				GH = ADDcp(GH, Jx[RestInt-1])
+				GH = ADDs(GH, Jx[RestInt-1])
 			} else if element == "K" {
-				GH = ADDcp(GH, Kx[RestInt-1])
+				GH = ADDs(GH, Kx[RestInt-1])
 			} else if element == "L" {
-				GH = ADDcp(GH, Lx[RestInt-1])
+				GH = ADDs(GH, Lx[RestInt-1])
 			} else if element == "M" {
-				GH = ADDcp(GH, Mx[RestInt-1])
+				GH = ADDs(GH, Mx[RestInt-1])
 			} else if element == "N" {
-				GH = ADDcp(GH, Nx[RestInt-1])
+				GH = ADDs(GH, Nx[RestInt-1])
 			} else {
-				GH = ADDcp(GH, Ox[RestInt-1])
+				GH = ADDs(GH, Ox[RestInt-1])
 			}
 		}
 	} else {
@@ -478,152 +478,152 @@ func ExportBr(Name string) {
 		element := CryptoplasmDNA[i]
 		if element == "A" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Ax[j])
+				GH = ADDs(B, Ax[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "B" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Bx[j])
+				GH = ADDs(B, Bx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "C" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Cx[j])
+				GH = ADDs(B, Cx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "D" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Dx[j])
+				GH = ADDs(B, Dx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "E" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Ex[j])
+				GH = ADDs(B, Ex[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "F" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Fx[j])
+				GH = ADDs(B, Fx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "G" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Gx[j])
+				GH = ADDs(B, Gx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "H" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Hx[j])
+				GH = ADDs(B, Hx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "I" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Ix[j])
+				GH = ADDs(B, Ix[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "J" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Jx[j])
+				GH = ADDs(B, Jx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "K" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Kx[j])
+				GH = ADDs(B, Kx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "L" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Lx[j])
+				GH = ADDs(B, Lx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "M" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Mx[j])
+				GH = ADDs(B, Mx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "N" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Nx[j])
+				GH = ADDs(B, Nx[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		} else if element == "O" {
 			for j := 0; j < 637; j++ {
-				GH = ADDcp(B, Ox[j])
+				GH = ADDs(B, Ox[j])
 				BR = ConvGH(GH)
 				_, _ = fmt.Fprintln(OutputFile, BR)
-				S = ADDcp(S, BR)
+				S = ADDs(S, BR)
 				if j == 636 {
-					B = SUBcp(GH, Seed1st)
+					B = SUBs(GH, Seed1st)
 				}
 			}
 		}
@@ -736,19 +736,19 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
     SP = 4 + CryptoplasmCurrencyPrecision
 
     if DecimalEqual(Purples,p.NFI(823543)) == true {
-	PurplesIt = SUBpr(BHp,Purples,p.NFI(1))
+	PurplesIt = SUBx(BHp,Purples,p.NFI(1))
     } else {
         PurplesIt = Purples
     }
 
     for DecimalLessThanOrEqual(i,PurplesIt) == true {
 
-	if DecimalEqual(DivMod(ADDpr(uint32(Ipr),i,p.NFI(1)),p.NFI(343)),p.NFI(0)) == true {
-	    Periods := DIVcp(ADDpr(uint32(Ipr),i,p.NFI(1)),p.NFI(343))
+	if DecimalEqual(DivMod(ADDx(uint32(Ipr),i,p.NFI(1)),p.NFI(343)),p.NFI(0)) == true {
+	    Periods := DIVs(ADDx(uint32(Ipr),i,p.NFI(1)),p.NFI(343))
 	    intermediary := time.Since(start)
 
 	    //BlocksNoPr := uint32(Count4Coma(Periods)) + 6
-	    BlocksNo := MULcp(Green,Periods)
+	    BlocksNo := MULs(Green,Periods)
 
 	    fmt.Println("Computed",Periods,"/",GPeriods,"Green Periods,",BlocksNo,"Blocks, Elapsed Time ", intermediary)
 	    //defer timeTrack(time.Now(), "Written")
@@ -757,11 +757,11 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 	if element == "A" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Ax[j])
+		    GH = ADDs(B, Ax[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -769,16 +769,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Ax[j])
+		    GH = ADDs(B, Ax[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -786,18 +786,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "B" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Bx[j])
+		    GH = ADDs(B, Bx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -805,16 +805,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Bx[j])
+		    GH = ADDs(B, Bx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -822,18 +822,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "C" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Cx[j])
+		    GH = ADDs(B, Cx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -841,16 +841,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Cx[j])
+		    GH = ADDs(B, Cx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -858,18 +858,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "D" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Dx[j])
+		    GH = ADDs(B, Dx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -877,16 +877,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Dx[j])
+		    GH = ADDs(B, Dx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -894,18 +894,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "E" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Ex[j])
+		    GH = ADDs(B, Ex[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -913,16 +913,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Ex[j])
+		    GH = ADDs(B, Ex[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -930,18 +930,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "F" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Fx[j])
+		    GH = ADDs(B, Fx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -949,16 +949,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Fx[j])
+		    GH = ADDs(B, Fx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -966,18 +966,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "G" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Gx[j])
+		    GH = ADDs(B, Gx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -985,16 +985,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Gx[j])
+		    GH = ADDs(B, Gx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1002,18 +1002,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "H" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Hx[j])
+		    GH = ADDs(B, Hx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1021,16 +1021,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Hx[j])
+		    GH = ADDs(B, Hx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1038,18 +1038,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "I" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Ix[j])
+		    GH = ADDs(B, Ix[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1057,16 +1057,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Ix[j])
+		    GH = ADDs(B, Ix[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1074,18 +1074,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "J" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Jx[j])
+		    GH = ADDs(B, Jx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1093,16 +1093,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Jx[j])
+		    GH = ADDs(B, Jx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1110,18 +1110,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "K" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Kx[j])
+		    GH = ADDs(B, Kx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1129,16 +1129,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Kx[j])
+		    GH = ADDs(B, Kx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1146,18 +1146,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "L" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Lx[j])
+		    GH = ADDs(B, Lx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1165,16 +1165,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Lx[j])
+		    GH = ADDs(B, Lx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1182,18 +1182,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "M" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Mx[j])
+		    GH = ADDs(B, Mx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1201,16 +1201,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Mx[j])
+		    GH = ADDs(B, Mx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1218,18 +1218,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "N" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Nx[j])
+		    GH = ADDs(B, Nx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1237,16 +1237,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Nx[j])
+		    GH = ADDs(B, Nx[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1254,18 +1254,18 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	} else if element == "O" {
 	    if DecimalEqual(i,Purples) == true {
 		for j := 0; j < int(RestInt); j++ {
-		    GH = ADDcp(B, Ox[j])
+		    GH = ADDs(B, Ox[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1273,16 +1273,16 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    } else {
 		for j := 0; j < 637; j++ {
-		    GH = ADDcp(B, Ox[j])
+		    GH = ADDs(B, Ox[j])
 		    BR = ConvGH(GH)
 
-		    S = ADDpr(SP,S,BR)
-		    CurrentBlock = ADDpr(BHp,CurrentBlock,p.NFI(1))
+		    S = ADDx(SP,S,BR)
+		    CurrentBlock = ADDx(BHp,CurrentBlock,p.NFI(1))
 		    if DecimalEqual(DivMod(CurrentBlock,CheckPointD),p.NFI(0)) == true {
 			SliceSums = append(SliceSums,S)
 		    }
@@ -1290,14 +1290,14 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 		    SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 2
 
 		    if j == 636 {
-			B = SUBcp(GH, Seed1st)
+			B = SUBs(GH, Seed1st)
 		    }
 		}
 	    }
 	}
 
 	//Incrementing i
-	i = ADDpr(uint32(Ipr),i,p.NFI(1))
+	i = ADDx(uint32(Ipr),i,p.NFI(1))
     }
     SliceSums = append(SliceSums,S)
     //elapsed := time.Since(start)
@@ -1348,15 +1348,15 @@ func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
 
     SumNumberDigits := Count4Coma(BrSum)
     SP := CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 1
-    i = ADDpr(uint32(BHDigits),i,p.NFI(1))
+    i = ADDx(uint32(BHDigits),i,p.NFI(1))
 
     for DecimalLessThanOrEqual(i,BlockHeightD) == true {
         fmt.Println("Adding BlockReward at BH,",i,"...")
         BR2add := BlockRewardD(i)
-	BrSum = ADDpr(SP,BrSum,BR2add)
+	BrSum = ADDx(SP,BrSum,BR2add)
 	SumNumberDigits = Count4Coma(BrSum)
 	SP = CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 1
-	i = ADDpr(uint32(BHDigits),i,p.NFI(1))
+	i = ADDx(uint32(BHDigits),i,p.NFI(1))
     }
     elapsed := time.Since(start)
     fmt.Println("Computing Sum intermittently for BH",BlockHeightD,"took", elapsed, "and is ",BrSum)

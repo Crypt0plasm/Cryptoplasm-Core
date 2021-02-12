@@ -70,6 +70,11 @@ Computes and Prints all Transaction-Fee types for the given Block-Height. Normal
 GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 
 `
+			PrtBrSplitH = `--prt-br-split=<Block-Height>
+Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
+Prints the Block-Reward Split, where one can see the Percents going to Miners, Stakers, Conqueror Pool,
+Developer Funds, and Stars. These values fluctuate with Block-Height.
+`
 	)
 
 	const (
@@ -80,6 +85,7 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 	    	CmpSummedBr = "cmp-br-sum"			// String - BH
 	    	ExpTotalsBr = "exp-br-all"			// Bool
 	    	ExpSumBrCkp = "exp-br-sum-ckp"		// String - BH Interval
+	    	PrtBrSplit	= "prt-br-split"		// String - BH
 	    	PrtDeciSeed = "prt-seed-decimal"	// Bool
 	    	PrtIntSeed  = "prt-seed-integer"	// Bool
 	    	PrtInterval = "prt-intervals"		// Bool
@@ -91,8 +97,11 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 	FlagCmpTxFee 	:= flag.String	(CmpTxFee,		"0",		CmpTxFeeH)
 	FlagCmpBr		:= flag.String	(CmpBr,			"0",		CmpBrH)
 	FlagCmpSummedBr	:= flag.String	(CmpSummedBr,	"0",		CmpSummedBrH)
-	FlagExpSumBrCkp := flag.String	(ExpSumBrCkp,	"0",		ExpSumBrCkpH)
 	FlagExpTotalsBr := flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
+	FlagExpSumBrCkp := flag.String	(ExpSumBrCkp,	"0",		ExpSumBrCkpH)
+
+	FlagPrtBrSplit 	:= flag.String	(PrtBrSplit,	"0",		PrtBrSplitH)
+
 	FlagPrtDeciSeed := flag.Bool	(PrtDeciSeed,	false,	PrtDeciSeedH)
 	FlagPrtIntSeed 	:= flag.Bool	(PrtIntSeed,	false,	PrtIntSeedH)
 	FlagPrtInterval := flag.Bool	(PrtInterval,	false,	PrtIntervalH)
@@ -195,7 +204,16 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 	    }
 	}
 	//
-	//07)ExpTotalsBr	Bool
+	//07)FlagPrtBrSplit	String - BH Interval
+	//
+	if *FlagPrtBrSplit != "0" {
+		fmt.Println("")
+		BHd := p.NFS(*FlagPrtBrSplit)
+		b.ProcentSplitPrinter(BHd)
+		fmt.Println("")
+	}
+	//
+	//08)ExpTotalsBr	Bool
 	//
 	if *FlagExpTotalsBr == true {
 		var answer, filename string
@@ -211,7 +229,7 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 		}
 	}
 	//
-	//08)PrtDeciSeed	Bool
+	//09)PrtDeciSeed	Bool
 	//
 	if *FlagPrtDeciSeed == true {
 		fmt.Println("")
@@ -220,7 +238,7 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 		b.CryptoplasmDecimalSeedPrinter()
 	}
 	//
-	//09)PrtIntSeed		Bool
+	//10)PrtIntSeed		Bool
 	//
 	if *FlagPrtIntSeed == true {
 		fmt.Println("")
@@ -229,7 +247,7 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 		b.CryptoplasmIntegerSeedPrinter()
 	}
 	//
-	//10)PrtInterval	Bool
+	//11)PrtInterval	Bool
 	//
 	if *FlagPrtInterval == true {
 		fmt.Println("")
@@ -238,10 +256,10 @@ GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 		b.CryptoplasmIntervals()
 	}
 	//
-	//11)FlagSimulateFee
+	//12)FlagSimulateFee
 	//
 	if *FlagSimulateFee != "0" {
-		var txsize, outputno uint64
+		var txsize, outputno uint32
 		fmt.Println("")
 		fmt.Println("How big is the transaction size in bytes ?")
 		_, _ = fmt.Scanln(&txsize)

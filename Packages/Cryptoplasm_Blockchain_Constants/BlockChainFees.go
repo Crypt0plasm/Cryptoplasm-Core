@@ -22,7 +22,7 @@ func FeePerByte(BlockHeightS string) *firefly.Decimal {
 		FpB = FpBMin
 	} else {
 		FpBcP := CryptoplasmCurrencyPrecision + 1 //FpB computing Precision
-		FpB = TruncToCurrency(SUBpr(FpBcP, FpBMax, MULpr(FpBcP, BH, FpBInt)))
+		FpB = TruncToCurrency(SUBx(FpBcP, FpBMax, MULx(FpBcP, BH, FpBInt)))
 	}
 	return FpB
 }
@@ -31,41 +31,44 @@ func FeePerByte(BlockHeightS string) *firefly.Decimal {
 // Function 02 - FeeComputer
 //
 // FeeComputer returns all the possible fees for a given Block Height
-func FeeComputer(BlockHeight string, TransactionSize, OutputNumber uint64) [2][3][3]*firefly.Decimal {
+func FeeComputer(BlockHeight string, TransactionSize, OutputNumber uint32) [2][3][3]*firefly.Decimal {
 
-    	FpB := FeePerByte(BlockHeight)
-	ON := firefly.NFI(int64(OutputNumber))
-	TS := firefly.NFI(int64(TransactionSize))
+	FpB := FeePerByte(BlockHeight)
+	ON := int64(OutputNumber)
+	ONd := firefly.NFI(ON)
 
-    	digmax := DigMax(ON,TS)
-	Pr := digmax + CryptoplasmCurrencyPrecision + 2
+	TS := int64(TransactionSize)
+	TSd := firefly.NFI(TS)
 
-	TransxSizeFee := MULpr(Pr, FpB, TS)
-	BaseOutputFee := MULpr(Pr, FpB, ON)
+	MaxDigitInt64 := MaxInt64(ON,TS)
+	Pr := uint32(MaxDigitInt64) + CryptoplasmCurrencyPrecision + 2
 
-	NormalGasOutputFee := MULpr(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[0][2])))
-	NormalGasTxSizeFee := MULpr(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[0][0])))
-	NormalGasSummedFee := ADDpr(Pr, NormalGasOutputFee, NormalGasTxSizeFee)
+	TransxSizeFee := MULx(Pr, FpB, TSd)
+	BaseOutputFee := MULx(Pr, FpB, ONd)
 
-	NormalPlsOutputFee := MULpr(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[1][2])))
-	NormalPlsTxSizeFee := MULpr(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[1][0])))
-	NormalPlsSummedFee := ADDpr(Pr, NormalPlsOutputFee, NormalPlsTxSizeFee)
+	NormalGasOutputFee := MULx(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[0][2])))
+	NormalGasTxSizeFee := MULx(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[0][0])))
+	NormalGasSummedFee := ADDx(Pr, NormalGasOutputFee, NormalGasTxSizeFee)
 
-	NormalMsmOutputFee := MULpr(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[2][2])))
-	NormalMsmTxSizeFee := MULpr(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[2][0])))
-	NormalMsmSummedFee := ADDpr(Pr, NormalMsmOutputFee, NormalMsmTxSizeFee)
+	NormalPlsOutputFee := MULx(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[1][2])))
+	NormalPlsTxSizeFee := MULx(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[1][0])))
+	NormalPlsSummedFee := ADDx(Pr, NormalPlsOutputFee, NormalPlsTxSizeFee)
 
-	BlinkGasOutputFee := MULpr(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[0][3])))
-	BlinkGasTxSizeFee := MULpr(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[0][1])))
-	BlinkGasSummedFee := ADDpr(Pr, BlinkGasOutputFee, BlinkGasTxSizeFee)
+	NormalMsmOutputFee := MULx(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[2][2])))
+	NormalMsmTxSizeFee := MULx(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[2][0])))
+	NormalMsmSummedFee := ADDx(Pr, NormalMsmOutputFee, NormalMsmTxSizeFee)
 
-	BlinkPlsOutputFee := MULpr(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[1][3])))
-	BlinkPlsTxSizeFee := MULpr(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[1][1])))
-	BlinkPlsSummedFee := ADDpr(Pr, BlinkPlsOutputFee, BlinkPlsTxSizeFee)
+	BlinkGasOutputFee := MULx(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[0][3])))
+	BlinkGasTxSizeFee := MULx(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[0][1])))
+	BlinkGasSummedFee := ADDx(Pr, BlinkGasOutputFee, BlinkGasTxSizeFee)
 
-	BlinkMsmOutputFee := MULpr(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[2][3])))
-	BlinkMsmTxSizeFee := MULpr(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[2][1])))
-	BlinkMsmSummedFee := ADDpr(Pr, BlinkMsmOutputFee, BlinkMsmTxSizeFee)
+	BlinkPlsOutputFee := MULx(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[1][3])))
+	BlinkPlsTxSizeFee := MULx(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[1][1])))
+	BlinkPlsSummedFee := ADDx(Pr, BlinkPlsOutputFee, BlinkPlsTxSizeFee)
+
+	BlinkMsmOutputFee := MULx(Pr, BaseOutputFee, firefly.NFI(int64(FeeArray[2][3])))
+	BlinkMsmTxSizeFee := MULx(Pr, TransxSizeFee, firefly.NFI(int64(FeeArray[2][1])))
+	BlinkMsmSummedFee := ADDx(Pr, BlinkMsmOutputFee, BlinkMsmTxSizeFee)
 
 	//Position 0 is the sum, 1 is size fee, 2 is the output fee
 	NormalGAS := [...]*firefly.Decimal{NormalGasSummedFee, NormalGasTxSizeFee, NormalGasOutputFee}
@@ -86,7 +89,7 @@ func FeeComputer(BlockHeight string, TransactionSize, OutputNumber uint64) [2][3
 // Function 03 - TxSimulator
 //
 // TxSimulator simulates a simple transaction
-func TxSimulator(BlockHeightS string, TransactionSize, OutputNumber uint64, cpAmount *firefly.Decimal) {
+func TxSimulator(BlockHeightS string, TransactionSize, OutputNumber uint32, cpAmount *firefly.Decimal) {
 	tcpAmount := TruncToCurrency(cpAmount)
 	Fees := FeeComputer(BlockHeightS, TransactionSize, OutputNumber)
 	AmountValue := AmountTier(tcpAmount)

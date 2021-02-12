@@ -1,28 +1,28 @@
 package Cryptoplasm_Blockchain_Constants
 
-import p "Cryptoplasm-Core/Packages/Firefly_Precision"
-
+import (
+	p "Cryptoplasm-Core/Packages/Firefly_Precision"
+	"fmt"
+)
+//
+//	BR-Split.go								Block-Reward Split Computing Function
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
+// 	Function List:
+//
+//	01 Comparison Functions operating on decimal type
+//		01  - BaseStakingPercent			returns the Block Staking Reward % for a given Block-Height
+//		02  - TreasurySplit					returns Multiple Split % for a given Block-Height
+//		03  - ProcentSplitMatrix			returns all Split % for a given Block-Height
+//		04  - ProcentSplitPrinter			prints information regarding the Block-Reward split
 //================================================
 //
-// Func 03 - BlockRewardS
+// Func 01 - BaseStakingPercent
 //
-// BlockRewardS returns the Block Staking Reward % for a given Block-Height
-// The Block-Height Type is string.
-func BaseStakingPercentS(BlockHeightS string) *p.Decimal {
-    //start := time.Now()
-    BHd 	:= p.NFS(BlockHeightS)
-    BSP 	:= BaseStakingPercentD(BHd)
-    return BSP
-    //elapsed := time.Since(start)
-    //fmt.Println("Computing took", elapsed)
-}
-//================================================
-//
-// Func 03 - BlockRewardD
-//
-// BlockRewardD returns the Block Staking Reward % for a given Block-Height
+// BaseStakingPercent returns the Block Staking Reward % for a given Block-Height
 // The Block-Height Type is a decimal.
-func BaseStakingPercentD(BlockHeightD *p.Decimal) *p.Decimal {
+func BaseStakingPercent(BlockHeightD *p.Decimal) *p.Decimal {
     var (
 	Gray	 	= int64(91)
 	PurpleInt,_ 	= Purple.Int64()
@@ -174,8 +174,6 @@ func BaseStakingPercentD(BlockHeightD *p.Decimal) *p.Decimal {
 	BSP		= new(p.Decimal)
     )
 
-    
-    
     if DecimalLessThanOrEqual(p.NFI(STAr[6][5][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[6][5][1])) == true {
 	BSP		= p.NFS("1.1")
     } else if DecimalLessThanOrEqual(p.NFI(STAr[0][0][0]),BH) == true && DecimalLessThanOrEqual(BH,p.NFI(STAr[0][0][1])) == true {
@@ -265,4 +263,123 @@ func BaseStakingPercentD(BlockHeightD *p.Decimal) *p.Decimal {
     }
 
     return BSP
+}
+//================================================
+//
+// Func 02 - TreasurySplit
+//
+// TreasurySplit returns Multiple Split % for a given Block-Height.
+// The Block-Height Type is decimal.
+func TreasurySplit(BlockHeightD *p.Decimal) [4]*p.Decimal {
+	//start := time.Now()
+	var(
+		TreasuryDecay = p.NFS("0.0006")
+		TreasurySevenPart = p.NFS("0.6")
+		TDUSTK = new(p.Decimal)
+		TDUMNG = new(p.Decimal)
+		TDUCQP = new(p.Decimal)
+		CONTNP = new(p.Decimal)
+	)
+
+	BluePeriod := ADDs(DivInt(BlockHeightD,Blue),p.NFI(1))
+	if DecimalEqual(BluePeriod,p.NFI(1)) == true {
+		TDUSTK = p.NFS("0")
+		TDUMNG = p.NFS("0")
+		TDUCQP = p.NFS("0")
+		CONTNP = TreasurySevenPart
+	} else if DecimalLessThanOrEqual(BluePeriod,p.NFI(21)) == true {
+		TDUSTK = MULxc(SUBs(BluePeriod,p.NFI(1)),p.NFI(2))
+		TDUMNG = MULxc(SUBs(BluePeriod,p.NFI(1)),p.NFI(2))
+		TDUCQP = MULxc(SUBs(BluePeriod,p.NFI(1)),p.NFI(3))
+		CONTNP = SUBs(TreasurySevenPart,MULxc(SUBs(BluePeriod,p.NFI(1)),TreasuryDecay))
+	} else if DecimalLessThanOrEqual(p.NFI(22),BluePeriod) == true && DecimalLessThanOrEqual(BluePeriod,p.NFI(990)) == true {
+		TDUSTK = ADDs(MULxc(SUBs(BluePeriod,p.NFI(21)),p.NFS("2.5")),p.NFI(40))
+		TDUMNG = ADDs(MULxc(SUBs(BluePeriod,p.NFI(21)),p.NFS("2.5")),p.NFI(40))
+		TDUCQP = ADDs(MULxc(SUBs(BluePeriod,p.NFI(21)),p.NFI(2)),p.NFI(60))
+		CONTNP = SUBs(TreasurySevenPart,MULxc(SUBs(BluePeriod,p.NFI(1)),TreasuryDecay))
+	} else {
+		TDUSTK = p.NFI(2465)
+		TDUMNG = p.NFI(2465)
+		TDUCQP = p.NFI(2000)
+	}
+	STK := MULxc(TDUSTK,TreasuryDecay)
+	MNG := MULxc(TDUMNG,TreasuryDecay)
+	CQP := MULxc(TDUCQP,TreasuryDecay)
+
+	ResultMatrix := [...]*p.Decimal{CONTNP, STK, MNG, CQP}
+	return ResultMatrix
+	//elapsed := time.Since(start)
+	//fmt.Println("Computing took", elapsed)
+}
+//================================================
+//
+// Func 03 - ProcentSplitMatrix
+//
+// ProcentSplitMatrix returns all Split % for a given Block-Height
+// inside a array of arrays.
+func ProcentSplitMatrix(BlockHeightD *p.Decimal) [4][3]*p.Decimal {
+	var (
+		StarProcentGOLD				= TruncPercent(p.NFS("0.1"))
+		StarProcentSILVER			= TruncPercent(p.NFS("0.2"))
+		StarProcentBRONZE			= TruncPercent(p.NFS("0.4"))
+
+		BaseConquerorProcent 		= TruncPercent(p.NFS("0.8"))
+		BaseStakingProcent 			= TruncPercent(BaseStakingPercent(BlockHeightD))
+		TreasurySplitMatrix 		= TreasurySplit(BlockHeightD)
+		BaseContinentProcent 		= TruncPercent(TreasurySplitMatrix[0])
+		SecondaryStakingProcent 	= TruncPercent(TreasurySplitMatrix[1])
+		SecondaryMiningProcent		= TruncPercent(TreasurySplitMatrix[2])
+		SecondaryConquerorProcent 	= TruncPercent(TreasurySplitMatrix[3])
+
+		TotalStakingProcent			= TruncPercent(ADDs(BaseStakingProcent,SecondaryStakingProcent))
+		TotalConquerorProcent		= TruncPercent(ADDs(BaseConquerorProcent,SecondaryConquerorProcent))
+		TreasuryProcent				= TruncPercent(MULxc(BaseContinentProcent,p.NFI(7)))
+		StarProcent					= TruncPercent(SUMs(StarProcentGOLD,StarProcentSILVER,StarProcentBRONZE))
+
+		TotalMiningProcent			= TruncPercent(DIFs(p.NFI(100),TotalStakingProcent,TotalConquerorProcent,TreasuryProcent,StarProcent))
+		BaseMiningProcent			= TruncPercent(SUBs(TotalMiningProcent,SecondaryMiningProcent))
+	)
+
+	MiningProcentMatrix := [...]*p.Decimal{BaseMiningProcent,SecondaryMiningProcent,TotalMiningProcent}
+	StakingProcentMatrix := [...]*p.Decimal{BaseStakingProcent,SecondaryStakingProcent,TotalStakingProcent}
+	ConquerorProcentMatrix := [...]*p.Decimal{BaseConquerorProcent,SecondaryConquerorProcent,TotalConquerorProcent}
+	ContinentProcentMatrix := [...]*p.Decimal{BaseContinentProcent,TreasuryProcent,p.NFI(777)}
+	SplitMatrix := [4][3]*p.Decimal{MiningProcentMatrix,StakingProcentMatrix,ConquerorProcentMatrix,ContinentProcentMatrix}
+
+	return SplitMatrix
+}
+//================================================
+//
+// Func 04 - ProcentSplitPrinter
+//
+// ProcentSplitPrinter prints information regarding the Block-Reward split
+// for a given Block-Height
+func ProcentSplitPrinter(BlockHeightD *p.Decimal) {
+	M := ProcentSplitMatrix(BlockHeightD)
+
+	fmt.Println("At BH",BlockHeightD,"Miners get:")
+	fmt.Println("A Base mining % of:",M[0][0],"%")
+	fmt.Println("A Bonus mining % of:",M[0][1],"%")
+	fmt.Println("A Total mining % of:",M[0][2],"%")
+	fmt.Println("")
+	fmt.Println("At BH",BlockHeightD,"Stakers get:")
+	fmt.Println("A Base staking % of:",M[1][0],"%")
+	fmt.Println("A Bonus staking % of:",M[1][1],"%")
+	fmt.Println("A Total staking % of:",M[1][2],"%")
+	fmt.Println("")
+	fmt.Println("At BH",BlockHeightD,"Conqueror Pool gets:")
+	fmt.Println("A Base % of:",M[2][0],"%")
+	fmt.Println("A Bonus % of:",M[2][1],"%")
+	fmt.Println("A Total % of:",M[2][2],"%")
+	fmt.Println("")
+	fmt.Println("Regardless of BH Star Owners get a fixed 0.7000 %")
+	fmt.Println("0.1 % split between all GOLD Star Owners")
+	fmt.Println("0.2 % split between all SILVER Star Owners")
+	fmt.Println("0.4 % split between all BRONZE Star Owners")
+	fmt.Println("")
+	fmt.Println("Treasury starts with 0.6 % per Continent for a TOTAL of 4.2000 %")
+	fmt.Println("But At BH",BlockHeightD,"Treasury gets:")
+	fmt.Println(M[3][0],"% per Continent")
+	fmt.Println("for a total of",M[3][1],"%")
+
 }
