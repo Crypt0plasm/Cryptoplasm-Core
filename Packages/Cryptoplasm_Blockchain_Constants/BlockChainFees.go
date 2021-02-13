@@ -4,9 +4,24 @@ import (
     p "Cryptoplasm-Core/Packages/Firefly_Precision"
     "fmt"
 )
-//================================================
 //
-// Function 01 - FeePerByte
+//	BlockChainFees.go				Blockchain specific p Functions
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
+// 	Function List:
+//
+//	01 Comparison Functions operating on decimal type
+//		01  - FeePerByte			Returns the FeePerByte for the given BH
+//		02  - FeeComputer			Returns all the possible fees for a given Block Height
+//		03  - AmountTier 			Returns the tier for a CryptoPlasm Amount.
+//	02 TaxSimulation Functions
+//		01  - TxSimulator			Simulates a simple transaction
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
+//
+// Function 01.01 - FeePerByte
 //
 // FeePerByte returns the Fee per Byte for the given BlockHeight
 func FeePerByte(BlockHeightS string) *p.Decimal {
@@ -28,7 +43,7 @@ func FeePerByte(BlockHeightS string) *p.Decimal {
 }
 //================================================
 //
-// Function 02 - FeeComputer
+// Function 01.02 - FeeComputer
 //
 // FeeComputer returns all the possible fees for a given Block Height
 func FeeComputer(BlockHeight string, TransactionSize, OutputNumber uint32) [2][3][3]*p.Decimal {
@@ -86,7 +101,31 @@ func FeeComputer(BlockHeight string, TransactionSize, OutputNumber uint32) [2][3
 }
 //================================================
 //
-// Function 03 - TxSimulator
+// Function 01.03 - AmountTier
+//
+// AmountTier returns the tier for a CryptoPlasm Amount.
+// If CryptoPlasm Amount >= 10, its tier 3
+// If CryptoPlasm Amount >= 1 and <10, its tier 2
+// If CryptoPlasm Amount < 1, its tier 1
+func AmountTier(cpAmount *p.Decimal) uint8 {
+    var Result uint8
+    Ten := p.NFI(10)
+    One := p.NFI(1)
+    tcpAmount := TruncToCurrency(cpAmount)
+
+    if DecimalGreaterThanOrEqual(tcpAmount,Ten) == true {
+	Result = 3
+    } else if DecimalGreaterThanOrEqual(tcpAmount,One) == true && DecimalLessThan(tcpAmount,Ten) == true {
+	Result = 2
+    } else {
+	Result = 1
+    }
+
+    return Result
+}
+//================================================================================================
+//
+// Function 02.01 - TxSimulator
 //
 // TxSimulator simulates a simple transaction
 func TxSimulator(BlockHeightS string, TransactionSize, OutputNumber uint32, cpAmount *p.Decimal) {
@@ -121,28 +160,4 @@ func TxSimulator(BlockHeightS string, TransactionSize, OutputNumber uint32, cpAm
 		fmt.Println("It will take only an extra", NormalFee, "CP as normal mining fee")
 		fmt.Println("Or an extra", BlinkFee, "CP as mining fees for instant confirmation")
 	}
-}
-//================================================
-//
-// Function 03 - AmountTier
-//
-// AmountTier returns the tier for a CryptoPlasm Amount.
-// If CryptoPlasm Amount >= 10, its tier 3
-// If CryptoPlasm Amount >= 1 and <10, its tier 2
-// If CryptoPlasm Amount < 1, its tier 1
-func AmountTier(cpAmount *p.Decimal) uint8 {
-    var Result uint8
-    Ten := p.NFI(10)
-    One := p.NFI(1)
-    tcpAmount := TruncToCurrency(cpAmount)
-
-    if DecimalGreaterThanOrEqual(tcpAmount,Ten) == true {
-	Result = 3
-    } else if DecimalGreaterThanOrEqual(tcpAmount,One) == true && DecimalLessThan(tcpAmount,Ten) == true {
-	Result = 2
-    } else {
-	Result = 1
-    }
-
-    return Result
 }

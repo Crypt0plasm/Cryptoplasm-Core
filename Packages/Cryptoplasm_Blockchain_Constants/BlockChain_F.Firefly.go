@@ -12,7 +12,7 @@ var (
 	c = CryptoplasmPrecisionContext
 )
 //
-//	BlockChain_F.p.go					Blockchain specific p Functions
+//	BlockChain_F.Firefly.go				Blockchain specific Firefly Functions
 //================================================================================================
 //************************************************************************************************
 //================================================================================================
@@ -20,88 +20,88 @@ var (
 //
 //	01 Comparison Functions operating on decimal type
 //		00  - SummedMaxLengthPlusOne		SummedMaxLength returns the sum of the maximums length of digits (b4 and after coma)
-//		00a - MaxInt32						returns the maximum between two int32 numbers
-//		00b - MaxInt64						returns the maximum between two int64 numbers
-//		01  - DecimalEqual					x == y
-//		02  - DecimalNotEqual				x != y
-//		03  - DecimalLessThan				x < y
+//		00a - MaxInt32				Returns the maximum between two int32 numbers
+//		00b - MaxInt64				Returns the maximum between two int64 numbers
+//		01  - DecimalEqual			x == y
+//		02  - DecimalNotEqual			x != y
+//		03  - DecimalLessThan			x < y
 //		04  - DecimalLessThanOrEqual		x <= y
-//		05  - DecimalGreaterThan			x > y
+//		05  - DecimalGreaterThan		x > y
 //		06  - DecimalGreaterThanOrEqual		x >= y
 //	02 Addition Functions
-//		01  - ADDx							adds 2 numbers with custom total precision
-//		02  - ADDs							adds 2 numbers within CryptoplasmPrecisionContext (70 total precision)
-//		03  - ADD							adds 2 numbers with custom decimal precision and elastic integer precision
-//		03a - ADDxs							adds 2 numbers with 70 decimal precision and elastic integer precision
-//		03b - ADDxc							adds 2 numbers with 100 decimal precision and elastic integer precision
-//		04  - SUMx							adds multiple numbers with custom total precision
-//		05  - SUMs							adds multiple numbers within CryptoplasmPrecisionContext (70 total precision)
-//		06  - SUM							adds multiple numbers with custom decimal precision and elastic integer precision
-//		06a - SUMxs							adds multiple numbers with 70 decimal precision and elastic integer precision
-//		06b - SUMxc							adds multiple numbers with 100 decimal precision and elastic integer precision
+//		01  - ADDx				Adds 2 numbers with custom total precision
+//		02  - ADDs				Adds 2 numbers within CryptoplasmPrecisionContext (70 total precision)
+//		03  - ADD				Adds 2 numbers with custom decimal precision and elastic integer precision
+//		03a - ADDxs				Adds 2 numbers with 70 decimal precision and elastic integer precision
+//		03b - ADDxc				Adds 2 numbers with 100 decimal precision and elastic integer precision
+//		04  - SUMx				Adds multiple numbers with custom total precision
+//		05  - SUMs				Adds multiple numbers within CryptoplasmPrecisionContext (70 total precision)
+//		06  - SUM				Adds multiple numbers with custom decimal precision and elastic integer precision
+//		06a - SUMxs				Adds multiple numbers with 70 decimal precision and elastic integer precision
+//		06b - SUMxc				Adds multiple numbers with 100 decimal precision and elastic integer precision
 //	03 Subtraction Functions
-//		01  - SUBx							subtracts 2 numbers with custom total precision
-//		02  - SUBs							subtracts 2 numbers within CryptoplasmPrecisionContext (70 total precision)
-//		03  - SUB							subtracts 2 numbers with custom decimal precision and elastic integer precision
-//		03a - SUBxs							subtracts 2 numbers with 70 decimal precision and elastic integer precision
-//		03b - SUBxc							subtracts 2 numbers with 100 decimal precision and elastic integer precision
-//		04  - DIFx							subtracts multiple numbers with custom total precision
-//		05  - DIFs							subtracts multiple numbers within CryptoplasmPrecisionContext (70 total precision)
-//		06  - DIF							subtracts multiple numbers with custom decimal precision and elastic integer precision
-//		06a - DIFxs							subtracts multiple numbers with 70 decimal precision and elastic integer precision
-//		06b - DIFxc							subtracts multiple numbers with 100 decimal precision and elastic integer precision
+//		01  - SUBx				Subtracts 2 numbers with custom total precision
+//		02  - SUBs				Subtracts 2 numbers within CryptoplasmPrecisionContext (70 total precision)
+//		03  - SUB				Subtracts 2 numbers with custom decimal precision and elastic integer precision
+//		03a - SUBxs				Subtracts 2 numbers with 70 decimal precision and elastic integer precision
+//		03b - SUBxc				Subtracts 2 numbers with 100 decimal precision and elastic integer precision
+//		04  - DIFx				Subtracts multiple numbers with custom total precision
+//		05  - DIFs				Subtracts multiple numbers within CryptoplasmPrecisionContext (70 total precision)
+//		06  - DIF				Subtracts multiple numbers with custom decimal precision and elastic integer precision
+//		06a - DIFxs				Subtracts multiple numbers with 70 decimal precision and elastic integer precision
+//		06b - DIFxc				Subtracts multiple numbers with 100 decimal precision and elastic integer precision
 //	04 Multiplication Functions
-//		01  - MULx							multiplies 2 numbers with custom total precision
-//		02  - MULs							multiplies 2 numbers within CryptoplasmPrecisionContext (70 total precision)
-//		03  - MULxc							multiplies 2 numbers with elastic integer precision and 100 max decimal precision
-//		04  - PRDx							multiplies multiple numbers within a specific precision context
-//		05  - PRDs							multiplies multiple numbers within CryptoplasmPrecisionContext
-//		06  - PRDxc							multiplies multiple numbers with elastic integer precision and 100 max decimal precision
-//		07  - POWx							computes x ** y within a specific precision context
-//		08  - POWs							computes x ** y within CryptoplasmPrecisionContext
-//		09  - POWxc							computes x ** y with elastic integer precision and 100 max decimal precision
+//		01  - MULx				Multiplies 2 numbers with custom total precision
+//		02  - MULs				Multiplies 2 numbers within CryptoplasmPrecisionContext (70 total precision)
+//		03  - MULxc				Multiplies 2 numbers with elastic integer precision and 100 max decimal precision
+//		04  - PRDx				Multiplies multiple numbers within a specific precision context
+//		05  - PRDs				Multiplies multiple numbers within CryptoplasmPrecisionContext
+//		06  - PRDxc				Multiplies multiple numbers with elastic integer precision and 100 max decimal precision
+//		07  - POWx				Computes x ** y within a specific precision context
+//		08  - POWs				Computes x ** y within CryptoplasmPrecisionContext
+//		09  - POWxc				Computes x ** y with elastic integer precision and 100 max decimal precision
 //	05 Division Functions
-//		01  - DIVx							divides 2 numbers within a specific precision context
-//		02  - DIVs							divides 2 numbers within CryptoplasmPrecisionContext
-//		03	- DIVxc							divides 2 numbers with elastic integer precision and 100/101 max decimal precision
-//		04  - DivInt						returns x // y, uses elastic Precision (result is "integer")
-//		05  - DivMod						returns x % y, uses elastic Precision (result is the rest)
+//		01  - DIVx				Divides 2 numbers within a specific precision context
+//		02  - DIVs				Divides 2 numbers within CryptoplasmPrecisionContext
+//		03  - DIVxc				Divides 2 numbers with elastic integer precision and 100/101 max decimal precision
+//		04  - DivInt				Returns x // y, uses elastic Precision (result is "integer")
+//		05  - DivMod				Returns x % y, uses elastic Precision (result is the rest)
 //  05a Mean Functions
-//		01  - TwoMean						Returns the mean of two decimals
+//		01  - TwoMean				Returns the mean of two decimals
 //	06 Truncate Functions
-//		01  - TruncateCustom				Truncates using custom Precision (it must be know beforehand)
-//		02  - TruncSeed						Truncates elastically to CryptoplasmSeedPrecision
-//		03  - TruncToCurrency				Truncates elastically to CryptoplasmCurrencyPrecision
-//		04  - TruncPercent					Truncates elastically to CryptoplasmPercentPrecision
+//		01  - TruncateCustom			Truncates using custom Precision (it must be know beforehand)
+//		02  - TruncSeed				Truncates elastically to CryptoplasmSeedPrecision
+//		03  - TruncToCurrency			Truncates elastically to CryptoplasmCurrencyPrecision
+//		04  - TruncPercent			Truncates elastically to CryptoplasmPercentPrecision
 //	07 List Functions
-//		01  - SumDL							Adds all the decimals in a slice of decimals
-//		02  - LastDE						Returns the last element in a slice
-//		03  - AppDec						Unites 2 slices made of decimals
-//		04  - Reverse						Reverses a slice of decimals
-//		05  - PrintDL						Prints the "decimals" from a slice of strings
-//		06  - WriteList						Writes strings from a slice to an external file
+//		01  - SumDL				Adds all the decimals in a slice of decimals
+//		02  - LastDE				Returns the last element in a slice
+//		03  - AppDec				Unites 2 slices made of decimals
+//		04  - Reverse				Reverses a slice of decimals
+//		05  - PrintDL				Prints the "decimals" from a slice of strings
+//		06  - WriteList				Writes strings from a slice to an external file
 //	08 Digit Manipulation Functions
-//		01  - RemoveDecimals				removes the decimals of a number, uses floor function
-//		02  - Count4Coma					Counts the number of digits before precision
+//		01  - RemoveDecimals			Removes the decimals of a number, uses floor function
+//		02  - Count4Coma			Counts the number of digits before precision
 //	09 Blockchain Specific Geometry Functions
-//		01  - ASApr							Computes an ASA triangle with specified precision without returning the Gamma Angle
+//		01  - ASApr				Computes an ASA triangle with specified precision without returning the Gamma Angle
 //	10 OverSend Functions
-//		01  - OverSendLogBase				Returns the Logarithm Base used to computer the Overspend value for the given CP Amount
-//		02  - OVSLogarithm					Computes the Logarithm in Base 777...777 for the given CP Amount
+//		01  - OverSendLogBase			Returns the Logarithm Base used to computer the Overspend value for the given CP Amount
+//		02  - OVSLogarithm			Computes the Logarithm in Base 777...777 for the given CP Amount
 //		03  - CPAmount2StringDecomposer		Decomposes Integer Part of a cpAmount to a backwards slice of integers
-//		04  - CPTxTaxV2						Computes the Transaction-Tax and its Per-Mille value, for the given CP Amount
-//		05  - OverSendV2					Computes the Oversend value for the given CP Amount
+//		04  - CPTxTaxV2				Computes the Transaction-Tax and its Per-Mille value, for the given CP Amount
+//		05  - OverSendV2			Computes the Oversend value for the given CP Amount
 //		06a - PseudoFiftyFiftyOverSendLong	Computes the pseudoFFOverSend
 //		06b - PseudoFiftyFiftyOverSendShort	Computes the pseudoFFOverSend (OVerSend must be computed outside of function)
 //		06c - TrueFiftyFiftyOverSendLong	Computes the FFOverSend
 //		06d - TrueFiftyFiftyOverSendShort	Computes the FFOverSend (OVerSend must be computed outside of function)
-//      07  - TxTaxPrinter					Computes and Prints all related TxTax information
-//		07a - TxTaxDisplayOffset			Auxiliary TxTaxPrinter function
-//		07b - TxTaxDisplayOffset			Auxiliary TxTaxPrinter function
+//      07  - TxTaxPrinter				Computes and Prints all related TxTax information
+//		07a - TxTaxDisplayOffset		Auxiliary TxTaxPrinter function
+//		07b - TxTaxDisplayOffset		Auxiliary TxTaxPrinter function
 //	11 Cryptoplasm Amount String Manipulation Function
-//		01  - CPConvert2AU					Converts CP Amount to AtomicUnits (YoctoPlasms)
-//		02  - YoctoPlasm2String				Converts YoctoPlasms into a slice os strings
-//		03  - CPAmountConv2Print			Converts a CP Amount into a string that can be better used for display purposes
+//		01  - CPConvert2AU			Converts CP Amount to AtomicUnits (YoctoPlasms)
+//		02  - YoctoPlasm2String			Converts YoctoPlasms into a slice os strings
+//		03  - CPAmountConv2Print		Converts a CP Amount into a string that can be better used for display purposes
 //
 //================================================================================================
 //************************************************************************************************
@@ -175,6 +175,10 @@ func MaxInt64(x, y int64) int64 {
 //	01 Comparison Functions between decimals:
 //	The functions use the SummedMaxLengthPlusOne function to set the ComparisonContextPrecision
 //================================================================================================
+//
+// Function 01.01 - DecimalEqual
+//
+// DecimalEqual returns true if decimal x is equal to decimal y.
 func DecimalEqual(x, y *p.Decimal) bool {
     var Result bool
     ComparisonContextPrecision := SummedMaxLengthPlusOne(x,y)

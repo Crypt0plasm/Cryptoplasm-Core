@@ -78,34 +78,32 @@ Developer Funds, and Stars. These values fluctuate with Block-Height.
 	)
 
 	const (
-			CmpDeciSeed = "cmp-seed-decimal"	// Bool
+	    	CmpDeciSeed 	= "cmp-seed-decimal"		// Bool
 	    	CmpTxTax 	= "cmp-tx-tax"			// String - cpAmount
-	    	CmpTxFee    = "cmp-tx-fee"			// String - BH
-	    	CmpBr	    = "cmp-br"				// String - BH
-	    	CmpSummedBr = "cmp-br-sum"			// String - BH
-	    	ExpTotalsBr = "exp-br-all"			// Bool
-	    	ExpSumBrCkp = "exp-br-sum-ckp"		// String - BH Interval
+	    	CmpTxFee    	= "cmp-tx-fee"			// String - BH
+	    	CmpBr	    	= "cmp-br"			// String - BH
+	    	CmpSummedBr 	= "cmp-br-sum"			// String - BH
+	    	ExpTotalsBr 	= "exp-br-all"			// Bool
+	    	ExpSumBrCkp 	= "exp-br-sum-ckp"		// String - BH Interval
 	    	PrtBrSplit	= "prt-br-split"		// String - BH
-	    	PrtDeciSeed = "prt-seed-decimal"	// Bool
-	    	PrtIntSeed  = "prt-seed-integer"	// Bool
-	    	PrtInterval = "prt-intervals"		// Bool
-	    	SimulateFee = "sml-fee"				// String - BH
+	    	PrtDeciSeed 	= "prt-seed-decimal"		// Bool
+	    	PrtIntSeed  	= "prt-seed-integer"		// Bool
+	    	PrtInterval 	= "prt-intervals"		// Bool
+	    	SimulateFee 	= "sml-fee"			// String - BH
 	)
 
-	FlagCmpDeciSeed := flag.Bool	(CmpDeciSeed,	false,	CmpDeciSeedH)
-	FlagCmpTxTax 	:= flag.String	(CmpTxTax,		"0", 		CmpTxTaxH)
-	FlagCmpTxFee 	:= flag.String	(CmpTxFee,		"0",		CmpTxFeeH)
-	FlagCmpBr		:= flag.String	(CmpBr,			"0",		CmpBrH)
-	FlagCmpSummedBr	:= flag.String	(CmpSummedBr,	"0",		CmpSummedBrH)
-	FlagExpTotalsBr := flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
-	FlagExpSumBrCkp := flag.String	(ExpSumBrCkp,	"0",		ExpSumBrCkpH)
-
-	FlagPrtBrSplit 	:= flag.String	(PrtBrSplit,	"0",		PrtBrSplitH)
-
-	FlagPrtDeciSeed := flag.Bool	(PrtDeciSeed,	false,	PrtDeciSeedH)
-	FlagPrtIntSeed 	:= flag.Bool	(PrtIntSeed,	false,	PrtIntSeedH)
-	FlagPrtInterval := flag.Bool	(PrtInterval,	false,	PrtIntervalH)
-	FlagSimulateFee := flag.String	(SimulateFee,	"0",		SimulateFeeH)
+	FlagCmpDeciSeed 	:= flag.Bool	(CmpDeciSeed,	false,	CmpDeciSeedH)
+	FlagCmpTxTax 		:= flag.String	(CmpTxTax,	"0", 	CmpTxTaxH)
+	FlagCmpTxFee 		:= flag.String	(CmpTxFee,	"0",	CmpTxFeeH)
+	FlagCmpBr		:= flag.String	(CmpBr,		"0",	CmpBrH)
+	FlagCmpSummedBr		:= flag.String	(CmpSummedBr,	"0",	CmpSummedBrH)
+	FlagExpTotalsBr 	:= flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
+	FlagExpSumBrCkp 	:= flag.String	(ExpSumBrCkp,	"0",	ExpSumBrCkpH)
+	FlagPrtBrSplit 		:= flag.String	(PrtBrSplit,	"0",	PrtBrSplitH)
+	FlagPrtDeciSeed 	:= flag.Bool	(PrtDeciSeed,	false,	PrtDeciSeedH)
+	FlagPrtIntSeed 		:= flag.Bool	(PrtIntSeed,	false,	PrtIntSeedH)
+	FlagPrtInterval 	:= flag.Bool	(PrtInterval,	false,	PrtIntervalH)
+	FlagSimulateFee 	:= flag.String	(SimulateFee,	"0",	SimulateFeeH)
 	//
 	flag.Parse()
 	//

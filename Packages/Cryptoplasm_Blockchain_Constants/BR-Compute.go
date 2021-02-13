@@ -8,26 +8,31 @@ import (
     "time"
 )
 //
-//	BR_Compute.go								Block Reward Compute Functions
+//	BR_Compute.go						Block Reward Compute Functions
 //
 //================================================
 // 	Function List:
 //
-//	01  - CryptoplasmPrimaryGeometricListing	creates list if geometric heights
-//	01b - CryptoplasmSecondaryGeometricListing	creates list if geometric heights
-//	02  - CryptoplasmGeometricKamelSequence		creates the Kamel DNA
-//	03  - BlockRewardS							computes BR from BH as string
-//	03b - BlockRewardD							computes BR from BH as decimal
-//	03c - ConvGH								computes the BR from the Geometric Height
-//	04  - BlockGeometricHeight					computes the Geometric Height from decimal BH
-//	04b - ExportBr								Exports all Block Rewards to a file
-//	05a - BHRewardSeqSumS						Computes BR Sum from string BH sequentially
-//	05b - BHRewardSeqSumD						Computes BR Sum from decimal BH sequentially
-//	05c - BHRewardSeqSumCheckpointS				Computes BR Sum at specific Checkpoints, Checkpoint string
-//	05d - BHRewardSeqSumCheckpointD				Computes BR Sum at specific Checkpoints, Checkpoint decimal
-//	05e - BHRewardAdder							The Sequential BR sum computer
-//	05f - BHRewardIntSumS						Computes BR Sum from string BH intermittently. Slow !!!
-//	05g - BHRewardIntSumD						Computes BR Sum from decimal BH intermittently. Slow !!!
+//	01 Listing Functions used to compute the Geometric Heights
+//		01 - CryptoplasmPrimaryGeometricListing		Creates list if geometric heights
+//		02 - CryptoplasmSecondaryGeometricListing	Creates list if geometric heights
+//	02 Cryptoplasm DNA Function that is used to compute the Block-Rewards
+//		01 - CryptoplasmGeometricKamelSequence		Creates the Kamel DNA
+//	03 Block-Reward computing Functions
+//		01a - BlockRewardS				Computes BR from BH as string
+//		01b - BlockRewardD				Computes BR from BH as decimal
+//		02  - ConvGH					Computes the BR from the Geometric Height
+//		03  - BlockGeometricHeight			Computes the Geometric Height from decimal BH
+//	04 Block-Reward Exporting Function used to export externally the Block-Rewards
+//		01  - ExportBr					Exports all Block Rewards to a file
+//	05 Block-Reward Summing functions
+//		01a - BHRewardSeqSumS				Computes BR Sum from string BH sequentially
+//		01b - BHRewardSeqSumD				Computes BR Sum from decimal BH sequentially
+//		02a - BHRewardSeqSumCheckpointS			Computes BR Sum at specific Checkpoints, Checkpoint string
+//		02b - BHRewardSeqSumCheckpointD			Computes BR Sum at specific Checkpoints, Checkpoint decimal
+//		03  - BHRewardAdder				The Sequential BR sum computer
+//		04a - BHRewardIntSumS				Computes BR Sum from string BH intermittently. Slow !!!
+//		04b - BHRewardIntSumD				Computes BR Sum from decimal BH intermittently. Slow !!!
 //
 //================================================
 //
@@ -36,7 +41,7 @@ import (
 // Original implementation was made using Python Lists,
 // therefore a similar mechanic will be used in Go as well..
 //
-// Function 01 - CryptoplasmPrimaryGeometricListing
+// Function 01.01 - CryptoplasmPrimaryGeometricListing
 //
 // Creates a list of geometric heights using the input parameters
 func CryptoplasmPrimaryGeometricListing(a *p.Decimal, b int) []*p.Decimal {
@@ -61,7 +66,7 @@ func CryptoplasmPrimaryGeometricListing(a *p.Decimal, b int) []*p.Decimal {
 // Original implementation was made using Python Lists,
 // therefore a similar mechanic will be used in Go as well..
 //
-// Function 01b - CryptoplasmSecondaryGeometricListing
+// Function 01.02 - CryptoplasmSecondaryGeometricListing
 //
 // The Magic that is part of computing the BlockRewards
 func CryptoplasmSecondaryGeometricListing(x1 int, x2, x3 *p.Decimal) []*p.Decimal {
@@ -91,9 +96,11 @@ func CryptoplasmSecondaryGeometricListing(x1 int, x2, x3 *p.Decimal) []*p.Decima
 	ResultList := AppDec(SliceFront, RevSlice)
 	return ResultList
 }
-//================================================
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 //
-// Func 03 - CryptoplasmGeometricKamelSequence
+// Func 02.01 - CryptoplasmGeometricKamelSequence
 //
 // Creates the Geometric Kamel Sequences upon which
 // the BlockRewards are computed. Result is a slice
@@ -284,9 +291,11 @@ func CryptoplasmGeometricKamelSequence() []string {
 
 	return Kamel
 }
-//================================================
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 //
-// Func 03 - BlockRewardS
+// Func 03.01a - BlockRewardS
 //
 // BlockRewardS returns the Block Reward for a given Block-Height
 // The Block-Height Type is string.
@@ -300,7 +309,7 @@ func BlockRewardS(BlockHeightS string) *p.Decimal {
 }
 //================================================
 //
-// Func 03b - BlockRewardD
+// Func 03.01b - BlockRewardD
 //
 // BlockRewardD returns the Block Reward for a given Block Height
 func BlockRewardD(BlockHeightD *p.Decimal) *p.Decimal {
@@ -313,7 +322,7 @@ func BlockRewardD(BlockHeightD *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Func 03c - ConvGH
+// Func 03.02 - ConvGH
 //
 // ConvGH returns the Block Reward for a Geometric Height
 func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
@@ -335,7 +344,7 @@ func ConvGH(GeometricHeight *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Func 04 - BlockGeometricHeight
+// Func 03.03 - BlockGeometricHeight
 //
 // BlockGeometricHeight returns the geometric height
 // for a given BlockHeight on the Kamel Graph
@@ -438,10 +447,11 @@ func BlockGeometricHeight(BlockHeight *p.Decimal) *p.Decimal {
 	GH = TruncSeed(GH)
 	return GH
 }
-
-//================================================
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 //
-// Func 04b - ExportBr
+// Func 04.01 - ExportBr
 //
 // ExportBR exports the whole 524.596.891 BlockRewards
 // to an output file.
@@ -634,9 +644,11 @@ func ExportBr(Name string) {
 	elapsed := time.Since(start)
 	fmt.Println("Computing took", elapsed)
 }
-//================================================
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 //
-// Func 05a - BHRewardSeqSumS
+// Func 05.01a - BHRewardSeqSumS
 //
 // BHRewardSeqSumS returns the Block-Reward Sum for the given BlockHeight;
 // when BlockHeight as input is a String. Method used is sequentially.
@@ -653,7 +665,7 @@ func BHRewardSeqSumS(BlockHeightS string) *p.Decimal {
 }
 //================================================
 //
-// Func 05b - BHRewardSeqSumD
+// Func 05.01b - BHRewardSeqSumD
 //
 // BHRewardSeqSumD returns the Block-Reward Sum for the given BlockHeight;
 // when BlockHeight as input is a Decimal. Method used is sequentially.
@@ -670,7 +682,7 @@ func BHRewardSeqSumD(BlockHeightD *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Func 05c - BHRewardSeqSumCheckpointS
+// Func 05.02a - BHRewardSeqSumCheckpointS
 //
 // BHRewardSeqSumCheckpointS returns multiple BlockReward Sums, computed each
 // inputted  BlockHeightCheckpoint - for the whole Emission Period (524.596.891 Blocks);
@@ -687,7 +699,7 @@ func BHRewardSeqSumCheckpointS(BlockHeightCheckpointS string) []*p.Decimal {
 }
 //================================================
 //
-// Func 05d - BHRewardSeqSumCheckpointD
+// Func 05.02b - BHRewardSeqSumCheckpointD
 //
 // BHRewardSeqSumCheckpointD returns multiple BlockReward Sums, computed each
 // inputted  BlockHeightCheckpoint - for the whole Emission Period (524.596.891 Blocks);
@@ -704,7 +716,7 @@ func BHRewardSeqSumCheckpointD(BlockHeightCheckpointD *p.Decimal) []*p.Decimal {
 }
 //================================================
 //
-// Func 05c - BHRewardAdder
+// Func 05.03 - BHRewardAdder
 //
 // BHRewardAdder returns the Reward Sum for the given BlockHeight
 // when BlockHeight as input is of Decimal type. Method used is sequentially.
@@ -1310,10 +1322,9 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
     //}
     return SliceSums
 }
-
 //================================================
 //
-// Func 05c - BHRewardIntSumS
+// Func 05.04a - BHRewardIntSumS
 //
 // BHRewardIntSumS returns the Reward Sum for the given BlockHeight
 // when BlockHeight as input is a String. Method used is intermittently.
@@ -1330,7 +1341,7 @@ func BHRewardIntSumS(BlockHeightS string) *p.Decimal {
 }
 //================================================
 //
-// Func 05d - BHRewardIntSumD
+// Func 05.04b - BHRewardIntSumD
 //
 // BHRewardIntSumD returns the Reward Sum for the given BlockHeight
 // when BlockHeight as input is a Decimal. Method used is intermittently.
@@ -1344,7 +1355,6 @@ func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
     BHDigits := Count4Coma(BlockHeightD)	//Count4Coma can be used because BlockHeightD has no decimals
     i := p.NFI(1)
     BrSum = BlockRewardD(i)
-    //fmt.Println("Primu Block adunat e",BrSum)
 
     SumNumberDigits := Count4Coma(BrSum)
     SP := CryptoplasmCurrencyPrecision + uint32(SumNumberDigits) + 1

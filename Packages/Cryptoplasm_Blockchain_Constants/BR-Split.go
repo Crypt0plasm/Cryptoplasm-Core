@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 //
-//	BR-Split.go								Block-Reward Split Computing Function
+//	BR-Split.go						Block-Reward Split Computing Function
 //================================================================================================
 //************************************************************************************************
 //================================================================================================
@@ -13,7 +13,7 @@ import (
 //
 //	01 Comparison Functions operating on decimal type
 //		01  - BaseStakingPercent			returns the Block Staking Reward % for a given Block-Height
-//		02  - TreasurySplit					returns Multiple Split % for a given Block-Height
+//		02  - TreasurySplit				returns Multiple Split % for a given Block-Height
 //		03  - ProcentSplitMatrix			returns all Split % for a given Block-Height
 //		04  - ProcentSplitPrinter			prints information regarding the Block-Reward split
 //================================================
@@ -24,11 +24,11 @@ import (
 // The Block-Height Type is a decimal.
 func BaseStakingPercent(BlockHeightD *p.Decimal) *p.Decimal {
     var (
-	Gray			= int64(91)
+	Gray		= int64(91)
 	PurpleInt,_ 	= Purple.Int64()
 	IndigoInt,_ 	= Indigo.Int64()
-	BlueInt,_ 		= Blue.Int64()
-	GreenInt,_ 		= Green.Int64()
+	BlueInt,_ 	= Blue.Int64()
+	GreenInt,_ 	= Green.Int64()
 	YellowInt,_ 	= Yellow.Int64()
 	OrangeInt,_ 	= Orange.Int64()
 
@@ -314,7 +314,7 @@ func TreasurySplit(BlockHeightD *p.Decimal) [4]*p.Decimal {
 // Func 03 - ProcentSplitMatrix
 //
 // ProcentSplitMatrix returns all Split % for a given Block-Height
-// inside a array of arrays.
+// inside an array of arrays.
 func ProcentSplitMatrix(BlockHeightD *p.Decimal) [4][3]*p.Decimal {
 	var (
 		StarProcentGOLD				= TruncPercent(p.NFS("0.1"))
