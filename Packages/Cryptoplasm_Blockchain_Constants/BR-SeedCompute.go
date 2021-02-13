@@ -10,16 +10,16 @@ func CryptoplasmDecimalSeedComputer () {
 	var(
 		//Minimum math precision that obtains the same 40 decimal precision
 		//obtained with the higher much more computing intensive 250 math precision
-		Pp  uint32		= 11		//Purple 		Precision
-		Ip  uint32		= 13		//Indigo 		Precision
-		Bp  uint32		= 14		//Blue 			Precision
-		Gp  uint32		= 16		//Green 		Precision
+		Pp  uint32		= 11		//Purple 	Precision
+		Ip  uint32		= 13		//Indigo 	Precision
+		Bp  uint32		= 14		//Blue 		Precision
+		Gp  uint32		= 16		//Green 	Precision
 		YUp uint32		= 17		//Yellow Up 	Precision
 		YDp uint32		= 16		//Yellow Down 	Precision
-		Op  uint32		= 18		//Orange		Precision
-		RUp uint32		= 18		//Red Up		Precision
-		RDp uint32		= 20		//Red Down		Precision
-		Whp uint32		= 20		//White			Precision
+		Op  uint32		= 18		//Orange	Precision
+		RUp uint32		= 18		//Red Up	Precision
+		RDp uint32		= 20		//Red Down	Precision
+		Whp uint32		= 20		//White		Precision
 
 		CSP				= CryptoplasmSeedPrecision
 	)
