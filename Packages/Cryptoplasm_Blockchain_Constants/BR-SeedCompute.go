@@ -21,7 +21,7 @@ func CryptoplasmDecimalSeedComputer () {
 		RDp uint32		= 20		//Red Down	Precision
 		Whp uint32		= 20		//White		Precision
 
-		CSP				= CryptoplasmSeedPrecision
+		CSP			= CryptoplasmSeedPrecision
 	)
 
 	//===============
