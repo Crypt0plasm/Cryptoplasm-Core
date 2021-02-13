@@ -317,25 +317,25 @@ func TreasurySplit(BlockHeightD *p.Decimal) [4]*p.Decimal {
 // inside an array of arrays.
 func ProcentSplitMatrix(BlockHeightD *p.Decimal) [4][3]*p.Decimal {
 	var (
-		StarProcentGOLD				= TruncPercent(p.NFS("0.1"))
-		StarProcentSILVER			= TruncPercent(p.NFS("0.2"))
-		StarProcentBRONZE			= TruncPercent(p.NFS("0.4"))
+		StarProcentGOLD			= TruncPercent(p.NFS("0.1"))
+		StarProcentSILVER		= TruncPercent(p.NFS("0.2"))
+		StarProcentBRONZE		= TruncPercent(p.NFS("0.4"))
 
 		BaseConquerorProcent 		= TruncPercent(p.NFS("0.8"))
-		BaseStakingProcent 			= TruncPercent(BaseStakingPercent(BlockHeightD))
+		BaseStakingProcent 		= TruncPercent(BaseStakingPercent(BlockHeightD))
 		TreasurySplitMatrix 		= TreasurySplit(BlockHeightD)
 		BaseContinentProcent 		= TruncPercent(TreasurySplitMatrix[0])
 		SecondaryStakingProcent 	= TruncPercent(TreasurySplitMatrix[1])
 		SecondaryMiningProcent		= TruncPercent(TreasurySplitMatrix[2])
 		SecondaryConquerorProcent 	= TruncPercent(TreasurySplitMatrix[3])
 
-		TotalStakingProcent			= TruncPercent(ADDs(BaseStakingProcent,SecondaryStakingProcent))
+		TotalStakingProcent		= TruncPercent(ADDs(BaseStakingProcent,SecondaryStakingProcent))
 		TotalConquerorProcent		= TruncPercent(ADDs(BaseConquerorProcent,SecondaryConquerorProcent))
-		TreasuryProcent				= TruncPercent(MULxc(BaseContinentProcent,p.NFI(7)))
-		StarProcent					= TruncPercent(SUMs(StarProcentGOLD,StarProcentSILVER,StarProcentBRONZE))
+		TreasuryProcent			= TruncPercent(MULxc(BaseContinentProcent,p.NFI(7)))
+		StarProcent			= TruncPercent(SUMs(StarProcentGOLD,StarProcentSILVER,StarProcentBRONZE))
 
-		TotalMiningProcent			= TruncPercent(DIFs(p.NFI(100),TotalStakingProcent,TotalConquerorProcent,TreasuryProcent,StarProcent))
-		BaseMiningProcent			= TruncPercent(SUBs(TotalMiningProcent,SecondaryMiningProcent))
+		TotalMiningProcent		= TruncPercent(DIFs(p.NFI(100),TotalStakingProcent,TotalConquerorProcent,TreasuryProcent,StarProcent))
+		BaseMiningProcent		= TruncPercent(SUBs(TotalMiningProcent,SecondaryMiningProcent))
 	)
 
 	MiningProcentMatrix := [...]*p.Decimal{BaseMiningProcent,SecondaryMiningProcent,TotalMiningProcent}
