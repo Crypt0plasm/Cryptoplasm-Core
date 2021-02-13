@@ -8,7 +8,7 @@ import (
     "time"
 )
 //
-//	BR_Compute.go					Block Reward Compute Functions
+//	BR_Compute.go								Block Reward Compute Functions
 //
 //================================================
 // 	Function List:

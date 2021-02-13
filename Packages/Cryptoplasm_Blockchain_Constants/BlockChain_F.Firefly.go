@@ -790,63 +790,63 @@ func DIVxc(member1, member2 *firefly.Decimal) *firefly.Decimal {
 
 	if DecimalGreaterThan(IntegerMember1,firefly.NFI(0)) == true  && DecimalGreaterThan(IntegerMember2,firefly.NFI(0)) {
 		//Case 1 Integer Part is similar
-		fmt.Println("Case1")
+		//fmt.Println("Case1")
 		if DecimalEqual(IntegerMember1,IntegerMember2) == true {
-			fmt.Println("Case1.1")
+			//fmt.Println("Case1.1")
 			if DecimalGreaterThanOrEqual(member1,member2) == true {
-				fmt.Println("Case1.1.1")
+				//fmt.Println("Case1.1.1")
 				IntegerPrecision = 1
 			} else {
-				fmt.Println("Case1.1.2")
+				//fmt.Println("Case1.1.2")
 				IntegerPrecision = 0
 			}
 		} else if DecimalGreaterThan(IntegerMember1,IntegerMember2) == true {
-			fmt.Println("Case1.2")
+			//fmt.Println("Case1.2")
 			if IntegerDigitsMember1 == IntegerDigitsMember2 {
-				fmt.Println("Case1.2.1")
+				//fmt.Println("Case1.2.1")
 				IntegerPrecision = 1
 			} else if IntegerDigitsMember1 > IntegerDigitsMember2 {
-				fmt.Println("Case1.2.2")
+				//fmt.Println("Case1.2.2")
 				IntegerPrecision = uint32(IntegerDigitsMember1) - uint32(IntegerDigitsMember2) + 1
-				fmt.Println("IntegerPrecision is",IntegerPrecision)
+				//fmt.Println("IntegerPrecision is",IntegerPrecision)
 			}
 		} else  {
-			fmt.Println("Case1.3")
+			//fmt.Println("Case1.3")
 			IntegerPrecision = 0
 		}
 	} else if DecimalGreaterThan(IntegerMember1,firefly.NFI(0)) == true && DecimalEqual(IntegerMember2,firefly.NFI(0)) {
 		//Case 2 Integer Part of member2 is zero
 		fmt.Println("Case2")
 		if int32(NumberDigitsMember2) == DecimalDigitsMember2 {
-			fmt.Println("Case2.1")
+			//fmt.Println("Case2.1")
 			IntegerPrecision = uint32(IntegerDigitsMember1) + 1
 		} else {
-			fmt.Println("Case2.2")
+			//fmt.Println("Case2.2")
 			Zeros := DecimalDigitsMember2 - int32(NumberDigitsMember2)
 			IntegerPrecision = uint32(IntegerDigitsMember1) + 1 + uint32(Zeros)
 		}
 	} else if  DecimalGreaterThan(IntegerMember2,firefly.NFI(0)) == true && DecimalEqual(IntegerMember1,firefly.NFI(0)) {
 		//Case 3 Integer Part of member1 is zero
-		fmt.Println("Case3")
+		//fmt.Println("Case3")
 		IntegerPrecision = 0
 	} else if DecimalEqual(IntegerMember1,firefly.NFI(0)) && DecimalEqual(IntegerMember2,firefly.NFI(0)) {
 		//Case 4 both Integer Parts are zero
-		fmt.Println("Case4")
+		//fmt.Println("Case4")
 		Zeros1 := DecimalDigitsMember1 - int32(NumberDigitsMember1)
 		Zeros2 := DecimalDigitsMember2 - int32(NumberDigitsMember2)
 		if Zeros1 < Zeros2 {
-			fmt.Println("Case4.1")
+			//fmt.Println("Case4.1")
 			IntegerPrecision = uint32(Zeros2 - Zeros1) + 1
 		} else if Zeros1 > Zeros2 {
-			fmt.Println("Case4.2")
+			//fmt.Println("Case4.2")
 			IntegerPrecision = 0
 		} else if Zeros1 == Zeros2 {
-			fmt.Println("Case4.3")
+			//fmt.Println("Case4.3")
 			if DecimalLessThan(member1,member2) == true {
-				fmt.Println("Case4.3.1")
+				//fmt.Println("Case4.3.1")
 				IntegerPrecision = 0
 			} else {
-				fmt.Println("Case4.3.2")
+				//fmt.Println("Case4.3.2")
 				IntegerPrecision = 1
 			}
 		}
@@ -881,7 +881,6 @@ func DivInt (member1, member2 *firefly.Decimal) *firefly.Decimal {
 func DivMod (member1, member2 *firefly.Decimal) *firefly.Decimal {
     var result = new(firefly.Decimal)
 	DCP := SummedMaxLengthPlusOne(member1,member2)	//DivisionContextPrecision
-    //divresult := TruncateCustom(DCP,DivInt(member1,member2),0)
 	divresult := TruncateCustom(DivInt(member1,member2),0)
     result = SUBx(DCP,member1,MULx(DCP,member2,divresult))
     return result
@@ -1584,7 +1583,6 @@ func YoctoPlasm2String(Number *firefly.Decimal) []string {
         Power := POWx(IP,Ten,idec)
         Division := DIVx(IP,ToSequence,Power)
 		DigitIs := TruncateCustom(Division,0)
-        //DigitIs := TruncateCustom(IP,Division,0)
         DI := firefly.INT64(DigitIs)
         DigitIsString := strconv.Itoa(int(DI))
         SliceStr = append(SliceStr,DigitIsString)
