@@ -24,15 +24,13 @@ import (
 // The Block-Height Type is a decimal.
 func BaseStakingPercent(BlockHeightD *p.Decimal) *p.Decimal {
     var (
-	Gray	 	= int64(91)
+	Gray			= int64(91)
 	PurpleInt,_ 	= Purple.Int64()
 	IndigoInt,_ 	= Indigo.Int64()
-	BlueInt,_ 	= Blue.Int64()
-	GreenInt,_ 	= Green.Int64()
+	BlueInt,_ 		= Blue.Int64()
+	GreenInt,_ 		= Green.Int64()
 	YellowInt,_ 	= Yellow.Int64()
 	OrangeInt,_ 	= Orange.Int64()
-	//RedInt,_ 	= Red.Int64()
-	//WhiteInt,_ 	= White.Int64()
 
 	From01		= int64(1)
 	To01		= Gray - 1
