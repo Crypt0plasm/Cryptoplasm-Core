@@ -1,13 +1,14 @@
 package main
 
 import (
-	b "Cryptoplasm-Core/Packages/Cryptoplasm_Blockchain_Constants"
-	p "Cryptoplasm-Core/Packages/Firefly_Precision"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"time"
+
+    	b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
+    	p "github.com/Crypt0plasm/Firefly-APD"
 )
 
 func main() {
