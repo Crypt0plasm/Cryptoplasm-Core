@@ -1,8 +1,8 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
-	p "Cryptoplasm-Core/Packages/Firefly_Precision"
-	"fmt"
+    p "github.com/Crypt0plasm/Firefly-APD"
+    "fmt"
 )
 //
 //	BR-Split.go						Block-Reward Split Computing Function

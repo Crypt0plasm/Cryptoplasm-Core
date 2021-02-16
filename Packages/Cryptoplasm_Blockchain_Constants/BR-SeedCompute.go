@@ -1,9 +1,9 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
-	p "Cryptoplasm-Core/Packages/Firefly_Precision"
-	"fmt"
-	"time"
+    "fmt"
+    p "github.com/Crypt0plasm/Firefly-APD"
+    "time"
 )
 
 func CryptoplasmDecimalSeedComputer () {

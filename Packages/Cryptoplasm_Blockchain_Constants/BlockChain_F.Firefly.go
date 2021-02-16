@@ -1,12 +1,12 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
-	p "Cryptoplasm-Core/Packages/Firefly_Precision"
-	"fmt"
-	"os"
-    	"strconv"
-	"strings"
-	"time"
+    "fmt"
+    p "github.com/Crypt0plasm/Firefly-APD"
+    "os"
+    "strconv"
+    "strings"
+    "time"
 )
 var (
 	c = CryptoplasmPrecisionContext
