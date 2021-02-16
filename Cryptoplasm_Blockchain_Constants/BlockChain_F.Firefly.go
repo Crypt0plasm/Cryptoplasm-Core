@@ -1610,7 +1610,7 @@ func YoctoPlasm2String(Number *p.Decimal) []string {
 // or even separating at 2 position for Lakhs and Crores.
 func CPAmountConv2Print (cpAmount *p.Decimal) string {
     var (
-    	StringResult 		string
+    		StringResult 		string
 		ComaPosition 		int32
 		PointPosition 		int32
 		DigitTier		int32
@@ -1650,6 +1650,7 @@ func CPAmountConv2Print (cpAmount *p.Decimal) string {
 	    copy(SliceStr[PointPosition+1:],SliceStr[PointPosition:])
 	    SliceStr[PointPosition] = "."
 	}
+
 	NewSlicePositions = NumberDigits + TSNumber + 1
     } else if NumberDigits < 28 && NumberDigits > 24 {
 	NewSlicePositions = NumberDigits + 1
@@ -1712,5 +1713,67 @@ func CPAmountConv2Print (cpAmount *p.Decimal) string {
     for i := 0; i < len(SliceStr); i++ {
         StringResult = StringResult + SliceStr[i]
     }
+    return StringResult
+}
+//================================================
+//
+// Function 11.03 - BHAmountConv2Print
+//
+// BHAmountConv2Print converts the BlockHeight decimal into a string
+// to be used for printing purposes. A "." is inserted ever 1000.
+// For now only a "." as decimal character is implemented.
+// Different Schemas can be added (for instance using coma<,> as decimal separator
+// instead of point<.>; Or using points for thousand separator,
+// or even separating at 2 position for Lakhs and Crores.
+func BHAmountConv2Print (BlockHeight *p.Decimal) string {
+    var (
+    	StringResult 		string
+	DigitTier		int32
+	PointPosition 		int32
+    )
+
+    NumberDigits := Count4Coma(BlockHeight)
+    SliceStr := YoctoPlasm2String(BlockHeight)
+    TSNumber := NumberDigits / 3
+
+    //Computing the 1000 Separator positions
+    if NumberDigits  % 3 == 0 {
+        DigitTier = 0
+    } else if NumberDigits  % 3 == 1 {
+        DigitTier = 1
+    } else if NumberDigits  % 3 == 2 {
+        DigitTier = 2
+    }
+
+    //Adding the 1000 Separator as points
+    for i := 1; i<=int(TSNumber); i++ {
+        PointPosition = (int32(i)-1) * 4 + DigitTier
+        SliceStr = append(SliceStr,"")
+        copy(SliceStr[PointPosition+1:],SliceStr[PointPosition:])
+        SliceStr[PointPosition] = "."
+    }
+
+    //Remove the first element from the Slice if it is a "."
+    if SliceStr[0] == "." {
+        SliceStr = append(SliceStr[:0], SliceStr[1:]...)
+    }
+
+    //Adding Brackets at the beginning and end of the Slice of strings.
+    ElementToAppendStart 	:= "["
+    ElementToAppendEnd 		:= "]"
+
+    //Appending on First Position
+    SliceStr = append(SliceStr,"")
+    copy(SliceStr[1:],SliceStr[0:])
+    SliceStr[0] = ElementToAppendStart
+
+    //Appending on Last Position
+    SliceStr = append(SliceStr,ElementToAppendEnd)
+
+    //Converting the Slice of Strings to a String as final step
+    for i := 0; i < len(SliceStr); i++ {
+	StringResult = StringResult + SliceStr[i]
+    }
+
     return StringResult
 }

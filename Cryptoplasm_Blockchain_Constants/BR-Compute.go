@@ -482,7 +482,7 @@ func ExportBr(Name string) {
 			Periods := (i + 1) / 343
 			intermediary := time.Since(start)
 			BlocksNo := int(p.INT64(Green)) * Periods
-			fmt.Println("Written", Periods, "/2041 Green Periods, ", BlocksNo, "Blocks, Elapsed Time ", intermediary)
+			fmt.Println("Written", Periods, "/2041 Green Periods, ", BHAmountConv2Print(p.NFI(int64(BlocksNo))), "Blocks, Elapsed Time ", intermediary)
 			//defer timeTrack(time.Now(), "Written")
 		}
 		element := CryptoplasmDNA[i]
@@ -762,7 +762,7 @@ func BHRewardAdder(BlockHeightD, CheckPointD *p.Decimal) []*p.Decimal{
 	    //BlocksNoPr := uint32(Count4Coma(Periods)) + 6
 	    BlocksNo := MULs(Green,Periods)
 
-	    fmt.Println("Computed",Periods,"/",GPeriods,"Green Periods,",BlocksNo,"Blocks, Elapsed Time ", intermediary)
+	    fmt.Println("Computed",Periods,"/",GPeriods,"Green Periods,",BHAmountConv2Print(BlocksNo),"Blocks, Elapsed Time ", intermediary)
 	    //defer timeTrack(time.Now(), "Written")
 	}
 	element := CryptoplasmDNA[p.INT64(i)]
@@ -1361,7 +1361,7 @@ func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
     i = ADDx(uint32(BHDigits),i,p.NFI(1))
 
     for DecimalLessThanOrEqual(i,BlockHeightD) == true {
-        fmt.Println("Adding BlockReward at BH,",i,"...")
+        fmt.Println("Adding BlockReward at BH,",BHAmountConv2Print(i),"...")
         BR2add := BlockRewardD(i)
 	BrSum = ADDx(SP,BrSum,BR2add)
 	SumNumberDigits = Count4Coma(BrSum)
@@ -1369,6 +1369,6 @@ func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
 	i = ADDx(uint32(BHDigits),i,p.NFI(1))
     }
     elapsed := time.Since(start)
-    fmt.Println("Computing Sum intermittently for BH",BlockHeightD,"took", elapsed, "and is ",BrSum)
+    fmt.Println("Computing Sum intermittently for BH",BHAmountConv2Print(BlockHeightD),"took", elapsed, "and is ",BrSum)
     return BrSum
 }

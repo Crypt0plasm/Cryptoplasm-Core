@@ -22,22 +22,18 @@ The Decimal Seeds have a 40 decimal precision and are used to compute the BlockR
 	    	CmpTxTaxH = `--cmp-tx-tax=<cpAmount>
 cpAmount is a String of Numbers that must be a valid cpAmount. It can have a decimal form.
 Computes the MIN-Tx-Tax and MAX-Tx-Tax; More information by running it.'
-
 `
 	    	CmpTxFeeH = `--cmp-tx-fee=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Transaction-Fee for the given Block-Height. It represents a FeePerByte cpAmount.
-
 `
 	    	CmpBrH = `--cmp-br=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Block-Reward for the given Block-Height. It represent a cpAmount
-
 `
 	    	CmpSummedBrH = `--cmp-br-sum=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Sum of all the Block-Rewards emitted up to and including the given Block-Height.
-
 `
 	    	ExpTotalsBrH = `--exp-br-all		NO VALUE TO PASS
 Computes and Exports to an external file, all the Block-Rewards for whole White Interval.
@@ -51,7 +47,6 @@ Considering 1 Minute Block-Time, choosing for example 525600 would compute and e
 would be emitted in total, in 1 year intervals. Useful if one wants to plot the resulted numbers to create
 an "Emission Graph" which displays "Total Emission" in year intervals.
 The Computation runs for the Whole White Period - 524.596.891 Blocks, until tail emission.
-
 `
 	    	PrtDeciSeedH = `--prt-seed-decimal	NO VALUE TO PASS
 Prints the Primary and Secondary Decimal Seeds, without computing them, as they are stored in the code.
@@ -69,7 +64,6 @@ Displays their lengths in Blocks and their time in years, days, hours and minute
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints all Transaction-Fee types for the given Block-Height. Normal and Blink Tx-Fees,
 GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
-
 `
 			PrtBrSplitH = `--prt-br-split=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
@@ -132,7 +126,7 @@ Developer Funds, and Stars. These values fluctuate with Block-Height.
 		start := time.Now()
 		Fee := b.FeePerByte(*FlagCmpTxFee)
 		fmt.Println("")
-		fmt.Println("FeePerByte for BlockHeight", *FlagCmpTxFee, "is:")
+		fmt.Println("FeePerByte for BlockHeight", b.BHAmountConv2Print(p.NFS(*FlagCmpTxFee)), "is:")
 		fmt.Println(b.CPAmountConv2Print(Fee), "CP")
 		elapsed := time.Since(start)
 		fmt.Println("Computing the FeePerByte took", elapsed)
@@ -268,6 +262,7 @@ Developer Funds, and Stars. These values fluctuate with Block-Height.
 		_, _ = fmt.Scanln(&outputno)
 		start := time.Now()
 		Fees := b.FeeComputer(*FlagSimulateFee, txsize, outputno)
+		fmt.Println("For BlockHeight",b.BHAmountConv2Print(p.NFS(*FlagSimulateFee)),"following fees apply:")
 		fmt.Println("===================================================================")
 		fmt.Println("")
 		fmt.Println("NORMAL Transactions")
