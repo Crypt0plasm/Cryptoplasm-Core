@@ -21,7 +21,7 @@ The Decimal Seeds have a 40 decimal precision and are used to compute the BlockR
 `
 	    	CmpTxTaxH = `--cmp-tx-tax=<cpAmount>
 cpAmount is a String of Numbers that must be a valid cpAmount. It can have a decimal form.
-Computes the MIN-Tx-Tax and MAX-Tx-Tax; More information by running it.'
+Computes the Transaction-Tax; More information by running it.'
 `
 	    	CmpTxFeeH = `--cmp-tx-fee=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
