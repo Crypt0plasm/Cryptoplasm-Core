@@ -7,13 +7,77 @@ import (
     blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
 )
 
-func GenerateCryptoPlasmKeys () (PrivKey, PublicKey string){
-    PrivKeyNumber := RandCurveE521ModuloPrime()
-    PrivKey = PrivKeyNumber.Text(49)
-    x,y := GetPublicKeyOnE521(PrivKeyNumber)
-    PublicKeyHash := SevenFoldHash(x,y)
-    PublicKey = ConvToLetters(PublicKeyHash)
-    return PrivKey,PublicKey
+//PrivateKeyInt and PublicKeyInt are    big.Int(integers)   representing a number in Base10
+//PrivateKey    and PublicKey    are    strings             representing a number in Base49
+//CryptoPlasm Address is computed from the PublicKeyInt
+
+func GenerateCryptoPlasmKeysWithAddress () (PrivateKey, PublicKey, Address string) {
+    PrivateKey, PublicKey = GenerateCryptoPlasmKeys()
+    Address = PublicKey2CryptoPlasmAddress(PublicKey)
+    return PrivateKey,PublicKey, Address
+}
+
+func GenerateCryptoPlasmKeys () (PrivateKey, PublicKey string) {
+    PrivateKeyInt := RandCurveE521ModuloPrime()
+    PrivateKey = ConvertBase10toBase49(PrivateKeyInt)
+    PublicKey = PrivateKey2PublicKey(PrivateKey)
+    return PrivateKey,PublicKey
+}
+
+func ConvertBase49toBase10 (NumberBase49 string) *big.Int {
+    var Result = new(big.Int)
+    Result.SetString(NumberBase49,49)
+    return Result
+}
+
+func ConvertBase10toBase49 (NumberBase10 *big.Int) string {
+    var Result string
+    Result = NumberBase10.Text(49)
+    return Result
+}
+
+func PrivateKeyInt2PublicKey (PrivateKeyInt *big.Int) string {
+    var PublicKeyInt = new(big.Int)
+    x,y := GetPublicKeyOnE521(PrivateKeyInt)
+    XString := x.String()
+    YString := y.String()
+    XYString := XString+YString
+    PublicKeyInt.SetString(XYString,10)
+    PublicKey := ConvertBase10toBase49(PublicKeyInt)
+    return PublicKey
+}
+
+func PrivateKey2PublicKey (PrivateKey string) string {
+    PrivateKeyInt := ConvertBase49toBase10(PrivateKey)
+    PublicKey := PrivateKeyInt2PublicKey(PrivateKeyInt)
+    return PublicKey
+}
+
+func PublicKeyInt2CryptoPlasmAddress (PublicKeyInt *big.Int) string {
+    PublicKeyIntHashed := SevenFoldHash(PublicKeyInt)
+    CryptoPlasmAddress := ConvToLetters(PublicKeyIntHashed)
+    return CryptoPlasmAddress
+}
+
+func PublicKey2CryptoPlasmAddress (PublicKey string) string {
+    PublicKeyInt := ConvertBase49toBase10(PublicKey)
+    CryptoPlasmAddress := PublicKeyInt2CryptoPlasmAddress(PublicKeyInt)
+    return CryptoPlasmAddress
+}
+
+func SevenFoldHash (PublicKeyInt *big.Int)[]byte {
+    PublicKeyIntAsString := PublicKeyInt.String()
+    LongStringToByteSlice := []byte(PublicKeyIntAsString)
+
+    S1 := blake3.SumCustom(LongStringToByteSlice,160)
+    S2 := blake3.SumCustom(S1,160)
+    S3 := blake3.SumCustom(S2,160)
+    S4 := blake3.SumCustom(S3,160)
+    S5 := blake3.SumCustom(S4,160)
+    S6 := blake3.SumCustom(S5,160)
+    S7 := blake3.SumCustom(S6,160)
+
+    return S7
 }
 
 func RandCurveE521ModuloPrime () *big.Int {
@@ -297,23 +361,6 @@ func GetPublicKeyOnE521 (PrivKey *big.Int) (x,y *big.Int) {
     //fmt.Println("")
     //fmt.Println("Computing PublicKey points took:", elapsed)
     return x, y
-}
-
-func SevenFoldHash (x,y *big.Int)[]byte {
-    XString := x.String()
-    YString := y.String()
-    LongString := XString+YString
-    LongStringToByteSlice := []byte(LongString)
-
-    S1 := blake3.SumCustom(LongStringToByteSlice,160)
-    S2 := blake3.SumCustom(S1,160)
-    S3 := blake3.SumCustom(S2,160)
-    S4 := blake3.SumCustom(S3,160)
-    S5 := blake3.SumCustom(S4,160)
-    S6 := blake3.SumCustom(S5,160)
-    S7 := blake3.SumCustom(S6,160)
-
-    return S7
 }
 
 func ConvToLetters (hash []byte) string {
@@ -640,11 +687,11 @@ func CharacterMatrix () [16][16]rune {
     C023 := 'χ'     //U+03C7    Greek Small Letter Chi
     C024 := 'д'     //U+0434    Cyrillic Small Letter De
     C025 := 'ε'     //U+03B5    Greek Small Letter Epsilon
-    C026 := 'γ'     //U+03B3    Greek Small Letter Gamma
-    C027 := 'г'     //U+0433    Cyrillic Small Letter Ghe
-    C028 := 'h'     //U+0068    Latin Small Letter H
-    C029 := 'η'     //U+03B7    Greek Small Letter Eta
-    C030 := 'ι'     //U+03B9    Greek Small Letter Iota
+    C026 := 'ɣ'     //U+0263    Latin Small Letter Gamma
+    C027 := 'γ'     //U+03B3    Greek Small Letter Gamma
+    C028 := 'г'     //U+0433    Cyrillic Small Letter Ghe
+    C029 := 'h'     //U+0068    Latin Small Letter H
+    C030 := 'η'     //U+03B7    Greek Small Letter Eta
     C031 := 'и'     //U+0438    Cyrillic Small Letter I
     C032 := 'й'     //U+0439    Cyrillic Small Letter Short I
     C033 := 'ж'     //U+0436    Cyrillic Small Letter Zhe
