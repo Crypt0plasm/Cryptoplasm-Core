@@ -1,14 +1,15 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"log"
-	"os"
-	"time"
+    "flag"
+    "fmt"
+    "log"
+    "os"
+    "time"
 
-    	b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
-    	p "github.com/Crypt0plasm/Firefly-APD"
+    b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
+    el "Cryptoplasm-Core/Cryptoplasm_Elliptic"
+    p "github.com/Crypt0plasm/Firefly-APD"
 )
 
 func main() {
@@ -65,10 +66,14 @@ Block-Height is a String of Numbers that must be a valid Block-Height. It must h
 Computes and Prints all Transaction-Fee types for the given Block-Height. Normal and Blink Tx-Fees,
 GAS(>10_CP), PLASMA(>1_CP && <10_CP) and MIASMA (<1_CP) Transaction-Fees.
 `
-			PrtBrSplitH = `--prt-br-split=<Block-Height>
+	    	PrtBrSplitH = `--prt-br-split=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Prints the Block-Reward Split, where one can see the Percents going to Miners, Stakers, Conqueror Pool,
 Developer Funds, and Stars. These values fluctuate with Block-Height.
+`
+	    	GenerateKeysH = `--gen-keys		NO VALUE TO PASS
+Generates a Pair of Private and Public Keys and its Corresponding Address. The keys are not saved.
+They are only generated and displayed on screen.
 `
 	)
 
@@ -85,6 +90,7 @@ Developer Funds, and Stars. These values fluctuate with Block-Height.
 	    	PrtIntSeed  	= "prt-seed-integer"		// Bool
 	    	PrtInterval 	= "prt-intervals"		// Bool
 	    	SimulateFee 	= "sml-fee"			// String - BH
+	    	GenerateKeys	= "gen-keys"			// Bool
 	)
 
 	FlagCmpDeciSeed 	:= flag.Bool	(CmpDeciSeed,	false,	CmpDeciSeedH)
@@ -99,6 +105,7 @@ Developer Funds, and Stars. These values fluctuate with Block-Height.
 	FlagPrtIntSeed 		:= flag.Bool	(PrtIntSeed,	false,	PrtIntSeedH)
 	FlagPrtInterval 	:= flag.Bool	(PrtInterval,	false,	PrtIntervalH)
 	FlagSimulateFee 	:= flag.String	(SimulateFee,	"0",	SimulateFeeH)
+	FlagGenerateKeys	:= flag.Bool	(GenerateKeys,	false,	GenerateKeysH)
 	//
 	flag.Parse()
 	//
@@ -297,7 +304,17 @@ Developer Funds, and Stars. These values fluctuate with Block-Height.
 		fmt.Println("")
 		fmt.Println("Computing all the fees took", elapsed)
 	}
-
+	//
+	//
+	//
+    	if *FlagGenerateKeys == true {
+	    x,y,z := el.GenerateCryptoPlasmKeysWithAddress()
+	    fmt.Println("Private Key is,",x)
+	    fmt.Println("Public  Key is,",y)
+	    fmt.Println("Address Str is,",z)
+	    fmt.Println("")
+	}
+	
 	fmt.Println("")
 	fmt.Println("Use CryptoPlasmDemo.exe --help")
 	fmt.Println("To see all other available options...")
