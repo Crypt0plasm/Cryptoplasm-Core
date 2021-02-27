@@ -1,6 +1,7 @@
 package Cryptoplasm_Elliptic
 
 import (
+    "crypto/rand"
     "math/big"
 )
 
@@ -435,4 +436,288 @@ func (k FiniteFieldEllipticCurve) PrecomputingMatrix () [7][7]ExtendedCoordinate
     //fmt.Println("")
     //fmt.Println("Computing and verifying 47 points took", elapsed)
     return Matrix
+}
+
+// VI - Key Generation Methods
+// 17
+func (k FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
+    RandomNumber,_ := rand.Int(rand.Reader,&k.P)
+    return RandomNumber
+}
+
+// 18
+func (k FiniteFieldEllipticCurve) GetPublicKeyPoints (Scalar *big.Int) (OutputP AffineCoordinates) {
+    var (
+	//start = time.Now()
+	PrivKey49 		= Scalar.Text(49)
+	PrivKey49SliceRune 	= []rune(PrivKey49)
+	PrivKey49SliceString 	= make([]string,len(PrivKey49))
+	ZeroPoint		= CurveE521InfinityPoint
+	Result			ExtendedCoordinates
+    )
+    //start := time.Now()
+    for i := 0; i < len(PrivKey49); i++ {
+	PrivKey49SliceString[i] = string(PrivKey49SliceRune[i])
+    }
+    Result = ZeroPoint
+    PrecMatrix := k.PrecomputingMatrix()
+    for i := 0; i < len(PrivKey49SliceString); i++ {
+	Character := PrivKey49SliceString[i]
+	switch Character {
+	//At last slice element, a 49x Point multiplication isn't executed.
+	//49x Point Multiplication occurs on if i is not the last element in the slice
+	case "0":
+	    Result = k.AdditionV2(Result,ZeroPoint)
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "1":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "2":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "3":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "4":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "5":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "6":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "7":
+	    Result = k.AdditionV2(Result,PrecMatrix[0][6])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "8":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "9":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "a":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "b":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "c":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "d":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "e":
+	    Result = k.AdditionV2(Result,PrecMatrix[1][6])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "f":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "g":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "h":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "i":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "j":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "k":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "l":
+	    Result = k.AdditionV2(Result,PrecMatrix[2][6])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "m":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "n":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "o":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "p":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "q":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "r":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "s":
+	    Result = k.AdditionV2(Result,PrecMatrix[3][6])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "t":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "u":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "v":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "w":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "x":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "y":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "z":
+	    Result = k.AdditionV2(Result,PrecMatrix[4][6])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "A":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "B":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "C":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "D":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "E":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "F":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "G":
+	    Result = k.AdditionV2(Result,PrecMatrix[5][6])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "H":
+	    Result = k.AdditionV2(Result,PrecMatrix[6][0])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "I":
+	    Result = k.AdditionV2(Result,PrecMatrix[6][1])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "J":
+	    Result = k.AdditionV2(Result,PrecMatrix[6][2])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "K":
+	    Result = k.AdditionV2(Result,PrecMatrix[6][3])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "L":
+	    Result = k.AdditionV2(Result,PrecMatrix[6][4])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	case "M":
+	    Result = k.AdditionV2(Result,PrecMatrix[6][5])
+	    if i != len(PrivKey49SliceString) - 1 {
+		Result = k.FortyNiner(Result)
+	    }
+	}
+
+    }
+    OutputP = k.Extended2Affine(Result)
+
+    //elapsed := time.Since(start)
+    //fmt.Println("")
+    //fmt.Println("Computing PublicKey points took:", elapsed)
+    return OutputP
 }
