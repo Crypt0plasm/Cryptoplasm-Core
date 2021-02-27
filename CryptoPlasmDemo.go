@@ -308,13 +308,13 @@ They are only generated and displayed on screen.
 	//
 	//
     	if *FlagGenerateKeys == true {
-	    x,y,z := el.GenerateCryptoPlasmKeysWithAddress()
-	    fmt.Println("Private Key is,",x)
-	    fmt.Println("Public  Key is,",y)
-	    fmt.Println("Address Str is,",z)
+	    Keys, Address := el.GetCRYPTOPLASMKeysWithAddress()
+	    fmt.Println("Private Key is,",Keys.PrivateKey)
+	    fmt.Println("Public  Key is,",Keys.PublicKey)
+	    fmt.Println("Address Str is,",Address)
 	    fmt.Println("")
 	}
-	
+
 	fmt.Println("")
 	fmt.Println("Use CryptoPlasmDemo.exe --help")
 	fmt.Println("To see all other available options...")

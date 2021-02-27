@@ -5,20 +5,84 @@ import (
 )
 
 var (
+    //Easy big.Int variables 0,1 and 2.
+    Zero = big.NewInt(0)
+    One  = big.NewInt(1)
+    Two = big.NewInt(2)
+
     CurveE521 = ParamE521()
-    CurveE521InfinityPoint = TecExtendedCoordinates {big.NewInt(0), big.NewInt(1),Zero,Zero}
-    CurveE521BasePoint = TecAffineCoordinates {&CurveE521.PBX, &CurveE521.PBY}
-    CurveE521Prime = &CurveE521.P
-    CurveE521Constant = &CurveE521.D
+    CurveE521InfinityPoint = ExtendedCoordinates {Zero, One,Zero,Zero}
+    CurveE521BasePoint = AffineCoordinates {&CurveE521.PBX, &CurveE521.PBY}
 )
 
-func IsInfinityPoint (Point TecExtendedCoordinates) bool {
+
+type TwistedEdwardsCurve interface {
+    // I - Mod P Methods
+    AddMod		(a,b *big.Int)			*big.Int
+    SubMod		(a,b *big.Int)			*big.Int
+    MulMod		(a,b *big.Int)			*big.Int
+    
+    // II - Coordinates Conversion Methods
+    Affine2Extended 	(InputP AffineCoordinates) 	(OutputP ExtendedCoordinates)
+    Affine2Inverted 	(InputP AffineCoordinates) 	(OutputP InvertedCoordinates)
+    Affine2Projective 	(InputP AffineCoordinates) 	(OutputP ProjectiveCoordinates)
+    Extended2Affine 	(InputP ExtendedCoordinates) 	(OutputP AffineCoordinates)
+    Inverted2Affine 	(InputP InvertedCoordinates) 	(OutputP AffineCoordinates)
+    Projective2Affine 	(InputP ProjectiveCoordinates) 	(OutputP AffineCoordinates)
+
+    // III - Boolean Methods
+    IsInfinityPoint 	(InputP ExtendedCoordinates) 	bool
+    IsInverseOnCurve	(P1, P2 ExtendedCoordinates) 	bool
+    IsOnCurve 		(InputP ExtendedCoordinates) 	bool
+    
+    // IV - Basic Point Operations Methods
+    DoubleWithZOne 	(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    Double 		(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    Triple 		(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    AdditionZ2OneV2 	(P1, P2 ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    AdditionV2 		(P1, P2 ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    
+    // V - Complex Point Operations Methods
+    FortyNiner	 	(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    PrecomputingMatrix 	() 				[7][7]ExtendedCoordinates
+
+    // VI - Key Generation Methods
+    GetRandomOnCurve 	() 				*big.Int
+    GetPublicKeyPoints 	(Scalar *big.Int) 		(OutputP AffineCoordinates)
+}
+
+// TwistedEdwardsCurve Methods
+// I - Mod P Methods
+func (k FiniteFieldEllipticCurve) AddMod (a,b *big.Int) *big.Int{
+    var result = new(big.Int)
+    result.Add(a,b)
+    result.Mod(result,&k.P)
+    return result
+}
+
+func (k FiniteFieldEllipticCurve) SubMod (a,b *big.Int) *big.Int{
+    var result = new(big.Int)
+    result.Sub(a,b)
+    result.Mod(result,&k.P)
+    return result
+}
+
+func (k FiniteFieldEllipticCurve) MulMod (a,b *big.Int) *big.Int{
+    var result = new(big.Int)
+    result.Mul(a,b)
+    result.Mod(result,&k.P)
+    return result
+}
+
+// III - Boolean Methods
+// 7
+func (k FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) bool {
     var (
     	result bool
-	XInt64 = Point.EX.Int64()
-	YInt64 = Point.EY.Int64()
-	ZInt64 = Point.EZ.Int64()
-	TInt64 = Point.ET.Int64()
+	XInt64 = InputP.EX.Int64()
+	YInt64 = InputP.EY.Int64()
+	ZInt64 = InputP.EZ.Int64()
+	TInt64 = InputP.ET.Int64()
     )
     //Conversion to int64 is needed as big.Int isn't comparable
     //Overflow doesnt matter since only Zero and One is searched for.
@@ -31,17 +95,16 @@ func IsInfinityPoint (Point TecExtendedCoordinates) bool {
     return result
 }
 
-func IsInverseOnCurveE521 (Point1, Point2 TecExtendedCoordinates) bool {
-    var (
-	result bool
-	Point1Aff = TecExtended2TecAffine(Point1,CurveE521Prime)
-	Point2Aff = TecExtended2TecAffine(Point2,CurveE521Prime)
-	X1Int64 = Point1Aff.AX.Int64()
-	X2Int64 = Point2Aff.AX.Int64()
-    )
+// 8
+func (k FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates) bool {
+    var result bool
+    Point1Aff := k.Extended2Affine(P1)
+    Point2Aff := k.Extended2Affine(P2)
+    X1Int64 := Point1Aff.AX.Int64()
+    X2Int64 := Point2Aff.AX.Int64()
+    
     //Conversion to int64 is needed as big.Int isn't comparable
     //Overflow doesnt matter since an equality test is made.
-
     if X1Int64 == X2Int64  {
 	result = true
     } else {
@@ -50,149 +113,34 @@ func IsInverseOnCurveE521 (Point1, Point2 TecExtendedCoordinates) bool {
     return result
 }
 
-func MulMod (a,b,prime *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Mul(a,b)
-    result.Mod(result,prime)
-    return result
-}
-
-func AddMod (a,b,prime *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Add(a,b)
-    result.Mod(result,prime)
-    return result
-}
-
-func SubMod (a,b,prime *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Sub(a,b)
-    result.Mod(result,prime)
-    return result
-}
-
-func IsOnCurveE521 (Point TecExtendedCoordinates) bool {
+// 9
+func (k FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) bool {
     var (
-	PointAffine = TecExtended2TecAffine(Point,CurveE521Prime)
-	CompareResult int
 	result bool
+	PointAffine = k.Extended2Affine(InputP)
 	A 	= new(big.Int)
 	B 	= new(big.Int)
     )
 
-    A.Exp(PointAffine.AX, Two,CurveE521Prime)
-    B.Exp(PointAffine.AY, Two,CurveE521Prime)
-    Left := AddMod(A,B,CurveE521Prime)
-    C := MulMod(A,B,CurveE521Prime)
-    D := MulMod(C,CurveE521Constant,CurveE521Prime)
-    Right := AddMod(One,D,CurveE521Prime)
+    A.Exp(PointAffine.AX,Two,&k.P)
+    B.Exp(PointAffine.AY,Two,&k.P)
+    Left := k.AddMod(A,B)
+    C := k.MulMod(A,B)
+    D := k.MulMod(C,&k.D)
+    Right := k.AddMod(One,D)
     //fmt.Println("Left  is",Left)
     //fmt.Println("Right is",Right)
-    CompareResult = Left.Cmp(Right)
+    CompareResult := Left.Cmp(Right)
     if CompareResult == 0 {
         result = true
     } else {
         result = false
     }
-
     return result
 }
 
-func InversePointOnCurveE521 (Point TecExtendedCoordinates) TecExtendedCoordinates {
-    var (
-        PointAff = TecExtended2TecAffine(Point,CurveE521Prime)
-        ResultAff TecAffineCoordinates
-        ResultExt TecExtendedCoordinates
-	y 	= new(big.Int)
-    )
-
-    y.Sub(Zero,PointAff.AY)
-    ResultAff.AX = PointAff.AX
-    ResultAff.AY = y
-    ResultExt = TecAffine2TecExtended(ResultAff,CurveE521Prime)
-    return ResultExt
-}
-
-func PrecomputingE521 () [7][7]TecExtendedCoordinates {
-    //start := time.Now()
-
-    BasePointExt	:= TecAffine2TecExtended(CurveE521BasePoint,CurveE521Prime)
-    BasePointExt02 	:= DoubleWithZOne(BasePointExt,CurveE521Prime)
-    BasePointExt03 	:= AdditionZ2OneV2(BasePointExt02,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt04 	:= Double(BasePointExt02,CurveE521Prime)
-    BasePointExt05 	:= AdditionZ2OneV2(BasePointExt04,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt06	:= Double(BasePointExt03,CurveE521Prime)
-    BasePointExt07	:= AdditionZ2OneV2(BasePointExt06,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt08	:= Double(BasePointExt04,CurveE521Prime)
-    BasePointExt09	:= AdditionZ2OneV2(BasePointExt08,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt10	:= Double(BasePointExt05,CurveE521Prime)
-    BasePointExt11	:= AdditionZ2OneV2(BasePointExt10,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt12	:= Double(BasePointExt06,CurveE521Prime)
-    BasePointExt13	:= AdditionZ2OneV2(BasePointExt12,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt14	:= Double(BasePointExt07,CurveE521Prime)
-    BasePointExt15	:= AdditionZ2OneV2(BasePointExt14,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt16	:= Double(BasePointExt08,CurveE521Prime)
-    BasePointExt17	:= AdditionZ2OneV2(BasePointExt16,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt18	:= Double(BasePointExt09,CurveE521Prime)
-    BasePointExt19	:= AdditionZ2OneV2(BasePointExt18,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt20	:= Double(BasePointExt10,CurveE521Prime)
-    BasePointExt21	:= AdditionZ2OneV2(BasePointExt20,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt22	:= Double(BasePointExt11,CurveE521Prime)
-    BasePointExt23	:= AdditionZ2OneV2(BasePointExt22,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt24	:= Double(BasePointExt12,CurveE521Prime)
-    BasePointExt25	:= AdditionZ2OneV2(BasePointExt24,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt26	:= Double(BasePointExt13,CurveE521Prime)
-    BasePointExt27	:= AdditionZ2OneV2(BasePointExt26,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt28	:= Double(BasePointExt14,CurveE521Prime)
-    BasePointExt29	:= AdditionZ2OneV2(BasePointExt28,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt30	:= Double(BasePointExt15,CurveE521Prime)
-    BasePointExt31	:= AdditionZ2OneV2(BasePointExt30,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt32	:= Double(BasePointExt16,CurveE521Prime)
-    BasePointExt33	:= AdditionZ2OneV2(BasePointExt32,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt34	:= Double(BasePointExt17,CurveE521Prime)
-    BasePointExt35	:= AdditionZ2OneV2(BasePointExt34,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt36	:= Double(BasePointExt18,CurveE521Prime)
-    BasePointExt37	:= AdditionZ2OneV2(BasePointExt36,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt38	:= Double(BasePointExt19,CurveE521Prime)
-    BasePointExt39	:= AdditionZ2OneV2(BasePointExt38,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt40	:= Double(BasePointExt20,CurveE521Prime)
-    BasePointExt41	:= AdditionZ2OneV2(BasePointExt40,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt42	:= Double(BasePointExt21,CurveE521Prime)
-    BasePointExt43	:= AdditionZ2OneV2(BasePointExt42,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt44	:= Double(BasePointExt22,CurveE521Prime)
-    BasePointExt45	:= AdditionZ2OneV2(BasePointExt44,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt46	:= Double(BasePointExt23,CurveE521Prime)
-    BasePointExt47	:= AdditionZ2OneV2(BasePointExt46,BasePointExt,CurveE521Prime,CurveE521Constant)
-    BasePointExt48	:= Double(BasePointExt24,CurveE521Prime)
-    BasePointExt49	:= AdditionZ2OneV2(BasePointExt48,BasePointExt,CurveE521Prime,CurveE521Constant)
-    //Point49 isn't used in the pre-computation, it is only created to fill the Matrix.
-
-    MatrixRow0 := [...]TecExtendedCoordinates{BasePointExt,BasePointExt02,BasePointExt03,BasePointExt04,BasePointExt05,BasePointExt06,BasePointExt07}
-    MatrixRow1 := [...]TecExtendedCoordinates{BasePointExt08,BasePointExt09,BasePointExt10,BasePointExt11,BasePointExt12,BasePointExt13,BasePointExt14}
-    MatrixRow2 := [...]TecExtendedCoordinates{BasePointExt15,BasePointExt16,BasePointExt17,BasePointExt18,BasePointExt19,BasePointExt20,BasePointExt21}
-    MatrixRow3 := [...]TecExtendedCoordinates{BasePointExt22,BasePointExt23,BasePointExt24,BasePointExt25,BasePointExt26,BasePointExt27,BasePointExt28}
-    MatrixRow4 := [...]TecExtendedCoordinates{BasePointExt29,BasePointExt30,BasePointExt31,BasePointExt32,BasePointExt33,BasePointExt34,BasePointExt35}
-    MatrixRow5 := [...]TecExtendedCoordinates{BasePointExt36,BasePointExt37,BasePointExt38,BasePointExt39,BasePointExt40,BasePointExt41,BasePointExt42}
-    MatrixRow6 := [...]TecExtendedCoordinates{BasePointExt43,BasePointExt44,BasePointExt45,BasePointExt46,BasePointExt47,BasePointExt48,BasePointExt49}
-
-    PrecomputingMatrix := [7][7]TecExtendedCoordinates{MatrixRow0,MatrixRow1,MatrixRow2,MatrixRow3,MatrixRow4,MatrixRow5,MatrixRow6}
-
-    //elapsed := time.Since(start)
-    //fmt.Println("")
-    //fmt.Println("Computing and verifying 47 points took", elapsed)
-    return PrecomputingMatrix
-}
-func FortyNinerE521 (Point TecExtendedCoordinates) TecExtendedCoordinates {
-    Point03 := Triple(Point,CurveE521Prime)
-    Point06 := Double(Point03,CurveE521Prime)
-    Point12 := Double(Point06,CurveE521Prime)
-    Point24 := Double(Point12,CurveE521Prime)
-    Point48 := Double(Point24,CurveE521Prime)
-    Point49 := AdditionV2(Point48,Point,CurveE521Prime,CurveE521Constant)
-
-    return Point49
-}
-
+// IV - Basic Point Operations Methods
+// 10
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -205,31 +153,29 @@ func FortyNinerE521 (Point TecExtendedCoordinates) TecExtendedCoordinates {
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
-func DoubleWithZOne (Point TecExtendedCoordinates, prime *big.Int) TecExtendedCoordinates {
+func (k FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
-    	result TecExtendedCoordinates
-    	A 	= new(big.Int)
+	A 	= new(big.Int)
 	B 	= new(big.Int)
 	v1	= new(big.Int)
     )
-
     //When Z is one, Point cant be Infinity-Point, therefore no check is needed.
-
-    A.Exp(Point.EX, Two,prime)
-    B.Exp(Point.EY, Two,prime)
-    E := MulMod(Two,Point.ET,prime)
-    G := AddMod(A,B,prime)
-    F := SubMod(G, Two,prime)
-    H := SubMod(A,B,prime)
-    result.EX = MulMod(E,F,prime)
-    result.EY = MulMod(G,H,prime)
-    v1.Exp(G, Two,prime)
-    v2 := MulMod(Two,G,prime)
-    result.EZ = SubMod(v1,v2,prime)
-    result.ET = MulMod(E,H,prime)
-
-    return result
+    A.Exp(InputP.EX,Two,&k.P)
+    B.Exp(InputP.EY,Two,&k.P)
+    E := k.MulMod(Two,InputP.ET)
+    G := k.AddMod(A,B)
+    F := k.SubMod(G,Two)
+    H := k.SubMod(A,B)
+    OutputP.EX = k.MulMod(E,F)
+    OutputP.EY = k.MulMod(G,H)
+    v1.Exp(G,Two,&k.P)
+    v2 := k.MulMod(Two,G)
+    OutputP.EZ = k.SubMod(v1,v2)
+    OutputP.ET = k.MulMod(E,H)
+    return OutputP
 }
+
+//11
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -242,38 +188,79 @@ func DoubleWithZOne (Point TecExtendedCoordinates, prime *big.Int) TecExtendedCo
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
-func Double (Point TecExtendedCoordinates, prime *big.Int) TecExtendedCoordinates{
+func (k FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
-	result TecExtendedCoordinates
 	A 	= new(big.Int)
 	B 	= new(big.Int)
 	C 	= new(big.Int)
 	v1	= new(big.Int)
     )
 
-    if IsInfinityPoint(Point) == true {
-	result = CurveE521InfinityPoint
+    if k.IsInfinityPoint(InputP) == true {
+	OutputP = CurveE521InfinityPoint
     } else {
-	A.Exp(Point.EX, Two,prime)
-	B.Exp(Point.EY, Two,prime)
-	C.Exp(Point.EZ, Two,prime)
-	C = MulMod(C, Two,prime)
-	v2 := AddMod(Point.EX,Point.EY,prime)
-	v1.Exp(v2, Two,prime)
-	G := AddMod(A,B,prime)
-	E := SubMod(v1,G,prime)
-	F := SubMod(G,C,prime)
-	H := SubMod(A,B,prime)
-
-	result.EX = MulMod(E,F,prime)
-	result.EY = MulMod(G,H,prime)
-	result.EZ = MulMod(F,G,prime)
-	result.ET = MulMod(E,H,prime)
+	A.Exp(InputP.EX,Two,&k.P)
+	B.Exp(InputP.EY,Two,&k.P)
+	C.Exp(InputP.EZ,Two,&k.P)
+	C = k.MulMod(C,Two)
+	v2 := k.AddMod(InputP.EX,InputP.EY)
+	v1.Exp(v2,Two,&k.P)
+	G := k.AddMod(A,B)
+	E := k.SubMod(v1,G)
+	F := k.SubMod(G,C)
+	H := k.SubMod(A,B)
+	OutputP.EX = k.MulMod(E,F)
+	OutputP.EY = k.MulMod(G,H)
+	OutputP.EZ = k.MulMod(F,G)
+	OutputP.ET = k.MulMod(E,H)
     }
-
-    return result
+    return OutputP
 }
 
+//12
+// Formulas used are these: http://hyperelliptic.org/EFD/g1p/data/twisted/extended/tripling/tpl-2015-c
+// Source 2015 Chuengsatiansup
+// Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
+// Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2,
+// It is assumed that a = 1, and XX is used instead of aXX
+func (k FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+    var (
+	YY	= new(big.Int)
+	XX	= new(big.Int)
+	ZZ	= new(big.Int)
+    )
+
+    if k.IsInfinityPoint(InputP) == true {
+	OutputP = CurveE521InfinityPoint
+    } else {
+	YY.Exp(InputP.EY, Two,&k.P)
+	XX.Exp(InputP.EX, Two,&k.P)
+	ZZ.Exp(InputP.EZ, Two,&k.P)
+	Ap := k.AddMod(YY,XX)
+	twoZZ := k.MulMod(Two,ZZ)
+	Diff1 := k.SubMod(twoZZ,Ap)
+	B := k.MulMod(Two,Diff1)
+	xB := k.MulMod(XX,B)
+	yB := k.MulMod(YY,B)
+	Diff2 := k.SubMod(YY,XX)
+	AA := k.MulMod(Ap,Diff2)
+	F := k.SubMod(AA,yB)
+	G := k.AddMod(AA,xB)
+	Sum := k.AddMod(yB,AA)
+	xE := k.MulMod(InputP.EX,Sum)
+	Diff3 := k.SubMod(xB,AA)
+	yH := k.MulMod(InputP.EY,Diff3)
+	zF := k.MulMod(InputP.EZ,F)
+	zG := k.MulMod(InputP.EZ,G)
+	OutputP.EX = k.MulMod(xE,zF)
+	OutputP.EY = k.MulMod(zG,yH)
+	OutputP.EZ = k.MulMod(zF,zG)
+	OutputP.ET = k.MulMod(xE,yH)
+    }
+    return OutputP
+}
+
+//13
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -287,40 +274,38 @@ func Double (Point TecExtendedCoordinates, prime *big.Int) TecExtendedCoordinate
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
-func AdditionZ2OneV2 (Point1, Point2 TecExtendedCoordinates, prime, CurveConstant *big.Int) TecExtendedCoordinates {
-    var result TecExtendedCoordinates
-
+func (k FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //When Z2 is one, Point2 cant be an InfinityPoint, therefore only a check for Point1 is needed.
     //Also a test is made if Point1 and Point2 are inverse to one another. In this case the sum is the point at Infinity
     //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
     //These are the special cases when added two inverse points or when adding with InfinityPoint
 
-    if IsInfinityPoint(Point1) == true {
-	result = Point2
-    } else if IsInverseOnCurveE521(Point1,Point2) == true {
-        result = CurveE521InfinityPoint
+    if k.IsInfinityPoint(P1) == true {
+	OutputP = P2
+    } else if k.IsInverseOnCurve(P1,P2) == true {
+	OutputP = CurveE521InfinityPoint
     } else {
-	A := MulMod(Point1.EX,Point2.EX,prime)
-	B := MulMod(Point1.EY,Point2.EY,prime)
-	dC:= MulMod(Point2.ET,CurveConstant,prime)
-	C := MulMod(Point1.ET,dC,prime)
-	v1 := AddMod(Point1.EX,Point1.EY,prime)
-	v2 := AddMod(Point2.EX,Point2.EY,prime)
-	v3 := AddMod(A,B,prime)
-	v4 := MulMod(v1,v2,prime)
-	E := SubMod(v4,v3,prime)
-	F := SubMod(Point1.EZ,C,prime)
-	G := AddMod(Point1.EZ,C,prime)
-	H := SubMod(B,A,prime)
-	result.EX = MulMod(E,F,prime)
-	result.EY = MulMod(G,H,prime)
-	result.EZ = MulMod(F,G,prime)
-	result.ET = MulMod(E,H,prime)
+	A := k.MulMod(P1.EX,P2.EX)
+	B := k.MulMod(P1.EY,P2.EY)
+	dC:= k.MulMod(P2.ET,&k.D)
+	C := k.MulMod(P1.ET,dC)
+	v1 := k.AddMod(P1.EX,P1.EY)
+	v2 := k.AddMod(P2.EX,P2.EY)
+	v3 := k.AddMod(A,B)
+	v4 := k.MulMod(v1,v2)
+	E := k.SubMod(v4,v3)
+	F := k.SubMod(P1.EZ,C)
+	G := k.AddMod(P1.EZ,C)
+	H := k.SubMod(B,A)
+	OutputP.EX = k.MulMod(E,F)
+	OutputP.EY = k.MulMod(G,H)
+	OutputP.EZ = k.MulMod(F,G)
+	OutputP.ET = k.MulMod(E,H)
     }
-
-    return result
+    return OutputP
 }
 
+//14
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -333,88 +318,121 @@ func AdditionZ2OneV2 (Point1, Point2 TecExtendedCoordinates, prime, CurveConstan
 // This Addition Variant doesnt make any assumptions regarding Z2 and considers D != 0, and a = 1
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
-func AdditionV2 (Point1, Point2 TecExtendedCoordinates, prime, CurveConstant *big.Int) TecExtendedCoordinates {
-    var result TecExtendedCoordinates
-
+func (k FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //Both Points are tested if they are InfinityPoints, or if the are inverse to one another.
     //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
     //These are the special cases when added two inverse points or when adding with InfinityPoint
 
-    if IsInfinityPoint(Point1) == true {
-        result = Point2
-	//fmt.Println("First point is zero")
-    } else if IsInfinityPoint(Point2) == true {
-	//fmt.Println("Second point is zero")
-        result = Point1
-    } else if IsInfinityPoint(Point1) == true && IsInfinityPoint(Point2) == true {
-        result = CurveE521InfinityPoint
-	//fmt.Println("Both points zero")
-    } else if IsInverseOnCurveE521(Point1,Point2) == true {
-	result = CurveE521InfinityPoint
+    if k.IsInfinityPoint(P1) == true {
+	OutputP = P2
+    } else if k.IsInfinityPoint(P2) == true {
+	OutputP = P1
+    } else if k.IsInfinityPoint(P1) == true && k.IsInfinityPoint(P2) == true {
+	OutputP = CurveE521InfinityPoint
+    } else if k.IsInverseOnCurve(P1,P2) == true {
+	OutputP = CurveE521InfinityPoint
     } else {
-        //fmt.Println("We are here")
-	A := MulMod(Point1.EX,Point2.EX,prime)
-	B := MulMod(Point1.EY,Point2.EY,prime)
-	dC:= MulMod(Point2.ET,CurveConstant,prime)
-	C := MulMod(Point1.ET,dC,prime)
-	D := MulMod(Point1.EZ,Point2.EZ,prime)
-	v1:= AddMod(Point1.EX,Point1.EY,prime)
-	v2:= AddMod(Point2.EX,Point2.EY,prime)
-	v3:= AddMod(A,B,prime)
-	v4:= MulMod(v1,v2,prime)
-	E := SubMod(v4,v3,prime)
-	F := SubMod(D,C,prime)
-	G := AddMod(D,C,prime)
-	H := SubMod(B,A,prime)
-	result.EX = MulMod(E,F,prime)
-	result.EY = MulMod(G,H,prime)
-	result.EZ = MulMod(F,G,prime)
-	result.ET = MulMod(E,H,prime)
+	A := k.MulMod(P1.EX,P2.EX)
+	B := k.MulMod(P1.EY,P2.EY)
+	dC:= k.MulMod(P2.ET,&k.D)
+	C := k.MulMod(P1.ET,dC)
+	D := k.MulMod(P1.EZ,P2.EZ)
+	v1:= k.AddMod(P1.EX,P1.EY)
+	v2:= k.AddMod(P2.EX,P2.EY)
+	v3:= k.AddMod(A,B)
+	v4:= k.MulMod(v1,v2)
+	E := k.SubMod(v4,v3)
+	F := k.SubMod(D,C)
+	G := k.AddMod(D,C)
+	H := k.SubMod(B,A)
+	OutputP.EX = k.MulMod(E,F)
+	OutputP.EY = k.MulMod(G,H)
+	OutputP.EZ = k.MulMod(F,G)
+	OutputP.ET = k.MulMod(E,H)
     }
-
-    return result
+    return OutputP
 }
 
-// Formulas used are these: http://hyperelliptic.org/EFD/g1p/data/twisted/extended/tripling/tpl-2015-c
-// Source 2015 Chuengsatiansup
-// Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
-// Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2,
-// It is assumed that a = 1, and XX is used instead of aXX
-func Triple (Point TecExtendedCoordinates, prime *big.Int) TecExtendedCoordinates {
-    var (
-	result TecExtendedCoordinates
-	YY	= new(big.Int)
-	XX	= new(big.Int)
-	ZZ	= new(big.Int)
-    )
+// V - Complex Point Operations Methods
+// 15
+func (k FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+    Point03 := k.Triple(InputP)
+    Point06 := k.Double(Point03)
+    Point12 := k.Double(Point06)
+    Point24 := k.Double(Point12)
+    Point48 := k.Double(Point24)
+    Point49 := k.AdditionV2(Point48,InputP)
 
-    if IsInfinityPoint(Point) == true {
-	result = CurveE521InfinityPoint
-    } else {
-	YY.Exp(Point.EY, Two,prime)
-	XX.Exp(Point.EX, Two,prime)
-	ZZ.Exp(Point.EZ, Two,prime)
-	Ap := AddMod(YY,XX,prime)
-	twoZZ := MulMod(Two,ZZ,prime)
-	Diff1 := SubMod(twoZZ,Ap,prime)
-	B := MulMod(Two,Diff1,prime)
-	xB := MulMod(XX,B,prime)
-	yB := MulMod(YY,B,prime)
-	Diff2 := SubMod(YY,XX,prime)
-	AA := MulMod(Ap,Diff2,prime)
-	F := SubMod(AA,yB,prime)
-	G := AddMod(AA,xB,prime)
-	Sum := AddMod(yB,AA,prime)
-	xE := MulMod(Point.EX,Sum,prime)
-	Diff3 := SubMod(xB,AA,prime)
-	yH := MulMod(Point.EY,Diff3,prime)
-	zF := MulMod(Point.EZ,F,prime)
-	zG := MulMod(Point.EZ,G,prime)
-	result.EX = MulMod(xE,zF,prime)
-	result.EY = MulMod(zG,yH,prime)
-	result.EZ = MulMod(zF,zG,prime)
-	result.ET = MulMod(xE,yH,prime)
-    }
+    return Point49
+}
 
-    return result
+// 16
+func (k FiniteFieldEllipticCurve) PrecomputingMatrix () [7][7]ExtendedCoordinates {
+    //start := time.Now()
+
+    BasePointExt	:= k.Affine2Extended(CurveE521BasePoint)
+    BasePointExt02 	:= k.DoubleWithZOne(BasePointExt)
+    BasePointExt03 	:= k.AdditionZ2OneV2(BasePointExt02,BasePointExt)
+    BasePointExt04 	:= k.Double(BasePointExt02)
+    BasePointExt05 	:= k.AdditionZ2OneV2(BasePointExt04,BasePointExt)
+    BasePointExt06	:= k.Double(BasePointExt03)
+    BasePointExt07	:= k.AdditionZ2OneV2(BasePointExt06,BasePointExt)
+    BasePointExt08	:= k.Double(BasePointExt04)
+    BasePointExt09	:= k.AdditionZ2OneV2(BasePointExt08,BasePointExt)
+    BasePointExt10	:= k.Double(BasePointExt05)
+    BasePointExt11	:= k.AdditionZ2OneV2(BasePointExt10,BasePointExt)
+    BasePointExt12	:= k.Double(BasePointExt06)
+    BasePointExt13	:= k.AdditionZ2OneV2(BasePointExt12,BasePointExt)
+    BasePointExt14	:= k.Double(BasePointExt07)
+    BasePointExt15	:= k.AdditionZ2OneV2(BasePointExt14,BasePointExt)
+    BasePointExt16	:= k.Double(BasePointExt08)
+    BasePointExt17	:= k.AdditionZ2OneV2(BasePointExt16,BasePointExt)
+    BasePointExt18	:= k.Double(BasePointExt09)
+    BasePointExt19	:= k.AdditionZ2OneV2(BasePointExt18,BasePointExt)
+    BasePointExt20	:= k.Double(BasePointExt10)
+    BasePointExt21	:= k.AdditionZ2OneV2(BasePointExt20,BasePointExt)
+    BasePointExt22	:= k.Double(BasePointExt11)
+    BasePointExt23	:= k.AdditionZ2OneV2(BasePointExt22,BasePointExt)
+    BasePointExt24	:= k.Double(BasePointExt12)
+    BasePointExt25	:= k.AdditionZ2OneV2(BasePointExt24,BasePointExt)
+    BasePointExt26	:= k.Double(BasePointExt13)
+    BasePointExt27	:= k.AdditionZ2OneV2(BasePointExt26,BasePointExt)
+    BasePointExt28	:= k.Double(BasePointExt14)
+    BasePointExt29	:= k.AdditionZ2OneV2(BasePointExt28,BasePointExt)
+    BasePointExt30	:= k.Double(BasePointExt15)
+    BasePointExt31	:= k.AdditionZ2OneV2(BasePointExt30,BasePointExt)
+    BasePointExt32	:= k.Double(BasePointExt16)
+    BasePointExt33	:= k.AdditionZ2OneV2(BasePointExt32,BasePointExt)
+    BasePointExt34	:= k.Double(BasePointExt17)
+    BasePointExt35	:= k.AdditionZ2OneV2(BasePointExt34,BasePointExt)
+    BasePointExt36	:= k.Double(BasePointExt18)
+    BasePointExt37	:= k.AdditionZ2OneV2(BasePointExt36,BasePointExt)
+    BasePointExt38	:= k.Double(BasePointExt19)
+    BasePointExt39	:= k.AdditionZ2OneV2(BasePointExt38,BasePointExt)
+    BasePointExt40	:= k.Double(BasePointExt20)
+    BasePointExt41	:= k.AdditionZ2OneV2(BasePointExt40,BasePointExt)
+    BasePointExt42	:= k.Double(BasePointExt21)
+    BasePointExt43	:= k.AdditionZ2OneV2(BasePointExt42,BasePointExt)
+    BasePointExt44	:= k.Double(BasePointExt22)
+    BasePointExt45	:= k.AdditionZ2OneV2(BasePointExt44,BasePointExt)
+    BasePointExt46	:= k.Double(BasePointExt23)
+    BasePointExt47	:= k.AdditionZ2OneV2(BasePointExt46,BasePointExt)
+    BasePointExt48	:= k.Double(BasePointExt24)
+    BasePointExt49	:= k.AdditionZ2OneV2(BasePointExt48,BasePointExt)
+    //Point49 isn't used in the pre-computation, it is only created to fill the Matrix.
+
+    MatrixRow0 := [...]ExtendedCoordinates{BasePointExt,BasePointExt02,BasePointExt03,BasePointExt04,BasePointExt05,BasePointExt06,BasePointExt07}
+    MatrixRow1 := [...]ExtendedCoordinates{BasePointExt08,BasePointExt09,BasePointExt10,BasePointExt11,BasePointExt12,BasePointExt13,BasePointExt14}
+    MatrixRow2 := [...]ExtendedCoordinates{BasePointExt15,BasePointExt16,BasePointExt17,BasePointExt18,BasePointExt19,BasePointExt20,BasePointExt21}
+    MatrixRow3 := [...]ExtendedCoordinates{BasePointExt22,BasePointExt23,BasePointExt24,BasePointExt25,BasePointExt26,BasePointExt27,BasePointExt28}
+    MatrixRow4 := [...]ExtendedCoordinates{BasePointExt29,BasePointExt30,BasePointExt31,BasePointExt32,BasePointExt33,BasePointExt34,BasePointExt35}
+    MatrixRow5 := [...]ExtendedCoordinates{BasePointExt36,BasePointExt37,BasePointExt38,BasePointExt39,BasePointExt40,BasePointExt41,BasePointExt42}
+    MatrixRow6 := [...]ExtendedCoordinates{BasePointExt43,BasePointExt44,BasePointExt45,BasePointExt46,BasePointExt47,BasePointExt48,BasePointExt49}
+
+    Matrix := [7][7]ExtendedCoordinates{MatrixRow0,MatrixRow1,MatrixRow2,MatrixRow3,MatrixRow4,MatrixRow5,MatrixRow6}
+
+    //elapsed := time.Since(start)
+    //fmt.Println("")
+    //fmt.Println("Computing and verifying 47 points took", elapsed)
+    return Matrix
 }

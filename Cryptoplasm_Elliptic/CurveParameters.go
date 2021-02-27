@@ -16,7 +16,7 @@ import "math/big"
 // For details see Bernstein et al, "Twisted Edwards Curves", http://eprint.iacr.org/2008/013.pdf
 
 // Param defines a Twisted Edwards curve (TEC).
-type Param struct {
+type FiniteFieldEllipticCurve struct {
     Name string 		// Name of curve
 
     P big.Int 			// Prime defining the underlying field
@@ -31,13 +31,8 @@ type Param struct {
     Elligator1s big.Int 	// Optional s parameter for Elligator 1
     Elligator2u big.Int 	// Optional u parameter for Elligator 2
 }
-
-var (
-    Zero = big.NewInt(0)
-    One  = big.NewInt(1)
-    Two = big.NewInt(2)
-)
-
+//
+//
 // ParamE25519 defines the Edwards version of Curve25519, as specified in:
 // Bernstein et al, "High-speed high-security signatures",
 // http://ed25519.cr.yp.to/ed25519-20110926.pdf
@@ -61,8 +56,8 @@ var (
 //	Hexadecimal Form	0x216936D3CD6E53FEC0A4E231FDD6DC5C692CC7609525A7B2C9562D608F25D51A
 // Base-Point Y			46316835694926478169428394003475163141307993866256225615783033603165251855960
 //	Hexadecimal Form	0x6666666666666666666666666666666666666666666666666666666666666658
-func ParamE25519() *Param {
-    var p Param
+func ParamE25519() *FiniteFieldEllipticCurve {
+    var p FiniteFieldEllipticCurve
     var qs big.Int
     p.Name = "E25519"
     p.P.SetBit(Zero, 255, 1).Sub(&p.P, big.NewInt(19))
@@ -108,8 +103,8 @@ func ParamE25519() *Param {
 //	Hexadecimal Form	0x196f8dd0eab20391e5f05be96e8d20ae68f840032b0b64352923bab85364841193517dbce8105398ebc0cc9470f79603
 // Base-Point Y			17
 //	Hexadecimal Form	0x11
-func ParamE382() *Param {
-    var p Param
+func ParamE382() *FiniteFieldEllipticCurve {
+    var p FiniteFieldEllipticCurve
     var qs big.Int
     p.Name = "E-382"
     p.P.SetBit(Zero, 382, 1).Sub(&p.P, big.NewInt(105))
@@ -145,8 +140,8 @@ func ParamE382() *Param {
 //	Hexadecimal Form	0x1a334905141443300218c0631c326e5fcd46369f44c03ec7f57ff35498a4ab4d6d6ba111301a73faa8537c64c4fd3812f3cbc595
 // Base-Point Y			34
 //	Hexadecimal Form	0x22
-func Param41417() *Param {
-    var p Param
+func Param41417() *FiniteFieldEllipticCurve {
+    var p FiniteFieldEllipticCurve
     var qs big.Int
     p.Name = "Curve41417"
     p.P.SetBit(Zero, 414, 1).Sub(&p.P, big.NewInt(17))
@@ -186,8 +181,8 @@ func Param41417() *Param {
 //	Hexadecimal Form	0x752cb45c48648b189df90cb2296b2878a3bfd9f42fc6c818ec8bf3c9c0c6203913f6ecc5ccc72434b1ae949d568fc99c6059d0fb13364838aa302a940a2f19ba6c
 // Base-Point Y			12
 //	Hexadecimal Form	0xc
-func ParamE521() *Param {
-    var p Param
+func ParamE521() *FiniteFieldEllipticCurve {
+    var p FiniteFieldEllipticCurve
     var qs big.Int
     p.Name = "E-521"
     p.P.SetBit(Zero, 521, 1).Sub(&p.P, One)
