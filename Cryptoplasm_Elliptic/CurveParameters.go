@@ -31,51 +31,6 @@ type FiniteFieldEllipticCurve struct {
     Elligator1s big.Int 	// Optional s parameter for Elligator 1
     Elligator2u big.Int 	// Optional u parameter for Elligator 2
 }
-//
-//
-// ParamE25519 defines the Edwards version of Curve25519, as specified in:
-// Bernstein et al, "High-speed high-security signatures",
-// http://ed25519.cr.yp.to/ed25519-20110926.pdf
-//
-//
-// Name: 			E25519
-// Equation is: 		- x^2 + y^2 = 1 + 37095705934669439343138083508754565189542113879843219016388785533085940283555 * x^2 * y^2
-// Prime field (P)		2^255 - 19
-//	Decimal Form		57896044618658097711785492504343953926634992332820282019728792003956564819949
-//	Hexadecimal Form	0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed
-//
-// Base-Point Prime Order (Q)	2^252 + 27742317777372353535851937790883648493
-//	Decimal Form		7237005577332262213973186563042994240857116359379907606001950938285454250989
-//	Hexadecimal Form	0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed
-//
-// Cofactor R			8
-// Curve A Parameter		-1
-// Curve D Parameter		37095705934669439343138083508754565189542113879843219016388785533085940283555
-//
-// Base-Point X			15112221349535400772501151409588531511454012693041857206046113283949847762202
-//	Hexadecimal Form	0x216936D3CD6E53FEC0A4E231FDD6DC5C692CC7609525A7B2C9562D608F25D51A
-// Base-Point Y			46316835694926478169428394003475163141307993866256225615783033603165251855960
-//	Hexadecimal Form	0x6666666666666666666666666666666666666666666666666666666666666658
-func ParamE25519() *FiniteFieldEllipticCurve {
-    var p FiniteFieldEllipticCurve
-    var qs big.Int
-    p.Name = "E25519"
-    p.P.SetBit(Zero, 255, 1).Sub(&p.P, big.NewInt(19))
-    qs.SetString("27742317777372353535851937790883648493", 10)
-    p.Q.SetBit(Zero, 252, 1).Add(&p.Q, &qs)
-    p.R = 8
-    p.A.SetInt64(-1).Add(&p.P, &p.A)
-    p.D.SetString("37095705934669439343138083508754565189542113879843219016388785533085940283555", 10)
-
-    p.PBX.SetString("15112221349535400772501151409588531511454012693041857206046113283949847762202", 10)
-    p.PBY.SetString("46316835694926478169428394003475163141307993866256225615783033603165251855960", 10)
-
-    // Non-square u for Elligator2
-    p.Elligator2u.SetInt64(2)
-
-    return &p
-}
-
 // ParamE382 defines the E-382 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
 // http://eprint.iacr.org/2013/647.pdf

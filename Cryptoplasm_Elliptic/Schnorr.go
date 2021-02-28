@@ -1,11 +1,12 @@
 package Cryptoplasm_Elliptic
 
 import (
-    "fmt"
     blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
     "math/big"
 )
-
+//
+//  Functions to convert a Hash to a big.Int
+//
 func ByteSlice2HexString (Hash []byte) string {
     var (
     	result string
@@ -45,113 +46,106 @@ func Hash2BigInt (Hash []byte) *big.Int {
     return result
 }
 
+// Schnorr Signature Functions
+
 type Schnurr struct {
-    R *big.Int
+    R AffineCoordinates
     S *big.Int
 }
 
-//This Schnorr Signature implementation is used for CryptoPlasm Transaction signing.
-//Therefore the "Keys" used as input are generated with the same CurveParameters "k"
+//Schnorr Signature Creation:
 //
-//Same Function is used as described in Zilliqa Whitepaper Appendix A
-func (k *FiniteFieldEllipticCurve) CPSchnorrSign (Keys CPKeyPair, Hash []byte) (Signature Schnurr) {
-    //Keys are the CryptoPlasm Key pairs used to generate the Signature
-    //Hash is the Blake3 Hash of the Message for which the Signature is generated.
+//          Private key :             k            (integer)
+//          Public key :              P = k*G      (curve point)
+//          Message hash:             m            (integer)
+//
+//          Generate a random number: z            (integer)
+//          Calculate:                R = z*G      (curve point)
+//
+//          Calculate: s = z + Hash(r||P||m)*k     (integer)
+//
+//          where: r = X-coordinate of curve point R
+//          and || denotes binary concatenation
+//          Signature = (R, s)     (curve point, integer)
+//==================================================================
+//Schnorr Signature Verification
+//
+//          obtain the signature: (R,s)
+//          Obtain public key : P
+//          Obtain message: m
+//
+//          Verify: s*G =   R + Hash(r||P||m) *   P
+//                  s*G = z*G + Hash(r||P||m) * k*G
 
+
+// Function that creates the big.Int from the Hashed Schnorr Parameters
+func SchnorrHash (r *big.Int, PublicKey string, Message []byte) *big.Int {
+    SmallRBinary := r.Text(2)
+
+    PKAffine := PublicKey2Affine(PublicKey)
+    PublicKeyXBinary := PKAffine.AX.Text(2)
+    PublicKeyYBinary := PKAffine.AY.Text(2)
+
+    MessageBinary := Hash2BigInt(Message).Text(2)
+
+    ConcatenatedBinaryString := SmallRBinary + PublicKeyXBinary + PublicKeyYBinary + MessageBinary
+    ConcatenatedBinaryStringToByteSlice := []byte(ConcatenatedBinaryString)
+
+    //OutputSize in Bytes must not necessarily be as big as the bit-size of the Prime Number of the Curve.
+    //But it is settled on that size.
+    Hash := blake3.SumCustom(ConcatenatedBinaryStringToByteSlice,65)
+    SchnorrHashInt := Hash2BigInt(Hash)
+    return SchnorrHashInt
+}
+//
+// The Schnorr Sign Function. It takes a Pair of CryptoPlasm Keys (Strings in 49Base Format, and special Construction for the Public.Key)
+// and a Hashed Output as the Message to be singed for, and provides a Signature.
+//
+func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Signature Schnurr) {
     var (
-    	r = new(big.Int)
-        s = new(big.Int)
-    	kappa = new(big.Int)
+    	z = new(big.Int)
     	v1 = new(big.Int)
-        v2 = new(big.Int)
+        s = new(big.Int)
     )
-    Cmp1 := r.Cmp(Zero)
-    Cmp2 := s.Cmp(Zero)
+    //Step 1, choosing random number kappa within prime field interval
+    z = k.GetRandomOnCurve()
 
-    for Cmp2 == 0 {
-        for Cmp1 == 0 {
-            //Step 1, choosing random number kappa within prime field interval
-            kappa = k.GetRandomOnCurve()
+    //Step 2, computing Q (x,y) as z multiplied by Curve Generator Point
+    Generator := AffineCoordinates {&k.PBX, &k.PBY}
+    R  := k.ScalarMultiplier(z,Generator)
 
-            //Step 2, computing Q (x,y) as kappa multiplied by Curve Generator Point
-            Generator := AffineCoordinates {&k.PBX, &k.PBY}
-            Q  := k.ScalarMultiplier(kappa,Generator)
+    SchnorredHash := SchnorrHash(R.AX,Keys.PublicKey,Hash)
 
-            //Step 3a, Concatenating Q,pk,m
-            String1 := Q.AX.String()
-            String2 := Q.AY.String()
+    //If MulMod and AddMod is used, signature doesnt verify.
+    //Numbers must be allowed to grow non modulo P
+    // For k*G=P(k private, P public), H*k*G != H*P if H*k wraps around modulo prime.
+    v1.Mul(SchnorredHash,ConvertBase49toBase10(Keys.PrivateKey))
+    s.Add(z,v1)
 
-            PKAffine := PublicKey2Affine(Keys.PublicKey)
-            String3 := PKAffine.AX.String()
-            String4 := PKAffine.AY.String()
-
-            String5 := Hash2BigInt(Hash).String()
-            BigString := String1 + String2 + String3 + String4 + String5
-
-            //Step 3b, Hashing the Concatenated Result with Blake3
-            BigStringToByteSlice := []byte(BigString)
-            BigStringHash := blake3.SumCustom(BigStringToByteSlice,160)
-
-            //Step 3c, Converting the resulted Hash in big.Int and computing mod n
-            r.Mod(Hash2BigInt(BigStringHash),&k.P)
-
-            //Step4, Checking if r is zero, if it is, start again from 1
-            Cmp1 = Zero.Cmp(r)
-        }
-        //Step 5, Computing s
-        v1.Mul(r,ConvertBase49toBase10(Keys.PrivateKey))
-        v2.Sub(kappa,v1)
-        s.Mod(v2,&k.P)
-
-        //Step6, Checking if s is zero, if it is, start again from 1
-        Cmp2 = Zero.Cmp(s)
-    }
-
-    //Step7, Finalizing signature value
-    Signature.R = r
+    Signature.R = R
     Signature.S = s
-
     return Signature
 }
 
-func (k *FiniteFieldEllipticCurve) CPSchnorrVerify (Sigma Schnurr, PublicKey string, Hash []byte) bool {
-    var (
-    	Verification bool
-        v = new(big.Int)
-    )
-    //Step 3a, Computing s*G
-    Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    Q1  := k.ScalarMultiplier(Sigma.S,Generator)
-    Q1ex:= k.Affine2Extended(Q1)
+// The Schnorr Verify Function. It takes a Signature, a CryptoPlasm PublicKey (in CryptoPlasm PublicKey Format),
+// and a Hashed Output as the Message, and returns true is the Signature is valid for the Public Key.
 
-    //Step 3b, Computing r*pk
+func (k *FiniteFieldEllipticCurve) SchnorrVerify (Sigma Schnurr, PublicKey string, Hash []byte) bool {
+    var Result bool
+    Generator := AffineCoordinates {&k.PBX, &k.PBY}
+    sG := k.ScalarMultiplier(Sigma.S,Generator)
+
+    SchnorredHash := SchnorrHash(Sigma.R.AX,PublicKey,Hash)
     PublicKeyGenerator := PublicKey2Affine(PublicKey)
-    Q2  := k.ScalarMultiplier(Sigma.R,PublicKeyGenerator)
+
+    Q2  := k.ScalarMultiplier(SchnorredHash,PublicKeyGenerator)
     Q2ex:= k.Affine2Extended(Q2)
 
-    //Step 3c, Computing Q
-    Q   := k.AdditionV2(Q1ex,Q2ex)
-    Qext:= k.Extended2Affine(Q)
+    Q1ex:= k.Affine2Extended(Sigma.R)
 
-    //Step 4a, Concatenating Q,pk,m
-    String1 := Qext.AX.String()
-    String2 := Qext.AY.String()
+    Q := k.AdditionV2(Q1ex,Q2ex)
+    QAff := k.Extended2Affine(Q)
 
-    PKAffine := PublicKey2Affine(PublicKey)
-    String3 := PKAffine.AX.String()
-    String4 := PKAffine.AY.String()
-
-    String5 := Hash2BigInt(Hash).String()
-    BigString := String1 + String2 + String3 + String4 + String5
-
-    //Step 4b, Hashing the Concatenated Result with Blake3
-    BigStringToByteSlice := []byte(BigString)
-    BigStringHash := blake3.SumCustom(BigStringToByteSlice,160)
-
-    //Step 4c, Converting the resulted Hash in big.Int and computing mod n
-    v.Mod(Hash2BigInt(BigStringHash),&k.P)
-
-    fmt.Println("v mic este", v)
-
-    return Verification
+    Result = k.ArePointsEqualAf(sG,QAff)
+    return Result
 }
