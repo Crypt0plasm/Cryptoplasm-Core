@@ -12,63 +12,69 @@ var (
     Two = big.NewInt(2)
 
     CurveE521 = ParamE521()
-    CurveE521InfinityPoint = ExtendedCoordinates {Zero, One,Zero,Zero}
-    CurveE521BasePoint = AffineCoordinates {&CurveE521.PBX, &CurveE521.PBY}
+    InfinityPoint = ExtendedCoordinates {Zero, One,Zero,Zero}
 )
 
 
 type TwistedEdwardsCurve interface {
     // I - Mod P Methods
-    AddMod		(a,b *big.Int)			*big.Int
-    SubMod		(a,b *big.Int)			*big.Int
-    MulMod		(a,b *big.Int)			*big.Int
+    AddMod		(a,b *big.Int)					*big.Int
+    SubMod		(a,b *big.Int)					*big.Int
+    MulMod		(a,b *big.Int)					*big.Int
     
     // II - Coordinates Conversion Methods
-    Affine2Extended 	(InputP AffineCoordinates) 	(OutputP ExtendedCoordinates)
-    Affine2Inverted 	(InputP AffineCoordinates) 	(OutputP InvertedCoordinates)
-    Affine2Projective 	(InputP AffineCoordinates) 	(OutputP ProjectiveCoordinates)
-    Extended2Affine 	(InputP ExtendedCoordinates) 	(OutputP AffineCoordinates)
-    Inverted2Affine 	(InputP InvertedCoordinates) 	(OutputP AffineCoordinates)
-    Projective2Affine 	(InputP ProjectiveCoordinates) 	(OutputP AffineCoordinates)
+    Affine2Extended 	(InputP AffineCoordinates) 			(OutputP ExtendedCoordinates)
+    Affine2Inverted 	(InputP AffineCoordinates) 			(OutputP InvertedCoordinates)
+    Affine2Projective 	(InputP AffineCoordinates) 			(OutputP ProjectiveCoordinates)
+    Extended2Affine 	(InputP ExtendedCoordinates) 			(OutputP AffineCoordinates)
+    Inverted2Affine 	(InputP InvertedCoordinates) 			(OutputP AffineCoordinates)
+    Projective2Affine 	(InputP ProjectiveCoordinates) 			(OutputP AffineCoordinates)
 
     // III - Boolean Methods
-    IsInfinityPoint 	(InputP ExtendedCoordinates) 	bool
-    IsInverseOnCurve	(P1, P2 ExtendedCoordinates) 	bool
-    IsOnCurve 		(InputP ExtendedCoordinates) 	bool
+    IsInfinityPoint 	(InputP ExtendedCoordinates) 			bool
+    IsInverseOnCurve	(P1, P2 ExtendedCoordinates) 			bool
+    IsOnCurve 		(InputP ExtendedCoordinates) 			bool
     
     // IV - Basic Point Operations Methods
-    DoubleWithZOne 	(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
-    Double 		(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
-    Triple 		(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
-    AdditionZ2OneV2 	(P1, P2 ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
-    AdditionV2 		(P1, P2 ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
+    DoubleWithZOne 	(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
+    Double 		(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
+    Triple 		(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
+    AdditionZ2OneV2 	(P1, P2 ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
+    AdditionV2 		(P1, P2 ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
     
     // V - Complex Point Operations Methods
-    FortyNiner	 	(InputP ExtendedCoordinates) 	(OutputP ExtendedCoordinates)
-    PrecomputingMatrix 	() 				[7][7]ExtendedCoordinates
+    FortyNiner	 	(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
+    PrecomputingMatrix 	() 						[7][7]ExtendedCoordinates
 
     // VI - Key Generation Methods
-    GetRandomOnCurve 	() 				*big.Int
-    GetPublicKeyPoints 	(Scalar *big.Int) 		(OutputP AffineCoordinates)
+    GetRandomOnCurve 	() 						*big.Int
+    ScalarMultiplier	(Scalar *big.Int, InputP AffineCoordinates)	(OutputP AffineCoordinates)
+    GetKeys 		() 						(Keys CPKeyPair)
+    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)
+    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)
+
+    // VII - Schnorr Signature Methods
+    CPSchnorrSign 	(Keys CPKeyPair, Hash []byte) 			(Signature Schnurr)
+    CPSchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte)	bool
 }
 
 // TwistedEdwardsCurve Methods
 // I - Mod P Methods
-func (k FiniteFieldEllipticCurve) AddMod (a,b *big.Int) *big.Int{
+func (k *FiniteFieldEllipticCurve) AddMod (a,b *big.Int) *big.Int{
     var result = new(big.Int)
     result.Add(a,b)
     result.Mod(result,&k.P)
     return result
 }
 
-func (k FiniteFieldEllipticCurve) SubMod (a,b *big.Int) *big.Int{
+func (k *FiniteFieldEllipticCurve) SubMod (a,b *big.Int) *big.Int{
     var result = new(big.Int)
     result.Sub(a,b)
     result.Mod(result,&k.P)
     return result
 }
 
-func (k FiniteFieldEllipticCurve) MulMod (a,b *big.Int) *big.Int{
+func (k *FiniteFieldEllipticCurve) MulMod (a,b *big.Int) *big.Int{
     var result = new(big.Int)
     result.Mul(a,b)
     result.Mod(result,&k.P)
@@ -77,18 +83,15 @@ func (k FiniteFieldEllipticCurve) MulMod (a,b *big.Int) *big.Int{
 
 // III - Boolean Methods
 // 7
-func (k FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) bool {
-    var (
-    	result bool
-	XInt64 = InputP.EX.Int64()
-	YInt64 = InputP.EY.Int64()
-	ZInt64 = InputP.EZ.Int64()
-	TInt64 = InputP.ET.Int64()
-    )
-    //Conversion to int64 is needed as big.Int isn't comparable
-    //Overflow doesnt matter since only Zero and One is searched for.
+func (k *FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) bool {
+    var result bool
 
-    if XInt64 == 0 && YInt64 == 1 && ZInt64 == 0 && TInt64 == 0 {
+    Cmp1 := InputP.EX.Cmp(Zero)
+    Cmp2 := InputP.EY.Cmp(One)
+    Cmp3 := InputP.EZ.Cmp(Zero)
+    Cmp4 := InputP.ET.Cmp(Zero)
+
+    if Cmp1 == 0 && Cmp2 == 0 && Cmp3 == 0 && Cmp4 == 0 {
         result = true
     } else {
         result = false
@@ -97,16 +100,13 @@ func (k FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) b
 }
 
 // 8
-func (k FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates) bool {
+func (k *FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates) bool {
     var result bool
     Point1Aff := k.Extended2Affine(P1)
     Point2Aff := k.Extended2Affine(P2)
-    X1Int64 := Point1Aff.AX.Int64()
-    X2Int64 := Point2Aff.AX.Int64()
-    
-    //Conversion to int64 is needed as big.Int isn't comparable
-    //Overflow doesnt matter since an equality test is made.
-    if X1Int64 == X2Int64  {
+    Cmp := Point1Aff.AX.Cmp(Point2Aff.AX)
+
+    if Cmp == 0  {
 	result = true
     } else {
 	result = false
@@ -115,7 +115,7 @@ func (k FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates) 
 }
 
 // 9
-func (k FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) bool {
+func (k *FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) bool {
     var (
 	result bool
 	PointAffine = k.Extended2Affine(InputP)
@@ -154,7 +154,7 @@ func (k FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) bool {
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
-func (k FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	A 	= new(big.Int)
 	B 	= new(big.Int)
@@ -189,7 +189,7 @@ func (k FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (O
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
-func (k FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	A 	= new(big.Int)
 	B 	= new(big.Int)
@@ -198,7 +198,7 @@ func (k FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP E
     )
 
     if k.IsInfinityPoint(InputP) == true {
-	OutputP = CurveE521InfinityPoint
+	OutputP = InfinityPoint
     } else {
 	A.Exp(InputP.EX,Two,&k.P)
 	B.Exp(InputP.EY,Two,&k.P)
@@ -224,7 +224,7 @@ func (k FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP E
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2,
 // It is assumed that a = 1, and XX is used instead of aXX
-func (k FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	YY	= new(big.Int)
 	XX	= new(big.Int)
@@ -232,7 +232,7 @@ func (k FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP E
     )
 
     if k.IsInfinityPoint(InputP) == true {
-	OutputP = CurveE521InfinityPoint
+	OutputP = InfinityPoint
     } else {
 	YY.Exp(InputP.EY, Two,&k.P)
 	XX.Exp(InputP.EX, Two,&k.P)
@@ -275,7 +275,7 @@ func (k FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP E
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
-func (k FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //When Z2 is one, Point2 cant be an InfinityPoint, therefore only a check for Point1 is needed.
     //Also a test is made if Point1 and Point2 are inverse to one another. In this case the sum is the point at Infinity
     //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
@@ -284,7 +284,7 @@ func (k FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (
     if k.IsInfinityPoint(P1) == true {
 	OutputP = P2
     } else if k.IsInverseOnCurve(P1,P2) == true {
-	OutputP = CurveE521InfinityPoint
+	OutputP = InfinityPoint
     } else {
 	A := k.MulMod(P1.EX,P2.EX)
 	B := k.MulMod(P1.EY,P2.EY)
@@ -319,7 +319,7 @@ func (k FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (
 // This Addition Variant doesnt make any assumptions regarding Z2 and considers D != 0, and a = 1
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
-func (k FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //Both Points are tested if they are InfinityPoints, or if the are inverse to one another.
     //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
     //These are the special cases when added two inverse points or when adding with InfinityPoint
@@ -329,9 +329,9 @@ func (k FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (Outpu
     } else if k.IsInfinityPoint(P2) == true {
 	OutputP = P1
     } else if k.IsInfinityPoint(P1) == true && k.IsInfinityPoint(P2) == true {
-	OutputP = CurveE521InfinityPoint
+	OutputP = InfinityPoint
     } else if k.IsInverseOnCurve(P1,P2) == true {
-	OutputP = CurveE521InfinityPoint
+	OutputP = InfinityPoint
     } else {
 	A := k.MulMod(P1.EX,P2.EX)
 	B := k.MulMod(P1.EY,P2.EY)
@@ -356,7 +356,7 @@ func (k FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (Outpu
 
 // V - Complex Point Operations Methods
 // 15
-func (k FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     Point03 := k.Triple(InputP)
     Point06 := k.Double(Point03)
     Point12 := k.Double(Point06)
@@ -368,10 +368,11 @@ func (k FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (Outpu
 }
 
 // 16
-func (k FiniteFieldEllipticCurve) PrecomputingMatrix () [7][7]ExtendedCoordinates {
+func (k *FiniteFieldEllipticCurve) PrecomputingMatrix (InputP AffineCoordinates) [7][7]ExtendedCoordinates {
     //start := time.Now()
+    //Generator := AffineCoordinates {&k.PBX, &k.PBY}
 
-    BasePointExt	:= k.Affine2Extended(CurveE521BasePoint)
+    BasePointExt	:= k.Affine2Extended(InputP)
     BasePointExt02 	:= k.DoubleWithZOne(BasePointExt)
     BasePointExt03 	:= k.AdditionZ2OneV2(BasePointExt02,BasePointExt)
     BasePointExt04 	:= k.Double(BasePointExt02)
@@ -440,19 +441,19 @@ func (k FiniteFieldEllipticCurve) PrecomputingMatrix () [7][7]ExtendedCoordinate
 
 // VI - Key Generation Methods
 // 17
-func (k FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
+func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
     RandomNumber,_ := rand.Int(rand.Reader,&k.P)
     return RandomNumber
 }
 
 // 18
-func (k FiniteFieldEllipticCurve) GetPublicKeyPoints (Scalar *big.Int) (OutputP AffineCoordinates) {
+func (k *FiniteFieldEllipticCurve) ScalarMultiplier (Scalar *big.Int, InputP AffineCoordinates) (OutputP AffineCoordinates) {
     var (
 	//start = time.Now()
 	PrivKey49 		= Scalar.Text(49)
 	PrivKey49SliceRune 	= []rune(PrivKey49)
 	PrivKey49SliceString 	= make([]string,len(PrivKey49))
-	ZeroPoint		= CurveE521InfinityPoint
+	ZeroPoint		= InfinityPoint
 	Result			ExtendedCoordinates
     )
     //start := time.Now()
@@ -460,7 +461,7 @@ func (k FiniteFieldEllipticCurve) GetPublicKeyPoints (Scalar *big.Int) (OutputP 
 	PrivKey49SliceString[i] = string(PrivKey49SliceRune[i])
     }
     Result = ZeroPoint
-    PrecMatrix := k.PrecomputingMatrix()
+    PrecMatrix := k.PrecomputingMatrix(InputP)
     for i := 0; i < len(PrivKey49SliceString); i++ {
 	Character := PrivKey49SliceString[i]
 	switch Character {

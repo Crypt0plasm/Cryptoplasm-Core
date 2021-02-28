@@ -55,7 +55,7 @@ type ProjectiveCoordinates struct {
 
 // II - Coordinates Conversion Methods
 // 1
-func (k FiniteFieldEllipticCurve) Affine2Extended (InputP AffineCoordinates) (OutputP ExtendedCoordinates) {
+func (k *FiniteFieldEllipticCurve) Affine2Extended (InputP AffineCoordinates) (OutputP ExtendedCoordinates) {
     OutputP.EX = InputP.AX
     OutputP.EY = InputP.AY
     OutputP.ET = k.MulMod(InputP.AX,InputP.AY)
@@ -63,7 +63,7 @@ func (k FiniteFieldEllipticCurve) Affine2Extended (InputP AffineCoordinates) (Ou
     return OutputP
 }
 // 2
-func (k FiniteFieldEllipticCurve) Affine2Inverted (InputP AffineCoordinates) (OutputP InvertedCoordinates) {
+func (k *FiniteFieldEllipticCurve) Affine2Inverted (InputP AffineCoordinates) (OutputP InvertedCoordinates) {
     var (
         mmix = new(big.Int)
         mmiy = new(big.Int)
@@ -76,14 +76,14 @@ func (k FiniteFieldEllipticCurve) Affine2Inverted (InputP AffineCoordinates) (Ou
     return OutputP
 }
 // 3
-func (k FiniteFieldEllipticCurve) Affine2Projective (InputP AffineCoordinates) (OutputP ProjectiveCoordinates) {
+func (k *FiniteFieldEllipticCurve) Affine2Projective (InputP AffineCoordinates) (OutputP ProjectiveCoordinates) {
     OutputP.PX = InputP.AX
     OutputP.PY = InputP.AY
     OutputP.PZ = One
     return OutputP
 }
 // 4
-func (k FiniteFieldEllipticCurve) Extended2Affine (InputP ExtendedCoordinates) (OutputP AffineCoordinates) {
+func (k *FiniteFieldEllipticCurve) Extended2Affine (InputP ExtendedCoordinates) (OutputP AffineCoordinates) {
     var mmi = new(big.Int) 		//mmi = ModularMultiplicativeInverse
     mmi.ModInverse(InputP.EZ,&k.P)
     OutputP.AX = k.MulMod(InputP.EX,mmi)
@@ -91,7 +91,7 @@ func (k FiniteFieldEllipticCurve) Extended2Affine (InputP ExtendedCoordinates) (
     return OutputP
 }
 // 5
-func (k FiniteFieldEllipticCurve) Inverted2Affine (InputP InvertedCoordinates) (OutputP AffineCoordinates) {
+func (k *FiniteFieldEllipticCurve) Inverted2Affine (InputP InvertedCoordinates) (OutputP AffineCoordinates) {
     var (
         mmix = new(big.Int)
         mmiy = new(big.Int)
@@ -103,7 +103,7 @@ func (k FiniteFieldEllipticCurve) Inverted2Affine (InputP InvertedCoordinates) (
     return OutputP
 }
 // 6
-func (k FiniteFieldEllipticCurve) Projective2Affine (InputP ProjectiveCoordinates) (OutputP AffineCoordinates) {
+func (k *FiniteFieldEllipticCurve) Projective2Affine (InputP ProjectiveCoordinates) (OutputP AffineCoordinates) {
     var mmi = new(big.Int) 		//mmi = ModularMultiplicativeInverse
     mmi.ModInverse(InputP.PZ,&k.P)
     OutputP.AX = k.MulMod(InputP.PX,mmi)
