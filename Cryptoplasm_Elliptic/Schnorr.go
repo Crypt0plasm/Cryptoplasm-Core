@@ -112,17 +112,20 @@ func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Si
 
     //Step 2, computing Q (x,y) as z multiplied by Curve Generator Point
     Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    R  := k.ScalarMultiplier(z,Generator)
+    GeneratorExt := k.Affine2Extended(Generator)
+    RExt  := k.ScalarMultiplier(z,GeneratorExt)
+    RAff := k.Extended2Affine(RExt)
 
-    SchnorredHash := SchnorrHash(R.AX,Keys.PublicKey,Hash)
+    SchnorredHash := SchnorrHash(RAff.AX,Keys.PublicKey,Hash)
 
     //If MulMod and AddMod is used, signature doesnt verify.
     //Numbers must be allowed to grow non modulo P
-    // For k*G=P(k private, P public), H*k*G != H*P if H*k wraps around modulo prime.
-    v1.Mul(SchnorredHash,ConvertBase49toBase10(Keys.PrivateKey))
-    s.Add(z,v1)
+    // For k*G=P(k private, P public), H*k*G != H*P if H*k wraps around modulo P.
+    // But it does work if it wraps modulo Q
+    v1 = k.MulModQ(SchnorredHash,ConvertBase49toBase10(Keys.PrivateKey))
+    s  = k.AddModQ(z,v1)
 
-    Signature.R = R
+    Signature.R = RAff
     Signature.S = s
     return Signature
 }
@@ -132,20 +135,22 @@ func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Si
 
 func (k *FiniteFieldEllipticCurve) SchnorrVerify (Sigma Schnurr, PublicKey string, Hash []byte) bool {
     var Result bool
-    Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    sG := k.ScalarMultiplier(Sigma.S,Generator)
+    GeneratorAff := AffineCoordinates {&k.PBX, &k.PBY}
+    GeneratorExt := k.Affine2Extended(GeneratorAff)
+    sGExt := k.ScalarMultiplier(Sigma.S,GeneratorExt)
+    sGAff := k.Extended2Affine(sGExt)
 
     SchnorredHash := SchnorrHash(Sigma.R.AX,PublicKey,Hash)
-    PublicKeyGenerator := PublicKey2Affine(PublicKey)
+    PublicKeyGeneratorAff := PublicKey2Affine(PublicKey)
+    PublicKeyGeneratorExt := k.Affine2Extended(PublicKeyGeneratorAff)
 
-    Q2  := k.ScalarMultiplier(SchnorredHash,PublicKeyGenerator)
-    Q2ex:= k.Affine2Extended(Q2)
+    Q2ex  := k.ScalarMultiplier(SchnorredHash,PublicKeyGeneratorExt)
 
     Q1ex:= k.Affine2Extended(Sigma.R)
 
     Q := k.AdditionV2(Q1ex,Q2ex)
     QAff := k.Extended2Affine(Q)
 
-    Result = k.ArePointsEqualAf(sG,QAff)
+    Result = k.ArePointsEqualAf(sGAff,QAff)
     return Result
 }

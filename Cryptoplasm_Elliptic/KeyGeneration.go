@@ -63,13 +63,18 @@ func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (P
     	PublicKeyInt = new(big.Int)
         XStringLengthBig = new(big.Int)
     )
+    //Defining Generator and converting to ext Coordinates
     Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    PublicKeyPoints := k.ScalarMultiplier(PrivateKeyInt,Generator)
+    GeneratorExt := k.Affine2Extended(Generator)
+
+    //Scalar Multiplication returns Ext Coordinates, and we convert them back to Affine
+    PublicKeyPoints := k.ScalarMultiplier(PrivateKeyInt,GeneratorExt)
+    PublicKeyPointsAff := k.Extended2Affine(PublicKeyPoints)
     //To verify that PublicKey2Affine returns the same Points as those computed from Private Key
     //Remove the following 1 Comments:
     //fmt.Println("Points:",PublicKeyPoints)
 
-    XString := PublicKeyPoints.AX.String()
+    XString := PublicKeyPointsAff.AX.String()
     XStringLength := int64(len(XString))
     XStringLengthBig.SetInt64(XStringLength)
     PublicKeyPrefix := ConvertBase10toBase49(XStringLengthBig)
@@ -77,7 +82,7 @@ func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (P
     //This information is needed in order to remake the Affine Coordinates
     //representing the PublicKey from the PublicKey string
 
-    YString := PublicKeyPoints.AY.String()
+    YString := PublicKeyPointsAff.AY.String()
     XYString := XString+YString
     PublicKeyInt.SetString(XYString,10)
     PublicKey = ConvertBase10toBase49(PublicKeyInt)

@@ -13,6 +13,16 @@ type AffineCoordinates struct {
     AX *big.Int
     AY *big.Int
 }
+// XZ Coordinates represents x as X and Z satisfying the following equations
+//
+// x = X/Z
+//
+//Type1 - XZ Coordinates
+type XZCoordinates struct {
+    X *big.Int
+    Y *big.Int
+    Z *big.Int
+}
 // Extended Coordinates represent aX and aY as eX, eY, eZ and eT satisfying the following equations:
 //
 // aX = eX/eZ
@@ -20,7 +30,7 @@ type AffineCoordinates struct {
 // aX*aY = eT/eZ
 // with eZ != 0
 //
-// Type1 - Extended Coordinates
+// Type2 - Extended Coordinates
 type ExtendedCoordinates struct {
     EX *big.Int
     EY *big.Int
@@ -33,7 +43,7 @@ type ExtendedCoordinates struct {
 // aX = iZ/iX
 // aY = iZ/iY
 //
-// Type2 - Inverted Coordinates
+// Type3 - Inverted Coordinates
 type InvertedCoordinates struct {
     IX *big.Int
     IY *big.Int
@@ -46,7 +56,7 @@ type InvertedCoordinates struct {
 // aY = iY/iZ
 // with eZ != 0
 //
-// Type3 - Projective Coordinates
+// Type4 - Projective Coordinates
 type ProjectiveCoordinates struct {
     PX *big.Int
     PY *big.Int

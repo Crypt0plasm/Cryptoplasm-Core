@@ -11,16 +11,18 @@ var (
     One  = big.NewInt(1)
     Two = big.NewInt(2)
 
-    CurveE521 = ParamE521()
+    CurveE521 = DefineE521()
     InfinityPoint = ExtendedCoordinates {Zero, One,Zero,Zero}
 )
 
 
-type TwistedEdwardsCurve interface {
+type FiniteFieldEllipticCurveMethods interface {
     // I - Mod P Methods
     AddMod		(a,b *big.Int)					*big.Int
     SubMod		(a,b *big.Int)					*big.Int
     MulMod		(a,b *big.Int)					*big.Int
+    AddModQ		(a,b *big.Int)					*big.Int
+    MulModQ		(a,b *big.Int)					*big.Int
     
     // II - Coordinates Conversion Methods
     Affine2Extended 	(InputP AffineCoordinates) 			(OutputP ExtendedCoordinates)
@@ -61,12 +63,19 @@ type TwistedEdwardsCurve interface {
     SchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte) 	bool
 }
 
-// TwistedEdwardsCurve Methods
+// FiniteFieldEllipticCurve Methods
 // I - Mod P Methods
 func (k *FiniteFieldEllipticCurve) AddMod (a,b *big.Int) *big.Int{
     var result = new(big.Int)
     result.Add(a,b)
     result.Mod(result,&k.P)
+    return result
+}
+
+func (k *FiniteFieldEllipticCurve) AddModQ (a,b *big.Int) *big.Int{
+    var result = new(big.Int)
+    result.Add(a,b)
+    result.Mod(result,&k.Q)
     return result
 }
 
@@ -81,6 +90,13 @@ func (k *FiniteFieldEllipticCurve) MulMod (a,b *big.Int) *big.Int{
     var result = new(big.Int)
     result.Mul(a,b)
     result.Mod(result,&k.P)
+    return result
+}
+
+func (k *FiniteFieldEllipticCurve) MulModQ(a,b *big.Int) *big.Int{
+    var result = new(big.Int)
+    result.Mul(a,b)
+    result.Mod(result,&k.Q)
     return result
 }
 
@@ -395,62 +411,59 @@ func (k *FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (Outp
 }
 
 //17
-func (k *FiniteFieldEllipticCurve) PrecomputingMatrix (InputP AffineCoordinates) [7][7]ExtendedCoordinates {
+func (k *FiniteFieldEllipticCurve) PrecomputingMatrix (InputP ExtendedCoordinates) [7][7]ExtendedCoordinates {
     //start := time.Now()
-    //Generator := AffineCoordinates {&k.PBX, &k.PBY}
-
-    BasePointExt	:= k.Affine2Extended(InputP)
-    BasePointExt02 	:= k.DoubleWithZOne(BasePointExt)
-    BasePointExt03 	:= k.AdditionZ2OneV2(BasePointExt02,BasePointExt)
+    BasePointExt02 	:= k.DoubleWithZOne(InputP)
+    BasePointExt03 	:= k.AdditionZ2OneV2(BasePointExt02,InputP)
     BasePointExt04 	:= k.Double(BasePointExt02)
-    BasePointExt05 	:= k.AdditionZ2OneV2(BasePointExt04,BasePointExt)
+    BasePointExt05 	:= k.AdditionZ2OneV2(BasePointExt04,InputP)
     BasePointExt06	:= k.Double(BasePointExt03)
-    BasePointExt07	:= k.AdditionZ2OneV2(BasePointExt06,BasePointExt)
+    BasePointExt07	:= k.AdditionZ2OneV2(BasePointExt06,InputP)
     BasePointExt08	:= k.Double(BasePointExt04)
-    BasePointExt09	:= k.AdditionZ2OneV2(BasePointExt08,BasePointExt)
+    BasePointExt09	:= k.AdditionZ2OneV2(BasePointExt08,InputP)
     BasePointExt10	:= k.Double(BasePointExt05)
-    BasePointExt11	:= k.AdditionZ2OneV2(BasePointExt10,BasePointExt)
+    BasePointExt11	:= k.AdditionZ2OneV2(BasePointExt10,InputP)
     BasePointExt12	:= k.Double(BasePointExt06)
-    BasePointExt13	:= k.AdditionZ2OneV2(BasePointExt12,BasePointExt)
+    BasePointExt13	:= k.AdditionZ2OneV2(BasePointExt12,InputP)
     BasePointExt14	:= k.Double(BasePointExt07)
-    BasePointExt15	:= k.AdditionZ2OneV2(BasePointExt14,BasePointExt)
+    BasePointExt15	:= k.AdditionZ2OneV2(BasePointExt14,InputP)
     BasePointExt16	:= k.Double(BasePointExt08)
-    BasePointExt17	:= k.AdditionZ2OneV2(BasePointExt16,BasePointExt)
+    BasePointExt17	:= k.AdditionZ2OneV2(BasePointExt16,InputP)
     BasePointExt18	:= k.Double(BasePointExt09)
-    BasePointExt19	:= k.AdditionZ2OneV2(BasePointExt18,BasePointExt)
+    BasePointExt19	:= k.AdditionZ2OneV2(BasePointExt18,InputP)
     BasePointExt20	:= k.Double(BasePointExt10)
-    BasePointExt21	:= k.AdditionZ2OneV2(BasePointExt20,BasePointExt)
+    BasePointExt21	:= k.AdditionZ2OneV2(BasePointExt20,InputP)
     BasePointExt22	:= k.Double(BasePointExt11)
-    BasePointExt23	:= k.AdditionZ2OneV2(BasePointExt22,BasePointExt)
+    BasePointExt23	:= k.AdditionZ2OneV2(BasePointExt22,InputP)
     BasePointExt24	:= k.Double(BasePointExt12)
-    BasePointExt25	:= k.AdditionZ2OneV2(BasePointExt24,BasePointExt)
+    BasePointExt25	:= k.AdditionZ2OneV2(BasePointExt24,InputP)
     BasePointExt26	:= k.Double(BasePointExt13)
-    BasePointExt27	:= k.AdditionZ2OneV2(BasePointExt26,BasePointExt)
+    BasePointExt27	:= k.AdditionZ2OneV2(BasePointExt26,InputP)
     BasePointExt28	:= k.Double(BasePointExt14)
-    BasePointExt29	:= k.AdditionZ2OneV2(BasePointExt28,BasePointExt)
+    BasePointExt29	:= k.AdditionZ2OneV2(BasePointExt28,InputP)
     BasePointExt30	:= k.Double(BasePointExt15)
-    BasePointExt31	:= k.AdditionZ2OneV2(BasePointExt30,BasePointExt)
+    BasePointExt31	:= k.AdditionZ2OneV2(BasePointExt30,InputP)
     BasePointExt32	:= k.Double(BasePointExt16)
-    BasePointExt33	:= k.AdditionZ2OneV2(BasePointExt32,BasePointExt)
+    BasePointExt33	:= k.AdditionZ2OneV2(BasePointExt32,InputP)
     BasePointExt34	:= k.Double(BasePointExt17)
-    BasePointExt35	:= k.AdditionZ2OneV2(BasePointExt34,BasePointExt)
+    BasePointExt35	:= k.AdditionZ2OneV2(BasePointExt34,InputP)
     BasePointExt36	:= k.Double(BasePointExt18)
-    BasePointExt37	:= k.AdditionZ2OneV2(BasePointExt36,BasePointExt)
+    BasePointExt37	:= k.AdditionZ2OneV2(BasePointExt36,InputP)
     BasePointExt38	:= k.Double(BasePointExt19)
-    BasePointExt39	:= k.AdditionZ2OneV2(BasePointExt38,BasePointExt)
+    BasePointExt39	:= k.AdditionZ2OneV2(BasePointExt38,InputP)
     BasePointExt40	:= k.Double(BasePointExt20)
-    BasePointExt41	:= k.AdditionZ2OneV2(BasePointExt40,BasePointExt)
+    BasePointExt41	:= k.AdditionZ2OneV2(BasePointExt40,InputP)
     BasePointExt42	:= k.Double(BasePointExt21)
-    BasePointExt43	:= k.AdditionZ2OneV2(BasePointExt42,BasePointExt)
+    BasePointExt43	:= k.AdditionZ2OneV2(BasePointExt42,InputP)
     BasePointExt44	:= k.Double(BasePointExt22)
-    BasePointExt45	:= k.AdditionZ2OneV2(BasePointExt44,BasePointExt)
+    BasePointExt45	:= k.AdditionZ2OneV2(BasePointExt44,InputP)
     BasePointExt46	:= k.Double(BasePointExt23)
-    BasePointExt47	:= k.AdditionZ2OneV2(BasePointExt46,BasePointExt)
+    BasePointExt47	:= k.AdditionZ2OneV2(BasePointExt46,InputP)
     BasePointExt48	:= k.Double(BasePointExt24)
-    BasePointExt49	:= k.AdditionZ2OneV2(BasePointExt48,BasePointExt)
+    BasePointExt49	:= k.AdditionZ2OneV2(BasePointExt48,InputP)
     //Point49 isn't used in the pre-computation, it is only created to fill the Matrix.
 
-    MatrixRow0 := [...]ExtendedCoordinates{BasePointExt,BasePointExt02,BasePointExt03,BasePointExt04,BasePointExt05,BasePointExt06,BasePointExt07}
+    MatrixRow0 := [...]ExtendedCoordinates{InputP,BasePointExt02,BasePointExt03,BasePointExt04,BasePointExt05,BasePointExt06,BasePointExt07}
     MatrixRow1 := [...]ExtendedCoordinates{BasePointExt08,BasePointExt09,BasePointExt10,BasePointExt11,BasePointExt12,BasePointExt13,BasePointExt14}
     MatrixRow2 := [...]ExtendedCoordinates{BasePointExt15,BasePointExt16,BasePointExt17,BasePointExt18,BasePointExt19,BasePointExt20,BasePointExt21}
     MatrixRow3 := [...]ExtendedCoordinates{BasePointExt22,BasePointExt23,BasePointExt24,BasePointExt25,BasePointExt26,BasePointExt27,BasePointExt28}
@@ -474,7 +487,7 @@ func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
 }
 
 //19
-func (k *FiniteFieldEllipticCurve) ScalarMultiplier (Scalar *big.Int, InputP AffineCoordinates) (OutputP AffineCoordinates) {
+func (k *FiniteFieldEllipticCurve) ScalarMultiplier (Scalar *big.Int, InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	//start = time.Now()
 	PrivKey49 		= Scalar.Text(49)
@@ -742,8 +755,8 @@ func (k *FiniteFieldEllipticCurve) ScalarMultiplier (Scalar *big.Int, InputP Aff
 	}
 
     }
-    OutputP = k.Extended2Affine(Result)
-
+    //OutputP = k.Extended2Affine(Result)
+    OutputP = Result
     //elapsed := time.Since(start)
     //fmt.Println("")
     //fmt.Println("Computing PublicKey points took:", elapsed)
