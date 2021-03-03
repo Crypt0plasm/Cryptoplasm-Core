@@ -42,12 +42,14 @@ type FiniteFieldEllipticCurve struct {
     // Prime Numbers
     P big.Int 			// Prime defining the underlying field
     Q big.Int 			// Generator (Base-Point) Order
-    R int     			// Cofactor: Q*R is the total NUmber of Points on the Curve
+    T big.Int                   // Trace of the Curve
+    R big.Int      		// Cofactor: R*Q  = P + 1 - T
 
     // Parameters and Coefficients
     A big.Int                   // x^2 Parameter; Montgomery and Twisted Eduards Curve
     B big.Int 		        // y^2 Parameter; only Montgomery Curve
     D big.Int 		        // x^2 * y^2 Coefficient; only Twisted Eduards Curve
+
 
     //Point coordinates
     FBX, FBY big.Int 		// Standard base point for full group
@@ -56,6 +58,12 @@ type FiniteFieldEllipticCurve struct {
     //Elligators
     Elligator1s big.Int 	// Optional s parameter for Elligator 1
     Elligator2u big.Int 	// Optional u parameter for Elligator 2
+}
+
+func CurveCofactor (P, Q, T big.Int) big.Int {
+    var h = new(big.Int)
+    h.Add(&P,One).Sub(h,&T).Quo(h,&Q)
+    return *h
 }
 
 // Curve 01:
@@ -78,7 +86,7 @@ type FiniteFieldEllipticCurve struct {
 //	Decimal Form		2462625387274654950767440006258975862817483704404090416745738034557663054564649171262659326683244604346084081047321
 //	Hexadecimal Form	0xfffffffffffffffffffffffffffffffffffffffffffffffd5fb21f21e95eee17c5e69281b102d2773e27e13fd3c9719
 //
-// Cofactor R			8
+// Cofactor R			4
 // Curve A Parameter		1
 // Curve D Parameter		-67254
 //
@@ -93,7 +101,8 @@ func DefineE382() *FiniteFieldEllipticCurve {
     p.P.SetBit(Zero, 382, 1).Sub(&p.P, big.NewInt(105))
     qs.SetString("1030303207694556153926491950732314247062623204330168346855", 10)
     p.Q.SetBit(Zero, 380, 1).Sub(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("4121212830778224615705967802929256988250492817320673387316", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.A.SetInt64(1)
     p.D.SetInt64(-67254)
     p.PBX.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
@@ -130,7 +139,8 @@ func Define41417() *FiniteFieldEllipticCurve {
     p.P.SetBit(Zero, 414, 1).Sub(&p.P, big.NewInt(17))
     qs.SetString("33364140863755142520810177694098385178984727200411208589594759", 10)
     p.Q.SetBit(Zero, 411, 1).Sub(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("266913126910041140166481421552787081431877817603289668716758056", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.A.SetInt64(1)
     p.D.SetInt64(3617)
     p.PBX.SetString("17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165", 10)
@@ -153,7 +163,7 @@ func Define41417() *FiniteFieldEllipticCurve {
 //	Decimal Form		181709681073901722637330951972001133588410340171829515070372549795146003961539585716195755291692375963310293709091662304773755859649779
 //	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c292ab5844f3
 //
-// Cofactor R			8
+// Cofactor R			4
 // Curve A Parameter		1
 // Curve D Parameter		-39081
 //
@@ -173,7 +183,8 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
     p.P.SetBit(Zero, 448, 1).Sub(&p.P, &ps).Sub(&p.P, One)
     qs.SetString("13818066809895115352007386748515426880336692474882178609894547503885", 10)
     p.Q.SetBit(Zero, 446, 1).Sub(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("28312320572429821613362531907042076847709625476988141958474579766324", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.A.SetInt64(1)
     p.D.SetInt64(-39081)
     p.PBX.SetString("117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495", 10)
@@ -200,7 +211,7 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
 //	Decimal Form		1716199415032652428745475199770348304317358825035826352348615864796385795849413675475876651663657849636693659065234142604319282948702542317993421293670108523
 //	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd15b6c64746fc85f736b8af5e7ec53f04fbd8c4569a8f1f4540ea2435f5180d6b
 //
-// Cofactor R			8
+// Cofactor R			4
 // Curve A Parameter		1
 // Curve D Parameter		-376014
 //
@@ -217,7 +228,8 @@ func DefineE521() *FiniteFieldEllipticCurve {
     p.P.SetBit(Zero, 521, 1).Sub(&p.P, One)
     qs.SetString("337554763258501705789107630418782636071904961214051226618635150085779108655765", 10)
     p.Q.SetBit(Zero, 519, 1).Sub(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("1350219053034006823156430521675130544287619844856204906474540600343116434623060", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.A.SetInt64(1)
     p.D.SetInt64(-376014)
     p.PBX.SetString("1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324", 10)
@@ -260,7 +272,8 @@ func DefineM383() *FiniteFieldEllipticCurve {
     p.P.SetBit(Zero, 383, 1).Sub(&p.P, &ps)
     qs.SetString("166236275931373516105219794935542153308039234455761613271", 10)
     p.Q.SetBit(Zero, 380, 1).Add(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("-1329890207450988128841758359484337226464313875646092906354", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.B.SetInt64(1)
     p.A.SetInt64(2065150)
     p.PBX.SetString("12", 10)
@@ -269,7 +282,7 @@ func DefineM383() *FiniteFieldEllipticCurve {
 }
 
 // Curve 06:
-// DefineM383187 defines the Curve383187 curve specified in:
+// Define383187 defines the Curve383187 curve specified in:
 // ---
 // ---
 //
@@ -292,18 +305,19 @@ func DefineM383() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x5
 // Base-Point Y			4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455
 //	Hexadecimal Form	0x1eebe07dc1871896732b12d5504a32370471965c7a11f2c89865f855ab3cbd7c224e3620c31af3370788457dd5ce46df
-func DefineM383187() *FiniteFieldEllipticCurve {
+func Define383187() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         qs big.Int
         ps big.Int
     )
-    p.Name = "M-383"
+    p.Name = "Curve383187"
     ps.SetString("187",10)
     p.P.SetBit(Zero, 383, 1).Sub(&p.P, &ps)
     qs.SetString("356080847217269887368687156533236720299699248977882517025", 10)
     p.Q.SetBit(Zero, 380, 1).Add(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("-2848646777738159098949497252265893762397593991823060136386", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.B.SetInt64(1)
     p.A.SetInt64(229969)
     p.PBX.SetString("5", 10)
@@ -341,53 +355,16 @@ func DefineM511() *FiniteFieldEllipticCurve {
         qs big.Int
         ps big.Int
     )
-    p.Name = "M-383"
+    p.Name = "M511"
     ps.SetString("187",10)
     p.P.SetBit(Zero, 511, 1).Sub(&p.P, &ps)
     qs.SetString("10724754759635747624044531514068121842070756627434833028965540808827675062043", 10)
     p.Q.SetBit(Zero, 508, 1).Add(&p.Q, &qs)
-    p.R = 8
+    p.T.SetString("-85798038077085980992356252112544974736566053019478664231724326470621400496530", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
     p.B.SetInt64(1)
     p.A.SetInt64(-530438)
     p.PBX.SetString("5", 10)
     p.PBY.SetString("4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455", 10)
-    return &p
-}
-
-
-// Name: 			LittleOne
-// Equation is: 		x^2 + y^2 = 1 - 376014 * x^2 * y^2
-// Prime field (P)		2^9 + 1
-//	Decimal Form		521
-//	Hexadecimal Form	0x209
-//
-// Base-Point Prime Order (Q)	??
-//	Decimal Form		??
-//	Hexadecimal Form	??
-//
-// Cofactor R			8??
-// Curve A Parameter		1
-// Curve D Parameter		-376014
-//
-// Base-Point X			23
-//	Hexadecimal Form
-// Base-Point Y			40
-//	Hexadecimal Form
-func DefineLittleOne() *FiniteFieldEllipticCurve {
-    var (
-        p FiniteFieldEllipticCurve
-        //qs big.Int
-        ps big.Int
-    )
-    p.Name = "LittleOne"
-    ps.SetString("9",10)
-    p.P.SetBit(Zero, 9, 1).Add(&p.P, &ps)
-    //qs.SetString("10724754759635747624044531514068121842070756627434833028965540808827675062043", 10)
-    //p.Q.SetBit(Zero, 508, 1).Add(&p.Q, &qs)
-    p.R = 8
-    p.A.SetInt64(1)
-    p.D.SetInt64(-376014)
-    p.PBX.SetString("40", 10)
-    p.PBY.SetString("23", 10)
     return &p
 }

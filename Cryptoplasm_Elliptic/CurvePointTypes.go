@@ -66,10 +66,19 @@ type ProjectiveCoordinates struct {
 // II - Coordinates Conversion Methods
 // 1
 func (k *FiniteFieldEllipticCurve) Affine2Extended (InputP AffineCoordinates) (OutputP ExtendedCoordinates) {
-    OutputP.EX = InputP.AX
-    OutputP.EY = InputP.AY
-    OutputP.ET = k.MulMod(InputP.AX,InputP.AY)
-    OutputP.EZ = One
+    Cmp1 := InputP.AX.Cmp(Zero)
+    Cmp2 := InputP.AY.Cmp(Zero)
+
+    //Infinity Point Test
+    if Cmp1 == 0 && Cmp2 == 0 {
+        OutputP = InfinityPoint
+    } else {
+        OutputP.EX = InputP.AX
+        OutputP.EY = InputP.AY
+        OutputP.ET = k.MulMod(InputP.AX,InputP.AY)
+        OutputP.EZ = One
+    }
+
     return OutputP
 }
 // 2
@@ -78,6 +87,7 @@ func (k *FiniteFieldEllipticCurve) Affine2Inverted (InputP AffineCoordinates) (O
         mmix = new(big.Int)
         mmiy = new(big.Int)
     )
+    //Infinity Test must be added
     mmix.ModInverse(InputP.AX,&k.P)
     mmiy.ModInverse(InputP.AY,&k.P)
     OutputP.IX = mmix
@@ -87,6 +97,7 @@ func (k *FiniteFieldEllipticCurve) Affine2Inverted (InputP AffineCoordinates) (O
 }
 // 3
 func (k *FiniteFieldEllipticCurve) Affine2Projective (InputP AffineCoordinates) (OutputP ProjectiveCoordinates) {
+    //Infinity Test must be added
     OutputP.PX = InputP.AX
     OutputP.PY = InputP.AY
     OutputP.PZ = One
@@ -95,9 +106,16 @@ func (k *FiniteFieldEllipticCurve) Affine2Projective (InputP AffineCoordinates) 
 // 4
 func (k *FiniteFieldEllipticCurve) Extended2Affine (InputP ExtendedCoordinates) (OutputP AffineCoordinates) {
     var mmi = new(big.Int) 		//mmi = ModularMultiplicativeInverse
-    mmi.ModInverse(InputP.EZ,&k.P)
-    OutputP.AX = k.MulMod(InputP.EX,mmi)
-    OutputP.AY = k.MulMod(InputP.EY,mmi)
+
+    //Infinity Point Test
+    if k.IsInfinityPoint(InputP) == true {
+        OutputP.AX = Zero
+        OutputP.AY = Zero
+    } else {
+        mmi.ModInverse(InputP.EZ,&k.P)
+        OutputP.AX = k.MulMod(InputP.EX,mmi)
+        OutputP.AY = k.MulMod(InputP.EY,mmi)
+    }
     return OutputP
 }
 // 5
@@ -106,6 +124,7 @@ func (k *FiniteFieldEllipticCurve) Inverted2Affine (InputP InvertedCoordinates) 
         mmix = new(big.Int)
         mmiy = new(big.Int)
     )
+    //Infinity Test must be added
     mmix.ModInverse(InputP.IX,&k.P)
     mmiy.ModInverse(InputP.IY,&k.P)
     OutputP.AX = k.MulMod(InputP.IZ,mmix)
@@ -115,6 +134,7 @@ func (k *FiniteFieldEllipticCurve) Inverted2Affine (InputP InvertedCoordinates) 
 // 6
 func (k *FiniteFieldEllipticCurve) Projective2Affine (InputP ProjectiveCoordinates) (OutputP AffineCoordinates) {
     var mmi = new(big.Int) 		//mmi = ModularMultiplicativeInverse
+    //Infinity Test must be added
     mmi.ModInverse(InputP.PZ,&k.P)
     OutputP.AX = k.MulMod(InputP.PX,mmi)
     OutputP.AY = k.MulMod(InputP.PY,mmi)
