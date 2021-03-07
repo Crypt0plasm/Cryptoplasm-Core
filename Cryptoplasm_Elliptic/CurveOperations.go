@@ -10,6 +10,8 @@ var (
     Zero = big.NewInt(0)
     One  = big.NewInt(1)
     Two = big.NewInt(2)
+    Three = big.NewInt(3)
+    Four = big.NewInt(4)
 
     CurveE521 = DefineE521()
     InfinityPoint = ExtendedCoordinates {Zero, One,Zero,Zero}
@@ -17,12 +19,16 @@ var (
 
 
 type FiniteFieldEllipticCurveMethods interface {
-    // I - Mod P Methods
-    AddMod		(a,b *big.Int)					*big.Int
-    SubMod		(a,b *big.Int)					*big.Int
-    MulMod		(a,b *big.Int)					*big.Int
+    // Ia - Mod P Methods
+    AddModP		(a,b *big.Int)					*big.Int
+    SubModP		(a,b *big.Int)					*big.Int
+    MulModP		(a,b *big.Int)					*big.Int
+    QuoModP		(a,b *big.Int)					*big.Int
+    // Ib - Mod Q Methods
     AddModQ		(a,b *big.Int)					*big.Int
+    SubModQ		(a,b *big.Int)					*big.Int
     MulModQ		(a,b *big.Int)					*big.Int
+    QuoModQ		(a,b *big.Int)					*big.Int
     
     // II - Coordinates Conversion Methods
     Affine2Extended 	(InputP AffineCoordinates) 			(OutputP ExtendedCoordinates)
@@ -64,38 +70,40 @@ type FiniteFieldEllipticCurveMethods interface {
 
 // FiniteFieldEllipticCurve Methods
 // I - Mod P Methods
-func (k *FiniteFieldEllipticCurve) AddMod (a,b *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Add(a,b)
-    result.Mod(result,&k.P)
+func (k *FiniteFieldEllipticCurve) AddModP (a,b *big.Int) *big.Int{
+    result := AddModulus(&k.P,a,b)
     return result
 }
-
 func (k *FiniteFieldEllipticCurve) AddModQ (a,b *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Add(a,b)
-    result.Mod(result,&k.Q)
+    result := AddModulus(&k.Q,a,b)
     return result
 }
 
-func (k *FiniteFieldEllipticCurve) SubMod (a,b *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Sub(a,b)
-    result.Mod(result,&k.P)
+func (k *FiniteFieldEllipticCurve) SubModP (a,b *big.Int) *big.Int{
+    result := SubModulus(&k.P,a,b)
+    return result
+}
+func (k *FiniteFieldEllipticCurve) SubModQ (a,b *big.Int) *big.Int{
+    result := SubModulus(&k.Q,a,b)
     return result
 }
 
-func (k *FiniteFieldEllipticCurve) MulMod (a,b *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Mul(a,b)
-    result.Mod(result,&k.P)
+
+func (k *FiniteFieldEllipticCurve) MulModP (a,b *big.Int) *big.Int{
+    result := MulModulus(&k.P,a,b)
+    return result
+}
+func (k *FiniteFieldEllipticCurve) MulModQ (a,b *big.Int) *big.Int{
+    result := MulModulus(&k.Q,a,b)
     return result
 }
 
-func (k *FiniteFieldEllipticCurve) MulModQ(a,b *big.Int) *big.Int{
-    var result = new(big.Int)
-    result.Mul(a,b)
-    result.Mod(result,&k.Q)
+func (k *FiniteFieldEllipticCurve) QuoModP (a,b *big.Int) *big.Int{
+    result := QuoModulus(&k.P,a,b)
+    return result
+}
+func (k *FiniteFieldEllipticCurve) QuoModQ (a,b *big.Int) *big.Int{
+    result := QuoModulus(&k.Q,a,b)
     return result
 }
 
@@ -148,10 +156,10 @@ func (k *FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) (OnCur
 
     A.Exp(PointAffine.AX,Two,&k.P)
     B.Exp(PointAffine.AY,Two,&k.P)
-    Left := k.AddMod(A,B)
-    C := k.MulMod(A,B)
-    D := k.MulMod(C,&k.D)
-    Right := k.AddMod(One,D)
+    Left := k.AddModP(A,B)
+    C := k.MulModP(A,B)
+    D := k.MulModP(C,&k.D)
+    Right := k.AddModP(One,D)
     //fmt.Println("Left  is",Left)
     //fmt.Println("Right is",Right)
     CompareResult := Left.Cmp(Right)
@@ -210,16 +218,16 @@ func (k *FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (
     //When Z is one, Point cant be Infinity-Point, therefore no check is needed.
     A.Exp(InputP.EX,Two,&k.P)
     B.Exp(InputP.EY,Two,&k.P)
-    E := k.MulMod(Two,InputP.ET)
-    G := k.AddMod(A,B)
-    F := k.SubMod(G,Two)
-    H := k.SubMod(A,B)
-    OutputP.EX = k.MulMod(E,F)
-    OutputP.EY = k.MulMod(G,H)
+    E := k.MulModP(Two,InputP.ET)
+    G := k.AddModP(A,B)
+    F := k.SubModP(G,Two)
+    H := k.SubModP(A,B)
+    OutputP.EX = k.MulModP(E,F)
+    OutputP.EY = k.MulModP(G,H)
     v1.Exp(G,Two,&k.P)
-    v2 := k.MulMod(Two,G)
-    OutputP.EZ = k.SubMod(v1,v2)
-    OutputP.ET = k.MulMod(E,H)
+    v2 := k.MulModP(Two,G)
+    OutputP.EZ = k.SubModP(v1,v2)
+    OutputP.ET = k.MulModP(E,H)
     return OutputP
 }
 
@@ -250,17 +258,17 @@ func (k *FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP 
 	A.Exp(InputP.EX,Two,&k.P)
 	B.Exp(InputP.EY,Two,&k.P)
 	C.Exp(InputP.EZ,Two,&k.P)
-	C = k.MulMod(C,Two)
-	v2 := k.AddMod(InputP.EX,InputP.EY)
+	C = k.MulModP(C,Two)
+	v2 := k.AddModP(InputP.EX,InputP.EY)
 	v1.Exp(v2,Two,&k.P)
-	G := k.AddMod(A,B)
-	E := k.SubMod(v1,G)
-	F := k.SubMod(G,C)
-	H := k.SubMod(A,B)
-	OutputP.EX = k.MulMod(E,F)
-	OutputP.EY = k.MulMod(G,H)
-	OutputP.EZ = k.MulMod(F,G)
-	OutputP.ET = k.MulMod(E,H)
+	G := k.AddModP(A,B)
+	E := k.SubModP(v1,G)
+	F := k.SubModP(G,C)
+	H := k.SubModP(A,B)
+	OutputP.EX = k.MulModP(E,F)
+	OutputP.EY = k.MulModP(G,H)
+	OutputP.EZ = k.MulModP(F,G)
+	OutputP.ET = k.MulModP(E,H)
     }
     return OutputP
 }
@@ -284,26 +292,26 @@ func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP 
 	YY.Exp(InputP.EY, Two,&k.P)
 	XX.Exp(InputP.EX, Two,&k.P)
 	ZZ.Exp(InputP.EZ, Two,&k.P)
-	Ap := k.AddMod(YY,XX)
-	twoZZ := k.MulMod(Two,ZZ)
-	Diff1 := k.SubMod(twoZZ,Ap)
-	B := k.MulMod(Two,Diff1)
-	xB := k.MulMod(XX,B)
-	yB := k.MulMod(YY,B)
-	Diff2 := k.SubMod(YY,XX)
-	AA := k.MulMod(Ap,Diff2)
-	F := k.SubMod(AA,yB)
-	G := k.AddMod(AA,xB)
-	Sum := k.AddMod(yB,AA)
-	xE := k.MulMod(InputP.EX,Sum)
-	Diff3 := k.SubMod(xB,AA)
-	yH := k.MulMod(InputP.EY,Diff3)
-	zF := k.MulMod(InputP.EZ,F)
-	zG := k.MulMod(InputP.EZ,G)
-	OutputP.EX = k.MulMod(xE,zF)
-	OutputP.EY = k.MulMod(zG,yH)
-	OutputP.EZ = k.MulMod(zF,zG)
-	OutputP.ET = k.MulMod(xE,yH)
+	Ap := k.AddModP(YY,XX)
+	twoZZ := k.MulModP(Two,ZZ)
+	Diff1 := k.SubModP(twoZZ,Ap)
+	B := k.MulModP(Two,Diff1)
+	xB := k.MulModP(XX,B)
+	yB := k.MulModP(YY,B)
+	Diff2 := k.SubModP(YY,XX)
+	AA := k.MulModP(Ap,Diff2)
+	F := k.SubModP(AA,yB)
+	G := k.AddModP(AA,xB)
+	Sum := k.AddModP(yB,AA)
+	xE := k.MulModP(InputP.EX,Sum)
+	Diff3 := k.SubModP(xB,AA)
+	yH := k.MulModP(InputP.EY,Diff3)
+	zF := k.MulModP(InputP.EZ,F)
+	zG := k.MulModP(InputP.EZ,G)
+	OutputP.EX = k.MulModP(xE,zF)
+	OutputP.EY = k.MulModP(zG,yH)
+	OutputP.EZ = k.MulModP(zF,zG)
+	OutputP.ET = k.MulModP(xE,yH)
     }
     return OutputP
 }
@@ -333,22 +341,22 @@ func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) 
     } else if k.IsInverseOnCurve(P1,P2) == true {
 	OutputP = InfinityPoint
     } else {
-	A := k.MulMod(P1.EX,P2.EX)
-	B := k.MulMod(P1.EY,P2.EY)
-	dC:= k.MulMod(P2.ET,&k.D)
-	C := k.MulMod(P1.ET,dC)
-	v1 := k.AddMod(P1.EX,P1.EY)
-	v2 := k.AddMod(P2.EX,P2.EY)
-	v3 := k.AddMod(A,B)
-	v4 := k.MulMod(v1,v2)
-	E := k.SubMod(v4,v3)
-	F := k.SubMod(P1.EZ,C)
-	G := k.AddMod(P1.EZ,C)
-	H := k.SubMod(B,A)
-	OutputP.EX = k.MulMod(E,F)
-	OutputP.EY = k.MulMod(G,H)
-	OutputP.EZ = k.MulMod(F,G)
-	OutputP.ET = k.MulMod(E,H)
+	A := k.MulModP(P1.EX,P2.EX)
+	B := k.MulModP(P1.EY,P2.EY)
+	dC:= k.MulModP(P2.ET,&k.D)
+	C := k.MulModP(P1.ET,dC)
+	v1 := k.AddModP(P1.EX,P1.EY)
+	v2 := k.AddModP(P2.EX,P2.EY)
+	v3 := k.AddModP(A,B)
+	v4 := k.MulModP(v1,v2)
+	E := k.SubModP(v4,v3)
+	F := k.SubModP(P1.EZ,C)
+	G := k.AddModP(P1.EZ,C)
+	H := k.SubModP(B,A)
+	OutputP.EX = k.MulModP(E,F)
+	OutputP.EY = k.MulModP(G,H)
+	OutputP.EZ = k.MulModP(F,G)
+	OutputP.ET = k.MulModP(E,H)
     }
     return OutputP
 }
@@ -380,23 +388,23 @@ func (k *FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (Outp
     } else if k.IsInverseOnCurve(P1,P2) == true {
 	OutputP = InfinityPoint
     } else {
-	A := k.MulMod(P1.EX,P2.EX)
-	B := k.MulMod(P1.EY,P2.EY)
-	dC:= k.MulMod(P2.ET,&k.D)
-	C := k.MulMod(P1.ET,dC)
-	D := k.MulMod(P1.EZ,P2.EZ)
-	v1:= k.AddMod(P1.EX,P1.EY)
-	v2:= k.AddMod(P2.EX,P2.EY)
-	v3:= k.AddMod(A,B)
-	v4:= k.MulMod(v1,v2)
-	E := k.SubMod(v4,v3)
-	F := k.SubMod(D,C)
-	G := k.AddMod(D,C)
-	H := k.SubMod(B,A)
-	OutputP.EX = k.MulMod(E,F)
-	OutputP.EY = k.MulMod(G,H)
-	OutputP.EZ = k.MulMod(F,G)
-	OutputP.ET = k.MulMod(E,H)
+	A := k.MulModP(P1.EX,P2.EX)
+	B := k.MulModP(P1.EY,P2.EY)
+	dC:= k.MulModP(P2.ET,&k.D)
+	C := k.MulModP(P1.ET,dC)
+	D := k.MulModP(P1.EZ,P2.EZ)
+	v1:= k.AddModP(P1.EX,P1.EY)
+	v2:= k.AddModP(P2.EX,P2.EY)
+	v3:= k.AddModP(A,B)
+	v4:= k.MulModP(v1,v2)
+	E := k.SubModP(v4,v3)
+	F := k.SubModP(D,C)
+	G := k.AddModP(D,C)
+	H := k.SubModP(B,A)
+	OutputP.EX = k.MulModP(E,F)
+	OutputP.EY = k.MulModP(G,H)
+	OutputP.EZ = k.MulModP(F,G)
+	OutputP.ET = k.MulModP(E,H)
     }
     return OutputP
 }

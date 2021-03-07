@@ -368,3 +368,42 @@ func DefineM511() *FiniteFieldEllipticCurve {
     p.PBY.SetString("4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455", 10)
     return &p
 }
+
+// Name: 			LittleOne
+// Equation is: 		x^2 + y^2 = 1 + 343 * x^2 * y^2
+// Prime field (P)		2^9 + 9
+//	Decimal Form		521
+//	Hexadecimal Form	0x209
+//
+// Base-Point Prime Order (Q)	??
+//	Decimal Form		??
+//	Hexadecimal Form	??
+//
+// Cofactor R			8??
+// Curve A Parameter		1
+// Curve D Parameter		343
+//
+// Base-Point X
+//	Hexadecimal Form
+// Base-Point Y
+//	Hexadecimal Form
+func DefineLittleOne() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        //qs big.Int
+        //ps big.Int
+    )
+    p.Name = "LittleOne"
+    //ps.SetString("9",10)
+    //p.P.SetBit(Zero, 9, 1).Add(&p.P, &ps)
+    //Q not true, inserted to avoid division by zero panic
+    p.P.SetString("521", 10)
+    p.Q.SetString("540", 10)
+    p.T.SetString("-18", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+    p.A.SetInt64(1)
+    p.D.SetInt64(7)
+    p.PBX.SetString("67", 10)
+    p.PBY.SetString("68", 10)
+    return &p
+}
