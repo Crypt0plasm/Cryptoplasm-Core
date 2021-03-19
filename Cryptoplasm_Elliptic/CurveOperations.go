@@ -3,6 +3,7 @@ package Cryptoplasm_Elliptic
 import (
     "crypto/rand"
     "math/big"
+    "unicode/utf8"
 )
 
 var (
@@ -492,10 +493,47 @@ func (k *FiniteFieldEllipticCurve) PrecomputingMatrix (InputP ExtendedCoordinate
 }
 
 // VI - Key Generation Methods
-//18
+//18 Creates a clamped Scalar as big.int according to Curve Cofactor
 func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
-    RandomNumber,_ := rand.Int(rand.Reader,&k.P)
-    return RandomNumber
+    var (
+        Scalar = new(big.Int)
+        BinaryString string
+    	CoreSlice = make([]string, k.S)
+	//StringZero = "0"
+    	StringOne = "1"
+	ScalarBitSliceHead = []string{StringOne}
+    )
+
+    //Generating the Random Private key, by generating k.S random bits.
+    for i := uint64(0); i < k.S; i++ {
+	RandomNumber,_ := rand.Int(rand.Reader,Two)
+	String := RandomNumber.Text(2)
+	CoreSlice[i] = String
+    }
+
+    ScalarBitSlice := append(ScalarBitSliceHead,CoreSlice...)
+
+    //Converting the Slice of Strings to a String
+    for i := 0; i < len(ScalarBitSlice); i++ {
+	BinaryString = BinaryString + ScalarBitSlice[i]
+    }
+
+    //Creating the final zeros of the string
+    BinaryCofactor := k.R.Text(2)
+    TrimmedBinaryCofactor := TrimFirstRune(BinaryCofactor)
+
+    //Adding the final zeroes to the BinaryString
+    BinaryString = BinaryString + TrimmedBinaryCofactor
+
+    //Converting the BinaryString to big.Int
+    Scalar.SetString(BinaryString,2)
+
+    return Scalar
+}
+
+func TrimFirstRune(s string) string {
+    _, i := utf8.DecodeRuneInString(s)
+    return s[i:]
 }
 
 //19
@@ -516,6 +554,7 @@ func (k *FiniteFieldEllipticCurve) ScalarMultiplier (Scalar *big.Int, InputP Ext
     Result = ZeroPoint
 
     //If Scalar Mod Q is Zero, Multiplication is InfinityPoint
+    //However the Scalar will never be chosen as to be divisible by Q
     ModResult.Mod(Scalar,&k.Q)
     Cmp := ModResult.Cmp(Zero)
     if Cmp == 0 {

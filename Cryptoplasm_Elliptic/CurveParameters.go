@@ -4,7 +4,8 @@ import (
     "math/big"
 )
 
-// Package Cryptoplasm_Elliptic implements the following 7 Safe Curves https://safecurves.cr.yp.to/index.html
+// Package Cryptoplasm_Elliptic defines the following 7 Safe Curves https://safecurves.cr.yp.to/index.html
+// and implements Elliptic Point Addition and Multiplication only for the Twisted Edwards Curves.
 //      4 implementations of Twisted Edwards Curves,
 //          E382
 //          Curve41417
@@ -37,11 +38,11 @@ import (
 // For details see Bernstein et al, "Twisted Edwards Curves", http://eprint.iacr.org/2008/013.pdf
 // Param defines a Montgomery Curve (MC).
 type FiniteFieldEllipticCurve struct {
-    Name string 		// Name of curve
+    Name string                 // Name of curve
 
     // Prime Numbers
-    P big.Int 			// Prime defining the underlying field
-    Q big.Int 			// Generator (Base-Point) Order
+    P big.Int                   // Prime defining the underlying field
+    Q big.Int                   // Generator (Base-Point) Order
     T big.Int                   // Trace of the Curve
     R big.Int      		// Cofactor: R*Q  = P + 1 - T
 
@@ -50,9 +51,17 @@ type FiniteFieldEllipticCurve struct {
     B big.Int 		        // y^2 Parameter; only Montgomery Curve
     D big.Int 		        // x^2 * y^2 Coefficient; only Twisted Eduards Curve
 
+    //Curve safe scalar size in bits
+    //The "private key bit size" is as such that considering first bit 1, and the last n bits 0
+    //  the total resulting number in decimal must be lower than the Generator (Base-Point) Order Q
+    //  where n is log(2,R) (for cofactor 4 n is 2, for cofactor 8 n is 3)
+    //S could be computed, but its easier to just define it.
+    //  For instance S for Curve E-521 is 515 bits. and the resulting scalar is 518 bits in size.
+    //  Thus the resulting Scalar is smaller than Q. Thus there are 2^515 possible private keys.
+    S uint64
 
     //Point coordinates
-    FBX, FBY big.Int 		// Standard base point for full group
+    FBX, FBY big.Int            // Standard base point for full group
     PBX, PBY big.Int 		// Standard base point for prime-order subgroup
 
     //Elligators
@@ -107,6 +116,7 @@ func DefineE382() *FiniteFieldEllipticCurve {
     p.D.SetInt64(-67254)
     p.PBX.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
     p.PBY.SetString("17", 10)
+    p.S = 376
     return &p
 }
 // Curve 02:
@@ -145,6 +155,7 @@ func Define41417() *FiniteFieldEllipticCurve {
     p.D.SetInt64(3617)
     p.PBX.SetString("17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165", 10)
     p.PBY.SetString("34", 10)
+    p.S = 406
     return &p
 }
 
@@ -189,6 +200,7 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
     p.D.SetInt64(-39081)
     p.PBX.SetString("117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495", 10)
     p.PBY.SetString("19", 10)
+    p.S = 442
     return &p
 }
 
@@ -212,8 +224,8 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd15b6c64746fc85f736b8af5e7ec53f04fbd8c4569a8f1f4540ea2435f5180d6b
 //
 // Cofactor R			4
-// Curve A Parameter		1
-// Curve D Parameter		-376014
+// Curve A Parameter	1
+// Curve D Parameter	-376014
 //
 // Base-Point X			1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324
 //	Hexadecimal Form	0x752cb45c48648b189df90cb2296b2878a3bfd9f42fc6c818ec8bf3c9c0c6203913f6ecc5ccc72434b1ae949d568fc99c6059d0fb13364838aa302a940a2f19ba6c
@@ -234,6 +246,7 @@ func DefineE521() *FiniteFieldEllipticCurve {
     p.D.SetInt64(-376014)
     p.PBX.SetString("1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324", 10)
     p.PBY.SetString("12", 10)
+    p.S = 515
     return &p
 }
 
@@ -278,6 +291,7 @@ func DefineM383() *FiniteFieldEllipticCurve {
     p.A.SetInt64(2065150)
     p.PBX.SetString("12", 10)
     p.PBY.SetString("4737623401891753997660546300375902576839617167257703725630389791524463565757299203154901655432096558642117242906494", 10)
+    p.S = 376
     return &p
 }
 
@@ -322,6 +336,7 @@ func Define383187() *FiniteFieldEllipticCurve {
     p.A.SetInt64(229969)
     p.PBX.SetString("5", 10)
     p.PBY.SetString("4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455", 10)
+    p.S = 376
     return &p
 }
 
@@ -366,6 +381,7 @@ func DefineM511() *FiniteFieldEllipticCurve {
     p.A.SetInt64(-530438)
     p.PBX.SetString("5", 10)
     p.PBY.SetString("4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455", 10)
+    p.S = 504
     return &p
 }
 

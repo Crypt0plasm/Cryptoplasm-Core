@@ -43,6 +43,8 @@ func TEC2Montgomery (prime, E, D *big.Int) (MB, MA *big.Int) {
     v3 := SubModulus(prime,E,D)
     MA = QuoModulus(prime,v2,v3)
     MB = QuoModulus(prime,Four,v3)
+
+    //The following 2 commented lines print the input TEC Curve and the output Montgomery Curve
     //fmt.Printf("TWISTED EDUARDS: %v*x^2 + y^2 = 1 + %v*x^2*y^2 (mod %v)\n", E,D,prime)
     //fmt.Printf("     MONTGOMERY: %v*y^2 = x^3 + %v*x^2 + x (mod %v)\n", MB,MA,prime)
     return MB, MA
@@ -72,6 +74,7 @@ func Montgomery2ShortWeierstrass (prime, B, A *big.Int) (W1, W2 *big.Int) {
     v10 := MulModulus(prime,TwentySeven,v4)
     W2 = QuoModulus(prime,v9,v10)
 
+    //The following 2 commented lines print the input Montgomery Curve and the output short Weierstrass Curve
     //fmt.Printf("     MONTGOMERY: %v*y^2 = x^3 + %v*x^2 + x (mod %v)\n", B,A,prime)
     //fmt.Printf("  s.WEIERSTRASS: y^2 = x^3 + %v*x + %v (mod %v)\n", W1,W2,prime)
     return W1, W2
