@@ -61,10 +61,6 @@ import (
 //  Their "rho cost" is higher than every curve listed by SafeCurves https://safecurves.cr.yp.to/rho.html
 //  Their "embedding degree" is also higher than every curve listed by SafeCurves https://safecurves.cr.yp.to/transfer.html
 //
-//  Further considerations aren't given to the form of the prime field or to the form of the D coefficient,
-//  (which are normally considered to speed up math), field point multiplication is implemented in pure golang
-//  using directly big.Int without creating limbs, because as these are outside the scope of the Curves intended use.
-//
 //  No further consideration is given while choosing the Prime field form or the D coefficient for speed purposes,
 //  because all Elliptic Point math is implemented in pure golang using directly big.Int. The speed of implementation is
 //  sufficient (a Schnorr signature Creation and Verification takes about 100 ms), and a field point multiplication takes
