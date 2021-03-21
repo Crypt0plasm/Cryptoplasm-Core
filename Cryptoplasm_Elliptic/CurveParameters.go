@@ -3,42 +3,70 @@ package Cryptoplasm_Elliptic
 import (
     "math/big"
 )
-
-// Package Cryptoplasm_Elliptic defines the following 7 Safe Curves https://safecurves.cr.yp.to/index.html
-// and implements Elliptic Point Addition and Multiplication only for the Twisted Edwards Curves.
-//      3 implementations of Montgomery Curves
+//
+// Package Cryptoplasm_Elliptic
+// implements Elliptic Point Addition and Multiplication only for the Twisted Edwards Curves.
+// Elliptic Point Multiplication is done with a 7^2 Window, by converting the scalar in base 49,
+// and using 7^2-1 precomputed points saved in a precomputed [7][7]Matrix.
+//
+// Although not used in the code, AdditionZ2OneV2, DoubleWithZOne functions are implemented.
+// All elliptic point math (Adding, Doubling, Tripling) are taken from http://hyperelliptic.org/EFD/.
+//
+// Package Cryptoplasm_Elliptic defines:
+//      3 Montgomery Curves
 //          M383
 //          Curve383187
 //          M511
-//      4 implementations of Standard known Twisted Edwards Curves,
+//      4 Standard known Twisted Edwards Curves,
 //          E382
 //          Curve41417
 //          Ed448-Goldilocks
 //          E521
-//      1 implementations of novel never before used Twisted Edwards Curves,
+//      as defined by Safe Curves https://safecurves.cr.yp.to/index.html, and
+//      1 novel never before used Twisted Edwards Curves,
 //          TEC_1617_m1874
+//
+//  The idea behind the Novel TEC curves, is that they have a higher number of Possible unique Private Keys.
+//  Bitcoin uses secp256k1 Curve, the Generator Point's order is  2^256 - 432420386565659656852420866394968145599.
+//  Since secp256k1 has a Cofactor of 1, one could theoretically use 2^256 - 432420386565659656852420866394968145599
+//  different scalars as private keys. In practice the Bitcoin Private Key is a 256 bit, 32 byte number.
+//
+//  While Curve E521 has an S of 515 meaning 2^515 different private key, the TEC_1617m1874 has an S of 545, allowing
+//  2^545 different private key (before creating the clamped scalar which is needed because it has a cofactor of 4).
+//  This is several hundreds orders of magnitude larger than the number of possible Bitcoin Private keys.
+//
+//  Also,and ever larger prime field makes solving the DLP even harder, and increases the number of qubits required to
+//  break it using a quantum computer. Cryptoplasm is aiming for an S of at least 1024 (meaning 2^1024 different private keys)
+//  wherewith, after clamping the Scalar would become a 1027 bit size number (if a cofactor of 4 elliptic curve will be used)
+//  or a 1028 bit size number (for a cofactor of 8).
+//
+//  Since an S of 1024 would allow 2^1024 different private keys, a private Key could be represented by a grid of
+//  32x32 squares, where a filled square would be a 1 bit and an empty square would be a 0 bit.
+//  From this point on, for bigger curves with bigger S values, the Private Key could be represented by an ever increasing,
+//  ever bigger grid of full and empty squares.
+//
+//  Curve TEC_1617_m1875 has an S value of 545, which can be represented by an intercalated grid of 16*16 and 17*17
+//  diagonal squares, hence the name 1617, whereas m1875 represents the D coefficient (minus 1875). 16*16+17*17=545
 //
 //===============================================================================================
 // Twisted-Edwards-Curves are elliptic curves satisfying the equation:
 //
 //	A * x^2 + y^2 = C^2 * (1 + D * x^2 * y^2)
 //
-// for some scalars c, d over some field K. We assume K is a (finite) prime field for a
-// large prime p. We also assume c == 1 because all curves in the generalized form
-// are isomorphic to curves having c == 1.
+// for some scalars A, C, D over a finite large prime field P.
+// We also assume C == 1 because all curves in the generalized form are isomorphic to curves having C == 1.
 //
 // For details see Bernstein et al, "Twisted Edwards Curves", http://eprint.iacr.org/2008/013.pdf
 //===============================================================================================
 // Montgomery-Curves are elliptic curves satisfying the equation:
 //
-//	B * y^2 = x^3 + A * x^2 * x
+//	B * y^2 = x^3 + A * x^2 + x
 //
-// for some scalars c, d over some field K. We assume K is a (finite) prime field for a
-// large prime p. We also assume c == 1 because all curves in the generalized form
-// are isomorphic to curves having c == 1.
+// for some scalars B, A over a finite large prime field P.
+// We also assume B == 1 because all curves in the generalized form are isomorphic to curves having B == 1.
 //
 // For details see Bernstein et al, "Twisted Edwards Curves", http://eprint.iacr.org/2008/013.pdf
-// Param defines a Montgomery Curve (MC).
+//
 type FiniteFieldEllipticCurve struct {
     Name string                 // Name of curve
 
@@ -50,17 +78,16 @@ type FiniteFieldEllipticCurve struct {
 
     // Parameters and Coefficients
     A big.Int                   // x^2 Parameter; Montgomery and Twisted Eduards Curve
-    B big.Int 		        // y^2 Parameter; only Montgomery Curve
-    D big.Int 		        // x^2 * y^2 Coefficient; only Twisted Eduards Curve
+    D big.Int 		        // x^2 * y^2 Coefficient; Twisted Eduards Curve only
 
     //Curve safe scalar size in bits
-    //The "private key bit size" is as such that considering first bit 1, and the last n bits 0
+    //The "private key bit size" is as such that considering first bit 1, and the last n bits 0 (clamped scalar)
     //  the total resulting number in decimal must be lower than the Generator (Base-Point) Order Q
     //  where n is log(2,R) (for cofactor 4 n is 2, for cofactor 8 n is 3)
-    //S could be computed, but its easier to just define it. Therefore it was defined directly for the standard curves
-    //  However a function is written to computed automatically for the Novel TEC Curves.
-    //  For instance S for Curve E-521 is 515 bits. and the resulting scalar is 518 bits in size.
-    //  Thus the resulting Scalar is smaller than Q. Thus there are 2^515 possible private keys.
+    //S is computed with the function SafeScalarComputer.
+    //  For instance S for Curve E-521 is 515 bits. and the resulting clamped scalar is 518 bits in size.
+    //  The resulting 518 bit Scalar is smaller than Q. Therefore there are 2^515 possible private keys.
+    //  The bigger the S, the more unique Private Keys exist on that curve.
     S uint64
 
     //Point coordinates
@@ -119,7 +146,9 @@ func MakePrime (PrimeNumber PrimePowerTwo) big.Int {
 //	Decimal Form		2462625387274654950767440006258975862817483704404090416746934574041288984234680883008327183083615266784870011007447
 //	Hexadecimal Form	0x10000000000000000000000000000000000000000000000006c79673ac36ba6e7a32576f7b1b249e46bbc225be9071d7
 //
+// Trace                        -1329890207450988128841758359484337226464313875646092906354
 // Cofactor R			8
+//
 // Curve B Parameter		1
 // Curve A Parameter		2065150
 //
@@ -130,21 +159,37 @@ func MakePrime (PrimeNumber PrimePowerTwo) big.Int {
 func DefineM383() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
-        qs big.Int
-        ps big.Int
+        P PrimePowerTwo
+        Q PrimePowerTwo
     )
     p.Name = "M-383"
-    ps.SetString("187",10)
-    p.P.SetBit(Zero, 383, 1).Sub(&p.P, &ps)
-    qs.SetString("166236275931373516105219794935542153308039234455761613271", 10)
-    p.Q.SetBit(Zero, 380, 1).Add(&p.Q, &qs)
+
+    //P=2^383-187
+    P.Power = 383
+    P.RestString = "187"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^380 + 166236275931373516105219794935542153308039234455761613271
+    Q.Power = 380
+    Q.RestString = "166236275931373516105219794935542153308039234455761613271"
+    Q.Sign = true
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("-1329890207450988128841758359484337226464313875646092906354", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.B.SetInt64(1)
+
+    //Safe Scalar Size in bits = 376
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A Coefficient
     p.A.SetInt64(2065150)
+
+    //Generator Coordinates
     p.PBX.SetString("12", 10)
     p.PBY.SetString("4737623401891753997660546300375902576839617167257703725630389791524463565757299203154901655432096558642117242906494", 10)
-    p.S = 376
+
     return &p
 }
 //
@@ -165,7 +210,9 @@ func DefineM383() *FiniteFieldEllipticCurve {
 //	Decimal Form		2462625387274654950767440006258975862817483704404090416747124418612574880605944350369924877650606926799392131911201
 //	Hexadecimal Form	0x1000000000000000000000000000000000000000000000000e85a85287a1488acd41ae84b2b7030446f72088b00a0e21
 //
+// Trace                        -2848646777738159098949497252265893762397593991823060136386
 // Cofactor R			8
+//
 // Curve B Parameter		1
 // Curve A Parameter		2065150
 //
@@ -176,21 +223,36 @@ func DefineM383() *FiniteFieldEllipticCurve {
 func Define383187() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
-        qs big.Int
-        ps big.Int
+        P PrimePowerTwo
+        Q PrimePowerTwo
     )
     p.Name = "Curve383187"
-    ps.SetString("187",10)
-    p.P.SetBit(Zero, 383, 1).Sub(&p.P, &ps)
-    qs.SetString("356080847217269887368687156533236720299699248977882517025", 10)
-    p.Q.SetBit(Zero, 380, 1).Add(&p.Q, &qs)
+
+    //P=2^383-187
+    P.Power = 383
+    P.RestString = "187"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^380 + 356080847217269887368687156533236720299699248977882517025
+    Q.Power = 380
+    Q.RestString = "356080847217269887368687156533236720299699248977882517025"
+    Q.Sign = true
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("-2848646777738159098949497252265893762397593991823060136386", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.B.SetInt64(1)
+
+    //Safe Scalar Size in bits = 376
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A Coefficient
     p.A.SetInt64(229969)
+
+    //Generator Coordinates
     p.PBX.SetString("5", 10)
     p.PBY.SetString("4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455", 10)
-    p.S = 376
     return &p
 }
 //
@@ -211,7 +273,9 @@ func Define383187() *FiniteFieldEllipticCurve {
 //	Decimal Form		837987995621412318723376562387865382967460363787024586107722590232610251879607410804876779383055508762141059258497448934987052508775626162460930737942299
 //	Hexadecimal Form	0x100000000000000000000000000000000000000000000000000000000000000017b5feff30c7f5677ab2aeebd13779a2ac125042a6aa10bfa54c15bab76baf1b
 //
+// Trace                        -85798038077085980992356252112544974736566053019478664231724326470621400496530
 // Cofactor R			8
+//
 // Curve B Parameter		1
 // Curve A Parameter		530438
 //
@@ -222,21 +286,36 @@ func Define383187() *FiniteFieldEllipticCurve {
 func DefineM511() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
-        qs big.Int
-        ps big.Int
+        P PrimePowerTwo
+        Q PrimePowerTwo
     )
     p.Name = "M511"
-    ps.SetString("187",10)
-    p.P.SetBit(Zero, 511, 1).Sub(&p.P, &ps)
-    qs.SetString("10724754759635747624044531514068121842070756627434833028965540808827675062043", 10)
-    p.Q.SetBit(Zero, 508, 1).Add(&p.Q, &qs)
+
+    //P=2^511-187
+    P.Power = 511
+    P.RestString = "187"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^508 + 10724754759635747624044531514068121842070756627434833028965540808827675062043
+    Q.Power = 508
+    Q.RestString = "10724754759635747624044531514068121842070756627434833028965540808827675062043"
+    Q.Sign = true
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("-85798038077085980992356252112544974736566053019478664231724326470621400496530", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.B.SetInt64(1)
+
+    //Safe Scalar Size in bits = 504
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A Coefficients
     p.A.SetInt64(-530438)
+
+    //Generator Coordinates
     p.PBX.SetString("5", 10)
-    p.PBY.SetString("4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455", 10)
-    p.S = 504
+    p.PBY.SetString("2500410645565072423368981149139213252211568685173608590070979264248275228603899706950518127817176591878667784247582124505430745177116625808811349787373477", 10)
     return &p
 }
 //
@@ -263,7 +342,9 @@ func DefineM511() *FiniteFieldEllipticCurve {
 //	Decimal Form		2462625387274654950767440006258975862817483704404090416745738034557663054564649171262659326683244604346084081047321
 //	Hexadecimal Form	0xfffffffffffffffffffffffffffffffffffffffffffffffd5fb21f21e95eee17c5e69281b102d2773e27e13fd3c9719
 //
+// Trace                        4121212830778224615705967802929256988250492817320673387316
 // Cofactor R			4
+//
 // Curve A Parameter		1
 // Curve D Parameter		-67254
 //
@@ -272,19 +353,39 @@ func DefineM511() *FiniteFieldEllipticCurve {
 // Base-Point Y			17
 //	Hexadecimal Form	0x11
 func DefineE382() *FiniteFieldEllipticCurve {
-    var p FiniteFieldEllipticCurve
-    var qs big.Int
+    var (
+    	p FiniteFieldEllipticCurve
+        P PrimePowerTwo
+        Q PrimePowerTwo
+    )
     p.Name = "E-382"
-    p.P.SetBit(Zero, 382, 1).Sub(&p.P, big.NewInt(105))
-    qs.SetString("1030303207694556153926491950732314247062623204330168346855", 10)
-    p.Q.SetBit(Zero, 380, 1).Sub(&p.Q, &qs)
+
+    //P=2^382 - 105
+    P.Power = 382
+    P.RestString = "105"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^380 - 1030303207694556153926491950732314247062623204330168346855
+    Q.Power = 380
+    Q.RestString = "1030303207694556153926491950732314247062623204330168346855"
+    Q.Sign = false
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("4121212830778224615705967802929256988250492817320673387316", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 376
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
     p.A.SetInt64(1)
     p.D.SetInt64(-67254)
+
+    //Generator Coordinates
     p.PBX.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
     p.PBY.SetString("17", 10)
-    p.S = 376
     return &p
 }
 //
@@ -304,7 +405,9 @@ func DefineE382() *FiniteFieldEllipticCurve {
 //	Decimal Form		5288447750321988791615322464262168318627237463714249754277190328831105466135348245791335989419337099796002495788978276839289
 //	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffeb3cc92414cf706022b36f1c0338ad63cf181b0e71a5e106af79
 //
+// Trace                        266913126910041140166481421552787081431877817603289668716758056
 // Cofactor R			8
+//
 // Curve A Parameter		1
 // Curve D Parameter		3617
 //
@@ -313,19 +416,39 @@ func DefineE382() *FiniteFieldEllipticCurve {
 // Base-Point Y			34
 //	Hexadecimal Form	0x22
 func Define41417() *FiniteFieldEllipticCurve {
-    var p FiniteFieldEllipticCurve
-    var qs big.Int
+    var (
+        p FiniteFieldEllipticCurve
+        P PrimePowerTwo
+        Q PrimePowerTwo
+    )
     p.Name = "Curve41417"
-    p.P.SetBit(Zero, 414, 1).Sub(&p.P, big.NewInt(17))
-    qs.SetString("33364140863755142520810177694098385178984727200411208589594759", 10)
-    p.Q.SetBit(Zero, 411, 1).Sub(&p.Q, &qs)
+
+    //P=2^414 - 17
+    P.Power = 414
+    P.RestString = "17"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^411 - 33364140863755142520810177694098385178984727200411208589594759
+    Q.Power = 411
+    Q.RestString = "33364140863755142520810177694098385178984727200411208589594759"
+    Q.Sign = false
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("266913126910041140166481421552787081431877817603289668716758056", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 406
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
     p.A.SetInt64(1)
     p.D.SetInt64(3617)
+
+    //Generator Coordinates
     p.PBX.SetString("17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165", 10)
     p.PBY.SetString("34", 10)
-    p.S = 406
     return &p
 }
 //
@@ -345,7 +468,9 @@ func Define41417() *FiniteFieldEllipticCurve {
 //	Decimal Form		181709681073901722637330951972001133588410340171829515070372549795146003961539585716195755291692375963310293709091662304773755859649779
 //	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c292ab5844f3
 //
+// Trace                        28312320572429821613362531907042076847709625476988141958474579766324
 // Cofactor R			4
+//
 // Curve A Parameter		1
 // Curve D Parameter		-39081
 //
@@ -356,22 +481,43 @@ func Define41417() *FiniteFieldEllipticCurve {
 func DefineGoldilocks() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
-        qs big.Int
-        ps big.Int
+        P PrimePowerTwo
+        R PrimePowerTwo
+        Q PrimePowerTwo
     )
-
     p.Name = "Ed448-Goldilocks"
-    ps.SetBit(Zero, 224, 1)
-    p.P.SetBit(Zero, 448, 1).Sub(&p.P, &ps).Sub(&p.P, One)
-    qs.SetString("13818066809895115352007386748515426880336692474882178609894547503885", 10)
-    p.Q.SetBit(Zero, 446, 1).Sub(&p.Q, &qs)
+
+    //Rp=2^224 + 1
+    R.Power = 224
+    R.RestString = "1"
+    R.Sign = true
+    Rp := MakePrime(R)
+    //P=2^448-Rp=2^448-(2^224+1)=2^448-2^224-1
+    P.Power = 448
+    P.RestString = Rp.Text(10)
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^446 - 13818066809895115352007386748515426880336692474882178609894547503885
+    Q.Power = 446
+    Q.RestString = "13818066809895115352007386748515426880336692474882178609894547503885"
+    Q.Sign = false
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("28312320572429821613362531907042076847709625476988141958474579766324", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 442
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
     p.A.SetInt64(1)
     p.D.SetInt64(-39081)
+
+    //Generator Coordinates
     p.PBX.SetString("117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495", 10)
     p.PBY.SetString("19", 10)
-    p.S = 442
     return &p
 }
 //
@@ -395,7 +541,9 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
 //	Decimal Form		1716199415032652428745475199770348304317358825035826352348615864796385795849413675475876651663657849636693659065234142604319282948702542317993421293670108523
 //	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd15b6c64746fc85f736b8af5e7ec53f04fbd8c4569a8f1f4540ea2435f5180d6b
 //
+// Trace                        1350219053034006823156430521675130544287619844856204906474540600343116434623060
 // Cofactor R			4
+//
 // Curve A Parameter	1
 // Curve D Parameter	-376014
 //
@@ -406,19 +554,37 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
 func DefineE521() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
-        qs big.Int
+        P PrimePowerTwo
+        Q PrimePowerTwo
     )
     p.Name = "E-521"
-    p.P.SetBit(Zero, 521, 1).Sub(&p.P, One)
-    qs.SetString("337554763258501705789107630418782636071904961214051226618635150085779108655765", 10)
-    p.Q.SetBit(Zero, 519, 1).Sub(&p.Q, &qs)
+
+    //P=2^521 - 1
+    P.Power = 521
+    P.RestString = "1"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^519 - 337554763258501705789107630418782636071904961214051226618635150085779108655765
+    Q.Power = 519
+    Q.RestString = "337554763258501705789107630418782636071904961214051226618635150085779108655765"
+    Q.Sign = false
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
     p.T.SetString("1350219053034006823156430521675130544287619844856204906474540600343116434623060", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 515
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
     p.A.SetInt64(1)
     p.D.SetInt64(-376014)
+
+    //Generator Coordinates
     p.PBX.SetString("1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324", 10)
     p.PBY.SetString("12", 10)
-    p.S = 515
     return &p
 }
 //
@@ -452,7 +618,6 @@ func DefineTec1617M1874() *FiniteFieldEllipticCurve {
         P PrimePowerTwo
         Q PrimePowerTwo
     )
-
     p.Name = "TEC_1617_m1874"
 
     //P=2^551 + 335
@@ -471,7 +636,7 @@ func DefineTec1617M1874() *FiniteFieldEllipticCurve {
     p.T.SetString("131998879505679699449763063087778862027443444557958678369268450623851836193101599660", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
 
-    //Safe Scalar Size in bits, computed from "Ellipse Prime Order P", "Trace T", "Cofactor R"
+    //Safe Scalar Size in bits = 545
     p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
 
     //A and D Coefficients
@@ -481,6 +646,5 @@ func DefineTec1617M1874() *FiniteFieldEllipticCurve {
     //Generator Coordinates
     p.PBX.SetString("2", 10)
     p.PBY.SetString("5372662689287747375095357785063354697686466712559330249539593073273672823349366756432292166344067157200099005518461427402418611188579753765899708983934704551575186856", 10)
-
     return &p
 }
