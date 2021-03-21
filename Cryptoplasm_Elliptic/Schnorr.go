@@ -9,9 +9,9 @@ import (
 //
 func ByteSlice2HexString (Hash []byte) string {
     var (
-    	result string
-    	HashElement byte
-    	HashElementBig = new(big.Int)
+        result string
+        HashElement byte
+        HashElementBig = new(big.Int)
     )
 
     for i := 0; i < len(Hash); i++ {
@@ -103,17 +103,17 @@ func SchnorrHash (r *big.Int, PublicKey string, Message []byte) *big.Int {
 //
 func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Signature Schnurr) {
     var (
-    	z = new(big.Int)
-    	v1 = new(big.Int)
+        z = new(big.Int)
+        v1 = new(big.Int)
         s = new(big.Int)
     )
     //Step 1, choosing random number kappa within prime field interval
     z = k.GetRandomOnCurve()
 
     //Step 2, computing Q (x,y) as z multiplied by Curve Generator Point
-    Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    GeneratorExt := k.Affine2Extended(Generator)
-    RExt  := k.ScalarMultiplier(z,GeneratorExt)
+    //Generator := AffineCoordinates {&k.PBX, &k.PBY}
+    //GeneratorExt := k.Affine2Extended(Generator)
+    RExt  := k.ScalarMultiplierG(z)
     RAff := k.Extended2Affine(RExt)
 
     SchnorredHash := SchnorrHash(RAff.AX,Keys.PublicKey,Hash)
@@ -135,16 +135,16 @@ func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Si
 
 func (k *FiniteFieldEllipticCurve) SchnorrVerify (Sigma Schnurr, PublicKey string, Hash []byte) bool {
     var Result bool
-    GeneratorAff := AffineCoordinates {&k.PBX, &k.PBY}
-    GeneratorExt := k.Affine2Extended(GeneratorAff)
-    sGExt := k.ScalarMultiplier(Sigma.S,GeneratorExt)
+    //GeneratorAff := AffineCoordinates {&k.PBX, &k.PBY}
+    //GeneratorExt := k.Affine2Extended(GeneratorAff)
+    sGExt := k.ScalarMultiplierG(Sigma.S)
     sGAff := k.Extended2Affine(sGExt)
 
     SchnorredHash := SchnorrHash(Sigma.R.AX,PublicKey,Hash)
     PublicKeyGeneratorAff := PublicKey2Affine(PublicKey)
     PublicKeyGeneratorExt := k.Affine2Extended(PublicKeyGeneratorAff)
 
-    Q2ex  := k.ScalarMultiplier(SchnorredHash,PublicKeyGeneratorExt)
+    Q2ex  := k.ScalarMultiplierPt(SchnorredHash,PublicKeyGeneratorExt)
 
     Q1ex:= k.Affine2Extended(Sigma.R)
 

@@ -6,15 +6,17 @@ import (
 
 // Package Cryptoplasm_Elliptic defines the following 7 Safe Curves https://safecurves.cr.yp.to/index.html
 // and implements Elliptic Point Addition and Multiplication only for the Twisted Edwards Curves.
-//      4 implementations of Twisted Edwards Curves,
-//          E382
-//          Curve41417
-//          Ed448-Goldilocks
-//          E521
 //      3 implementations of Montgomery Curves
 //          M383
 //          Curve383187
 //          M511
+//      4 implementations of Standard known Twisted Edwards Curves,
+//          E382
+//          Curve41417
+//          Ed448-Goldilocks
+//          E521
+//      1 implementations of novel never before used Twisted Edwards Curves,
+//          TEC_1617_m1874
 //
 //===============================================================================================
 // Twisted-Edwards-Curves are elliptic curves satisfying the equation:
@@ -55,7 +57,8 @@ type FiniteFieldEllipticCurve struct {
     //The "private key bit size" is as such that considering first bit 1, and the last n bits 0
     //  the total resulting number in decimal must be lower than the Generator (Base-Point) Order Q
     //  where n is log(2,R) (for cofactor 4 n is 2, for cofactor 8 n is 3)
-    //S could be computed, but its easier to just define it.
+    //S could be computed, but its easier to just define it. Therefore it was defined directly for the standard curves
+    //  However a function is written to computed automatically for the Novel TEC Curves.
     //  For instance S for Curve E-521 is 515 bits. and the resulting scalar is 518 bits in size.
     //  Thus the resulting Scalar is smaller than Q. Thus there are 2^515 possible private keys.
     S uint64
@@ -69,188 +72,38 @@ type FiniteFieldEllipticCurve struct {
     Elligator2u big.Int 	// Optional u parameter for Elligator 2
 }
 
+type PrimePowerTwo struct {
+    Power int
+    RestString string
+    Sign bool
+}
+
 func CurveCofactor (P, Q, T big.Int) big.Int {
     var h = new(big.Int)
     h.Add(&P,One).Sub(h,&T).Quo(h,&Q)
     return *h
 }
 
-// Curve 01:
-// DefineE382 defines the E-382 curve specified in:
-// Aranha et al, "A note on high-security general-purpose elliptic curves",
-// http://eprint.iacr.org/2013/647.pdf
-//
-// and more recently in:
-//
-// "Additional Elliptic Curves for IETF protocols"
-// http://tools.ietf.org/html/draft-ladd-safecurves-02
-//
-// Name: 			E-382
-// Equation is: 		x^2 + y^2 = 1 - 67254 * x^2 * y^2
-// Prime field (P)		2^382 - 105
-//	Decimal Form		9850501549098619803069760025035903451269934817616361666987073351061430442874302652853566563721228910201656997576599
-//	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff97
-//
-// Base-Point Prime Order (Q)	2^380 - 1030303207694556153926491950732314247062623204330168346855
-//	Decimal Form		2462625387274654950767440006258975862817483704404090416745738034557663054564649171262659326683244604346084081047321
-//	Hexadecimal Form	0xfffffffffffffffffffffffffffffffffffffffffffffffd5fb21f21e95eee17c5e69281b102d2773e27e13fd3c9719
-//
-// Cofactor R			4
-// Curve A Parameter		1
-// Curve D Parameter		-67254
-//
-// Base-Point X			3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699
-//	Hexadecimal Form	0x196f8dd0eab20391e5f05be96e8d20ae68f840032b0b64352923bab85364841193517dbce8105398ebc0cc9470f79603
-// Base-Point Y			17
-//	Hexadecimal Form	0x11
-func DefineE382() *FiniteFieldEllipticCurve {
-    var p FiniteFieldEllipticCurve
-    var qs big.Int
-    p.Name = "E-382"
-    p.P.SetBit(Zero, 382, 1).Sub(&p.P, big.NewInt(105))
-    qs.SetString("1030303207694556153926491950732314247062623204330168346855", 10)
-    p.Q.SetBit(Zero, 380, 1).Sub(&p.Q, &qs)
-    p.T.SetString("4121212830778224615705967802929256988250492817320673387316", 10)
-    p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.A.SetInt64(1)
-    p.D.SetInt64(-67254)
-    p.PBX.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
-    p.PBY.SetString("17", 10)
-    p.S = 376
-    return &p
-}
-// Curve 02:
-// Define41417 defines the Curve41417 curve, as specified in:
-// Bernstein et al, "Curve41417: Karatsuba revisited",
-// http://eprint.iacr.org/2014/526.pdf
-//
-// Name: 			Curve41417
-// Equation is: 		x^2 + y^2 = 1 + 3617 * x^2 * y^2
-// Prime field (P)		2^414 - 17
-//	Decimal Form		42307582002575910332922579714097346549017899709713998034217522897561970639123926132812109468141778230245837569601494931472367
-//	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffef
-//
-// Base-Point Prime Order (Q)	2^411 - 33364140863755142520810177694098385178984727200411208589594759
-//	Decimal Form		5288447750321988791615322464262168318627237463714249754277190328831105466135348245791335989419337099796002495788978276839289
-//	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffeb3cc92414cf706022b36f1c0338ad63cf181b0e71a5e106af79
-//
-// Cofactor R			8
-// Curve A Parameter		1
-// Curve D Parameter		3617
-//
-// Base-Point X			17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165
-//	Hexadecimal Form	0x1a334905141443300218c0631c326e5fcd46369f44c03ec7f57ff35498a4ab4d6d6ba111301a73faa8537c64c4fd3812f3cbc595
-// Base-Point Y			34
-//	Hexadecimal Form	0x22
-func Define41417() *FiniteFieldEllipticCurve {
-    var p FiniteFieldEllipticCurve
-    var qs big.Int
-    p.Name = "Curve41417"
-    p.P.SetBit(Zero, 414, 1).Sub(&p.P, big.NewInt(17))
-    qs.SetString("33364140863755142520810177694098385178984727200411208589594759", 10)
-    p.Q.SetBit(Zero, 411, 1).Sub(&p.Q, &qs)
-    p.T.SetString("266913126910041140166481421552787081431877817603289668716758056", 10)
-    p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.A.SetInt64(1)
-    p.D.SetInt64(3617)
-    p.PBX.SetString("17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165", 10)
-    p.PBY.SetString("34", 10)
-    p.S = 406
-    return &p
-}
-
-// Curve 03:
-// DefineGoldilocks defines the Ed448-Goldilocks curve, as specified in:
-// Bernstein et al, "Ed448-Goldilocks, a new elliptic curve",
-// https://eprint.iacr.org/2015/625.pdf
-//
-// Name: 			Ed448-Goldilocks
-// Equation is: 		x^2 + y^2 = 1 - 39081 * x^2 * y^2
-// Prime field (P)		2^448 - 2^224 - 1
-//	Decimal Form		726838724295606890549323807888004534353641360687318060281490199180612328166730772686396383698676545930088884461843637361053498018365439
-//	Hexadecimal Form	0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-//
-// Base-Point Prime Order (Q)	2^446 - 13818066809895115352007386748515426880336692474882178609894547503885
-//	Decimal Form		181709681073901722637330951972001133588410340171829515070372549795146003961539585716195755291692375963310293709091662304773755859649779
-//	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c292ab5844f3
-//
-// Cofactor R			4
-// Curve A Parameter		1
-// Curve D Parameter		-39081
-//
-// Base-Point X			117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495
-//	Hexadecimal Form	0x297ea0ea2692ff1b4faff46098453a6a26adf733245f065c3c59d0709cecfa96147eaaf3932d94c63d96c170033f4ba0c7f0de840aed939f
-// Base-Point Y			19
-//	Hexadecimal Form	0x13
-func DefineGoldilocks() *FiniteFieldEllipticCurve {
+func MakePrime (PrimeNumber PrimePowerTwo) big.Int {
     var (
-    	p FiniteFieldEllipticCurve
-        qs big.Int
-        ps big.Int
+        Prime = new(big.Int)
+        Rest = new(big.Int)
     )
+    Rest.SetString(PrimeNumber.RestString,10)
 
-    p.Name = "Ed448-Goldilocks"
-    ps.SetBit(Zero, 224, 1)
-    p.P.SetBit(Zero, 448, 1).Sub(&p.P, &ps).Sub(&p.P, One)
-    qs.SetString("13818066809895115352007386748515426880336692474882178609894547503885", 10)
-    p.Q.SetBit(Zero, 446, 1).Sub(&p.Q, &qs)
-    p.T.SetString("28312320572429821613362531907042076847709625476988141958474579766324", 10)
-    p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.A.SetInt64(1)
-    p.D.SetInt64(-39081)
-    p.PBX.SetString("117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495", 10)
-    p.PBY.SetString("19", 10)
-    p.S = 442
-    return &p
+    if PrimeNumber.Sign == true {
+        Prime.SetBit(Zero, PrimeNumber.Power, 1).Add(Prime, Rest)
+    } else {
+        Prime.SetBit(Zero, PrimeNumber.Power, 1).Sub(Prime, Rest)
+    }
+
+    return *Prime
 }
-
-// Curve 04:
-// DefineE521 defines the E-521 curve specified in:
-// Aranha et al, "A note on high-security general-purpose elliptic curves",
-// http://eprint.iacr.org/2013/647.pdf
 //
-// and more recently included in:
-// "Additional Elliptic Curves for IETF protocols"
-// http://tools.ietf.org/html/draft-ladd-safecurves-02
+// MONTGOMERY CURVES DEFINITIONS
 //
-// Name: 			E-521
-// Equation is: 		x^2 + y^2 = 1 - 376014 * x^2 * y^2
-// Prime field (P)		2^521 - 1
-//	Decimal Form		6864797660130609714981900799081393217269435300143305409394463459185543183397656052122559640661454554977296311391480858037121987999716643812574028291115057151
-//	Hexadecimal Form	0x1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+// Curve M1:
 //
-// Base-Point Prime Order (Q)	2^519 - 337554763258501705789107630418782636071904961214051226618635150085779108655765
-//	Decimal Form		1716199415032652428745475199770348304317358825035826352348615864796385795849413675475876651663657849636693659065234142604319282948702542317993421293670108523
-//	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd15b6c64746fc85f736b8af5e7ec53f04fbd8c4569a8f1f4540ea2435f5180d6b
-//
-// Cofactor R			4
-// Curve A Parameter	1
-// Curve D Parameter	-376014
-//
-// Base-Point X			1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324
-//	Hexadecimal Form	0x752cb45c48648b189df90cb2296b2878a3bfd9f42fc6c818ec8bf3c9c0c6203913f6ecc5ccc72434b1ae949d568fc99c6059d0fb13364838aa302a940a2f19ba6c
-// Base-Point Y			12
-//	Hexadecimal Form	0xc
-func DefineE521() *FiniteFieldEllipticCurve {
-    var (
-    	p FiniteFieldEllipticCurve
-        qs big.Int
-    )
-    p.Name = "E-521"
-    p.P.SetBit(Zero, 521, 1).Sub(&p.P, One)
-    qs.SetString("337554763258501705789107630418782636071904961214051226618635150085779108655765", 10)
-    p.Q.SetBit(Zero, 519, 1).Sub(&p.Q, &qs)
-    p.T.SetString("1350219053034006823156430521675130544287619844856204906474540600343116434623060", 10)
-    p.R = CurveCofactor(p.P,p.Q,p.T)
-    p.A.SetInt64(1)
-    p.D.SetInt64(-376014)
-    p.PBX.SetString("1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324", 10)
-    p.PBY.SetString("12", 10)
-    p.S = 515
-    return &p
-}
-
-// Curve 05:
 // DefineM383 defines the M-383 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
 // http://eprint.iacr.org/2013/647.pdf
@@ -294,8 +147,9 @@ func DefineM383() *FiniteFieldEllipticCurve {
     p.S = 376
     return &p
 }
-
-// Curve 06:
+//
+// Curve M2:
+//
 // Define383187 defines the Curve383187 curve specified in:
 // ---
 // ---
@@ -339,8 +193,9 @@ func Define383187() *FiniteFieldEllipticCurve {
     p.S = 376
     return &p
 }
-
-// Curve 07:
+//
+// Curve M3:
+//
 // DefineM511 defines the M-511 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
 // http://eprint.iacr.org/2013/647.pdf
@@ -384,42 +239,248 @@ func DefineM511() *FiniteFieldEllipticCurve {
     p.S = 504
     return &p
 }
-
-// Name: 			LittleOne
-// Equation is: 		x^2 + y^2 = 1 + 343 * x^2 * y^2
-// Prime field (P)		2^9 + 9
-//	Decimal Form		521
-//	Hexadecimal Form	0x209
 //
-// Base-Point Prime Order (Q)	??
-//	Decimal Form		??
-//	Hexadecimal Form	??
+// TWISTED EDWARDS CURVES DEFINITIONS
 //
-// Cofactor R			8??
+// Curve TEC-Standard-1:
+//
+// DefineE382 defines the E-382 curve specified in:
+// Aranha et al, "A note on high-security general-purpose elliptic curves",
+// http://eprint.iacr.org/2013/647.pdf
+//
+// and more recently in:
+//
+// "Additional Elliptic Curves for IETF protocols"
+// http://tools.ietf.org/html/draft-ladd-safecurves-02
+//
+// Name: 			E-382
+// Equation is: 		x^2 + y^2 = 1 - 67254 * x^2 * y^2
+// Prime field (P)		2^382 - 105
+//	Decimal Form		9850501549098619803069760025035903451269934817616361666987073351061430442874302652853566563721228910201656997576599
+//	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff97
+//
+// Base-Point Prime Order (Q)	2^380 - 1030303207694556153926491950732314247062623204330168346855
+//	Decimal Form		2462625387274654950767440006258975862817483704404090416745738034557663054564649171262659326683244604346084081047321
+//	Hexadecimal Form	0xfffffffffffffffffffffffffffffffffffffffffffffffd5fb21f21e95eee17c5e69281b102d2773e27e13fd3c9719
+//
+// Cofactor R			4
 // Curve A Parameter		1
-// Curve D Parameter		343
+// Curve D Parameter		-67254
 //
-// Base-Point X
-//	Hexadecimal Form
-// Base-Point Y
-//	Hexadecimal Form
-func DefineLittleOne() *FiniteFieldEllipticCurve {
-    var (
-        p FiniteFieldEllipticCurve
-        //qs big.Int
-        //ps big.Int
-    )
-    p.Name = "LittleOne"
-    //ps.SetString("9",10)
-    //p.P.SetBit(Zero, 9, 1).Add(&p.P, &ps)
-    //Q not true, inserted to avoid division by zero panic
-    p.P.SetString("521", 10)
-    p.Q.SetString("540", 10)
-    p.T.SetString("-18", 10)
+// Base-Point X			3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699
+//	Hexadecimal Form	0x196f8dd0eab20391e5f05be96e8d20ae68f840032b0b64352923bab85364841193517dbce8105398ebc0cc9470f79603
+// Base-Point Y			17
+//	Hexadecimal Form	0x11
+func DefineE382() *FiniteFieldEllipticCurve {
+    var p FiniteFieldEllipticCurve
+    var qs big.Int
+    p.Name = "E-382"
+    p.P.SetBit(Zero, 382, 1).Sub(&p.P, big.NewInt(105))
+    qs.SetString("1030303207694556153926491950732314247062623204330168346855", 10)
+    p.Q.SetBit(Zero, 380, 1).Sub(&p.Q, &qs)
+    p.T.SetString("4121212830778224615705967802929256988250492817320673387316", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
     p.A.SetInt64(1)
-    p.D.SetInt64(7)
-    p.PBX.SetString("67", 10)
-    p.PBY.SetString("68", 10)
+    p.D.SetInt64(-67254)
+    p.PBX.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
+    p.PBY.SetString("17", 10)
+    p.S = 376
+    return &p
+}
+//
+// Curve TEC-Standard-2:
+//
+// Define41417 defines the Curve41417 curve, as specified in:
+// Bernstein et al, "Curve41417: Karatsuba revisited",
+// http://eprint.iacr.org/2014/526.pdf
+//
+// Name: 			Curve41417
+// Equation is: 		x^2 + y^2 = 1 + 3617 * x^2 * y^2
+// Prime field (P)		2^414 - 17
+//	Decimal Form		42307582002575910332922579714097346549017899709713998034217522897561970639123926132812109468141778230245837569601494931472367
+//	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffef
+//
+// Base-Point Prime Order (Q)	2^411 - 33364140863755142520810177694098385178984727200411208589594759
+//	Decimal Form		5288447750321988791615322464262168318627237463714249754277190328831105466135348245791335989419337099796002495788978276839289
+//	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffeb3cc92414cf706022b36f1c0338ad63cf181b0e71a5e106af79
+//
+// Cofactor R			8
+// Curve A Parameter		1
+// Curve D Parameter		3617
+//
+// Base-Point X			17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165
+//	Hexadecimal Form	0x1a334905141443300218c0631c326e5fcd46369f44c03ec7f57ff35498a4ab4d6d6ba111301a73faa8537c64c4fd3812f3cbc595
+// Base-Point Y			34
+//	Hexadecimal Form	0x22
+func Define41417() *FiniteFieldEllipticCurve {
+    var p FiniteFieldEllipticCurve
+    var qs big.Int
+    p.Name = "Curve41417"
+    p.P.SetBit(Zero, 414, 1).Sub(&p.P, big.NewInt(17))
+    qs.SetString("33364140863755142520810177694098385178984727200411208589594759", 10)
+    p.Q.SetBit(Zero, 411, 1).Sub(&p.Q, &qs)
+    p.T.SetString("266913126910041140166481421552787081431877817603289668716758056", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+    p.A.SetInt64(1)
+    p.D.SetInt64(3617)
+    p.PBX.SetString("17319886477121189177719202498822615443556957307604340815256226171904769976866975908866528699294134494857887698432266169206165", 10)
+    p.PBY.SetString("34", 10)
+    p.S = 406
+    return &p
+}
+//
+// Curve TEC-Standard-3:
+//
+// DefineGoldilocks defines the Ed448-Goldilocks curve, as specified in:
+// Bernstein et al, "Ed448-Goldilocks, a new elliptic curve",
+// https://eprint.iacr.org/2015/625.pdf
+//
+// Name: 			Ed448-Goldilocks
+// Equation is: 		x^2 + y^2 = 1 - 39081 * x^2 * y^2
+// Prime field (P)		2^448 - 2^224 - 1
+//	Decimal Form		726838724295606890549323807888004534353641360687318060281490199180612328166730772686396383698676545930088884461843637361053498018365439
+//	Hexadecimal Form	0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+//
+// Base-Point Prime Order (Q)	2^446 - 13818066809895115352007386748515426880336692474882178609894547503885
+//	Decimal Form		181709681073901722637330951972001133588410340171829515070372549795146003961539585716195755291692375963310293709091662304773755859649779
+//	Hexadecimal Form	0x3fffffffffffffffffffffffffffffffffffffffffffffffffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c292ab5844f3
+//
+// Cofactor R			4
+// Curve A Parameter		1
+// Curve D Parameter		-39081
+//
+// Base-Point X			117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495
+//	Hexadecimal Form	0x297ea0ea2692ff1b4faff46098453a6a26adf733245f065c3c59d0709cecfa96147eaaf3932d94c63d96c170033f4ba0c7f0de840aed939f
+// Base-Point Y			19
+//	Hexadecimal Form	0x13
+func DefineGoldilocks() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        qs big.Int
+        ps big.Int
+    )
+
+    p.Name = "Ed448-Goldilocks"
+    ps.SetBit(Zero, 224, 1)
+    p.P.SetBit(Zero, 448, 1).Sub(&p.P, &ps).Sub(&p.P, One)
+    qs.SetString("13818066809895115352007386748515426880336692474882178609894547503885", 10)
+    p.Q.SetBit(Zero, 446, 1).Sub(&p.Q, &qs)
+    p.T.SetString("28312320572429821613362531907042076847709625476988141958474579766324", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+    p.A.SetInt64(1)
+    p.D.SetInt64(-39081)
+    p.PBX.SetString("117812161263436946737282484343310064665180535357016373416879082147939404277809514858788439644911793978499419995990477371552926308078495", 10)
+    p.PBY.SetString("19", 10)
+    p.S = 442
+    return &p
+}
+//
+// Curve TEC-Standard-4:
+//
+// DefineE521 defines the E-521 curve specified in:
+// Aranha et al, "A note on high-security general-purpose elliptic curves",
+// http://eprint.iacr.org/2013/647.pdf
+//
+// and more recently included in:
+// "Additional Elliptic Curves for IETF protocols"
+// http://tools.ietf.org/html/draft-ladd-safecurves-02
+//
+// Name: 			E-521
+// Equation is: 		x^2 + y^2 = 1 - 376014 * x^2 * y^2
+// Prime field (P)		2^521 - 1
+//	Decimal Form		6864797660130609714981900799081393217269435300143305409394463459185543183397656052122559640661454554977296311391480858037121987999716643812574028291115057151
+//	Hexadecimal Form	0x1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+//
+// Base-Point Prime Order (Q)	2^519 - 337554763258501705789107630418782636071904961214051226618635150085779108655765
+//	Decimal Form		1716199415032652428745475199770348304317358825035826352348615864796385795849413675475876651663657849636693659065234142604319282948702542317993421293670108523
+//	Hexadecimal Form	0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd15b6c64746fc85f736b8af5e7ec53f04fbd8c4569a8f1f4540ea2435f5180d6b
+//
+// Cofactor R			4
+// Curve A Parameter	1
+// Curve D Parameter	-376014
+//
+// Base-Point X			1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324
+//	Hexadecimal Form	0x752cb45c48648b189df90cb2296b2878a3bfd9f42fc6c818ec8bf3c9c0c6203913f6ecc5ccc72434b1ae949d568fc99c6059d0fb13364838aa302a940a2f19ba6c
+// Base-Point Y			12
+//	Hexadecimal Form	0xc
+func DefineE521() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        qs big.Int
+    )
+    p.Name = "E-521"
+    p.P.SetBit(Zero, 521, 1).Sub(&p.P, One)
+    qs.SetString("337554763258501705789107630418782636071904961214051226618635150085779108655765", 10)
+    p.Q.SetBit(Zero, 519, 1).Sub(&p.Q, &qs)
+    p.T.SetString("1350219053034006823156430521675130544287619844856204906474540600343116434623060", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+    p.A.SetInt64(1)
+    p.D.SetInt64(-376014)
+    p.PBX.SetString("1571054894184995387535939749894317568645297350402905821437625181152304994381188529632591196067604100772673927915114267193389905003276673749012051148356041324", 10)
+    p.PBY.SetString("12", 10)
+    p.S = 515
+    return &p
+}
+//
+// Novel never before used Twisted Edwards Curves
+//
+// Curve TEC-Novel-0001:
+//
+// Name: 			TEC_1617_m1874
+// Equation is: 		x^2 + y^2 = 1 - 1874 * x^2 * y^2
+// Prime field (P)		2^551 + 335
+//	Decimal Form		7371020360979572953596786290992712677572111758625860211672277930167234692172165726730716260112614780354430419981960634569864423105321860610471551272329484460252725583
+//	Hexadecimal Form	0x209
+//
+// Base-Point Prime Order (Q)	2^549-32999719876419924862440765771944715506860861139489669592317112655962959048275399831
+//	Decimal Form		1842755090244893238399196572748178169393027939656465052918069482541808673043041431649679345151733770226166839223545443135605244636840795560300775162119412066787781481
+//	Hexadecimal Form	??
+// Trace (T)                    131998879505679699449763063087778862027443444557958678369268450623851836193101599660
+// Cofactor R			4
+// Safe Scalar Size S           545
+//
+// Curve A Parameter		1
+// Curve D Parameter		-1874
+//
+// Base-Point X                 2
+//	Hexadecimal Form
+// Base-Point Y                 5501022230409387651160486994968341429366041990178351371092942189673622147332545191574204359497248532356106710117122683727294366951792383073058359410033494487297956284
+//	Hexadecimal Form
+func DefineTec1617M1874() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        P PrimePowerTwo
+        Q PrimePowerTwo
+    )
+
+    p.Name = "TEC_1617_m1874"
+
+    //P=2^551 + 335
+    P.Power = 551
+    P.RestString = "335"
+    P.Sign = true
+    p.P = MakePrime(P)
+
+    //Q=2^549 - 32999719876419924862440765771944715506860861139489669592317112655962959048275399831
+    Q.Power = 549
+    Q.RestString = "32999719876419924862440765771944715506860861139489669592317112655962959048275399831"
+    Q.Sign = false
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
+    p.T.SetString("131998879505679699449763063087778862027443444557958678369268450623851836193101599660", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits, computed from "Ellipse Prime Order P", "Trace T", "Cofactor R"
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
+    p.A.SetInt64(1)
+    p.D.SetInt64(-1874)
+
+    //Generator Coordinates
+    p.PBX.SetString("2", 10)
+    p.PBY.SetString("5372662689287747375095357785063354697686466712559330249539593073273672823349366756432292166344067157200099005518461427402418611188579753765899708983934704551575186856", 10)
+
     return &p
 }

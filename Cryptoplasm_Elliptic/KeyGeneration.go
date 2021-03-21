@@ -13,6 +13,7 @@ import (
 //PrivateKey    and PublicKey    are    strings             representing a number in Base49.
 //CryptoPlasm Address is computed from the PublicKeyInt.
 
+var CryptoplasmCurve = DefineE521()
 
 //A CPKeyPair (CryptoPlasm Key Pair) is a pair consisting of two strings both representing a number in base 49.
 type CPKeyPair struct {
@@ -37,7 +38,7 @@ func ConvertBase10toBase49 (NumberBase10 *big.Int) string {
 //CryptoPlasmKeys are generated using CurveE521
 func GetCRYPTOPLASMKeysWithAddress () (Keys CPKeyPair, Address string) {
     //Part 1, Getting Keys
-    Keys = CurveE521.GetKeys()
+    Keys = CryptoplasmCurve.GetKeys()
     //Part 2, Getting the Address
     Address = PublicKey2CRYPTOPLASMAddress(Keys.PublicKey)
     return Keys, Address
@@ -64,11 +65,11 @@ func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (P
         XStringLengthBig = new(big.Int)
     )
     //Defining Generator and converting to ext Coordinates
-    Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    GeneratorExt := k.Affine2Extended(Generator)
+    //Generator := AffineCoordinates {&k.PBX, &k.PBY}
+    //GeneratorExt := k.Affine2Extended(Generator)
 
     //Scalar Multiplication returns Ext Coordinates, and we convert them back to Affine
-    PublicKeyPoints := k.ScalarMultiplier(PrivateKeyInt,GeneratorExt)
+    PublicKeyPoints := k.ScalarMultiplierG(PrivateKeyInt)
     PublicKeyPointsAff := k.Extended2Affine(PublicKeyPoints)
     //To verify that PublicKey2Affine returns the same Points as those computed from Private Key
     //Remove the following 1 Comments:
