@@ -46,7 +46,30 @@ import (
 //  ever bigger grid of full and empty squares.
 //
 //  Curve TEC_1617_m1875 has an S value of 545, which can be represented by an intercalated grid of 16*16 and 17*17
-//  diagonal squares, hence the name 1617, whereas m1875 represents the D coefficient (minus 1875). 16*16+17*17=545
+//  diagonal squares, hence the name 1617, whereas m1875 represents the D coefficient (minus 1875). 16*16+17*17=545.
+//
+//  The Novel TEC curves creation aim is based on getting a higher S, while keeping Rigidity and Safety Criteria as
+//  defined by https://safecurves.cr.yp.to/rigid.html.
+//      The prime field is chosen to be the closest to a power of 2 while being congruent to 3 mod 4
+//          (optimal condition for cofactor 4 TEC curves with A coefficient 1)
+//      Cofactor 4 Curves are searched for, this is the smallest possible Cofactor for TEC curves, to maximize Q size.
+//      D is chosen to be the smallest absolute value that produces the intended S size,
+//      while the largest Subgroup Order Q is of course prime.
+//      The Generator is then chosen as the Point with the smallest x affine coordinate that is on the Subgroup Q.
+//
+//  All Novel TEC Curves have the "Complex-Multiplication Field Discriminant" larger than 2^100 as required by https://safecurves.cr.yp.to/disc.html
+//  Their "rho cost" is higher than every curve listed by SafeCurves https://safecurves.cr.yp.to/rho.html
+//  Their "embedding degree" is also higher than every curve listed by SafeCurves https://safecurves.cr.yp.to/transfer.html
+//
+//  Further considerations aren't given to the form of the prime field or to the form of the D coefficient,
+//  (which are normally considered to speed up math), field point multiplication is implemented in pure golang
+//  using directly big.Int without creating limbs, because as these are outside the scope of the Curves intended use.
+//
+//  No further consideration is given while choosing the Prime field form or the D coefficient for speed purposes,
+//  because all Elliptic Point math is implemented in pure golang using directly big.Int. The speed of implementation is
+//  sufficient (a Schnorr signature Creation and Verification takes about 100 ms), and a field point multiplication takes
+//  about 35 ms for the TEC_1617_m1874 (test computer is an AMD EPYC 7551P 32-Core Processor which has mediocre Freq.)
+//  These running times are deemed for now more than sufficient for single time use.
 //
 //===============================================================================================
 // Twisted-Edwards-Curves are elliptic curves satisfying the equation:
