@@ -129,8 +129,7 @@ func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, E
 	RyzenT = RyzenT + True
 	RyzenF = RyzenF + False
     }
-
-
+    
     //Epyc Verification
     for k:=int64(1); k<=Epyc; k++ {
 	if k < 10 {
