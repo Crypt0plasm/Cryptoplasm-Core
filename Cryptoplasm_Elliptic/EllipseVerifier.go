@@ -95,26 +95,32 @@ func Power2DistanceChecker(Number *big.Int) (uint64, bool, *big.Int) {
 //However for the Ellipse to be viable, verifying only p+1-t suffices.
 //That is the Easy verification.
 
-func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, EpycCores uint64, Mode string) (T, F uint64) {
+func VerifyAllEllipseResults (Location string, Prime PrimePowerTwo, RyzenCores, EpycCores uint64, Mode string) (T, F uint64) {
+    fmt.Println("=======Summary=======")
+    RyzenT,RyzenF 	:= VerifyEllipseResultsRyzen	(Location,Prime,RyzenCores,Mode)
+    EpycT,EpycF 	:= VerifyEllipseResultsEpyc	(Location,Prime,EpycCores,Mode)
+
+    T=RyzenT+EpycT
+    F=RyzenF+EpycF
+    fmt.Println("TotalVerifications =",T+F,"| True =",T,"| False =",F,"| Mode:",Mode)
+    return T,F
+}
+
+func VerifyEllipseResultsRyzen (Location string, Prime PrimePowerTwo, RyzenCores uint64, Mode string) (uint64, uint64) {
     var (
 	Suffix		string
 	RyzenV		string
-	EpycV		string
 	True		uint64
 	False		uint64
 	RyzenT		uint64
 	RyzenF		uint64
-	EpycT		uint64
-	EpycF		uint64
     )
 
     Ryzen 	:= int64(RyzenCores) + int64(RyzenCores) / 2
-    Epyc 	:= int64(EpycCores) + int64(EpycCores) / 2
     PrimeNumber := MakePrime(Prime)
 
     FirstRoot 	:= MakeEllipticExportString(Prime)
     NegRoot 	:= MakeEllipticExportStringNeg(FirstRoot)
-    PosRoot 	:= MakeEllipticExportStringPos(FirstRoot)
 
     //Ryzen Verification
     for k:=int64(1); k<=Ryzen; k++ {
@@ -129,7 +135,26 @@ func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, E
 	RyzenT = RyzenT + True
 	RyzenF = RyzenF + False
     }
-    
+    fmt.Println("RyzenTotal         =",RyzenT+RyzenF,"| True =",RyzenT,"| False =",RyzenF,"| Mode:",Mode)
+    return RyzenT,RyzenF
+}
+
+func VerifyEllipseResultsEpyc (Location string, Prime PrimePowerTwo, EpycCores uint64, Mode string) (uint64, uint64) {
+    var (
+	Suffix		string
+	EpycV		string
+	True		uint64
+	False		uint64
+	EpycT		uint64
+	EpycF		uint64
+    )
+
+    Epyc 	:= int64(EpycCores) + int64(EpycCores) / 2
+    PrimeNumber := MakePrime(Prime)
+
+    FirstRoot 	:= MakeEllipticExportString(Prime)
+    PosRoot 	:= MakeEllipticExportStringPos(FirstRoot)
+
     //Epyc Verification
     for k:=int64(1); k<=Epyc; k++ {
 	if k < 10 {
@@ -143,14 +168,8 @@ func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, E
 	EpycT = EpycT + True
 	EpycF = EpycF + False
     }
-    fmt.Println("=======Summary=======")
-    fmt.Println("RyzenTotal         =",RyzenT+RyzenF,"| True =",RyzenT,"| False =",RyzenF)
-    fmt.Println("EpycTotal          =",EpycT+EpycF,"| True =",EpycT,"| False =",EpycF)
-    T=RyzenT+EpycT
-    F=RyzenF+EpycF
-    fmt.Println("TotalVerifications =",T+F,"| True =",T,"| False =",F)
-
-    return T,F
+    fmt.Println("EpycTotal          =",EpycT+EpycF,"| True =",EpycT,"| False =",EpycF,"| Mode:",Mode)
+    return EpycT,EpycF
 }
 
 //Function Verifies individual Files.
