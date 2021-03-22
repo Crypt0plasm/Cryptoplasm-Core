@@ -102,6 +102,10 @@ func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, E
 	EpycV		string
 	True		uint64
 	False		uint64
+	RyzenT		uint64
+	RyzenF		uint64
+	EpycT		uint64
+	EpycF		uint64
     )
 
     Ryzen 	:= int64(RyzenCores) + int64(RyzenCores) / 2
@@ -122,9 +126,10 @@ func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, E
 	//fmt.Println("Verifying Ryzen file",k)
 	RyzenV = NegRoot + Suffix + ".txt"
 	True,False = VerifyEllipseResultFile(Location,RyzenV,&PrimeNumber,Mode)
-	T = T + True
-	F = F + False
+	RyzenT = RyzenT + True
+	RyzenF = RyzenF + False
     }
+
 
     //Epyc Verification
     for k:=int64(1); k<=Epyc; k++ {
@@ -136,11 +141,16 @@ func VerifyEllipseResultsV2 (Location string, Prime PrimePowerTwo, RyzenCores, E
 	//fmt.Println("Verifying Epyc file",k)
 	EpycV = PosRoot + Suffix + ".txt"
 	True,False = VerifyEllipseResultFile(Location,EpycV,&PrimeNumber,Mode)
-	T = T + True
-	F = F + False
+	EpycT = EpycT + True
+	EpycF = EpycF + False
     }
-    fmt.Println("Total True verifications",T)
-    fmt.Println("Total False verifications",F)
+    fmt.Println("=======Summary=======")
+    fmt.Println("RyzenTotal         =",RyzenT+RyzenF,"| True =",RyzenT,"| False =",RyzenF)
+    fmt.Println("EpycTotal          =",EpycT+EpycF,"| True =",EpycT,"| False =",EpycF)
+    T=RyzenT+EpycT
+    F=RyzenF+EpycF
+    fmt.Println("TotalVerifications =",T+F,"| True =",T,"| False =",F)
+
     return T,F
 }
 
