@@ -61,6 +61,7 @@ type FiniteFieldEllipticCurveMethods interface {
 
     // VI - Key Generation Methods
     GetRandomOnCurve 	() 						*big.Int
+    GetY		(X *big.Int)					*big.Int
     ScalarMultiplierG	(Scalar *big.Int)				(OutputP ExtendedCoordinates)
     ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)
     GetKeys 		() 						(Keys CPKeyPair)
@@ -544,6 +545,22 @@ func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
 func TrimFirstRune(s string) string {
     _, i := utf8.DecodeRuneInString(s)
     return s[i:]
+}
+
+func (k *FiniteFieldEllipticCurve) GetY (X *big.Int) *big.Int {
+    var (
+    	XSq = new(big.Int)
+    	Y = new(big.Int)
+    )
+    XSq.Exp(X,Two,&k.P)
+    M := k.MulModP(&k.A,XSq)
+    N := k.MulModP(&k.D,XSq)
+    MM := k.SubModP(One,M)
+    NN := k.SubModP(One,N)
+    YSq := k.QuoModP(MM,NN)
+
+    Y.ModSqrt(YSq,&k.P)
+    return Y
 }
 
 func (k *FiniteFieldEllipticCurve) ScalarMultiplierG (Scalar *big.Int) (OutputP ExtendedCoordinates) {

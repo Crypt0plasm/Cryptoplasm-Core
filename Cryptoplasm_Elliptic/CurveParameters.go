@@ -23,8 +23,9 @@ import (
 //          Ed448-Goldilocks
 //          E521
 //      as defined by Safe Curves https://safecurves.cr.yp.to/index.html, and
-//      1 novel never before used Twisted Edwards Curves,
-//          TEC_1617_m1874
+//      2 novel never before used Twisted Edwards Curves,
+//          TEC_S545_Pr551p335_m1874
+//          TEC_S1021_Pr1029p639_p403
 //
 //  The idea behind the Novel TEC curves, is that they have a higher number of Possible unique Private Keys.
 //  Bitcoin uses secp256k1 Curve, the Generator Point's order is  2^256 - 432420386565659656852420866394968145599.
@@ -45,8 +46,9 @@ import (
 //  From this point on, for bigger curves with bigger S values, the Private Key could be represented by an ever increasing,
 //  ever bigger grid of full and empty squares.
 //
-//  Curve TEC_1617_m1875 has an S value of 545, which can be represented by an intercalated grid of 16*16 and 17*17
-//  diagonal squares, hence the name 1617, whereas m1875 represents the D coefficient (minus 1875). 16*16+17*17=545.
+//  Curve TEC_S545_Pr551p335_m1874 has an S value of 545, which can be represented by an intercalated grid of 16*16 and 17*17
+//  diagonal squares; Pr551p335 represent the prime field, 2^551+335, whereas m1875 represents the D coefficient (minus 1875).
+//  16*16+17*17=545.
 //
 //  The Novel TEC curves creation aim is based on getting a higher S, while keeping Rigidity and Safety Criteria as
 //  defined by https://safecurves.cr.yp.to/rigid.html.
@@ -55,7 +57,8 @@ import (
 //      Cofactor 4 Curves are searched for, this is the smallest possible Cofactor for TEC curves, to maximize Q size.
 //      D is chosen to be the smallest absolute value that produces the intended S size,
 //      while the largest Subgroup Order Q is of course prime.
-//      The Generator is then chosen as the Point with the smallest x affine coordinate that is on the Subgroup Q.
+//      The Generator is then chosen as the Point with the smallest x affine coordinate of form 7,77,777,... that is on
+//      the Subgroup Q. (The special form of 7,77,777 is an aesthetic unique Cryptoplasm Marker)
 //
 //  All Novel TEC Curves have the "Complex-Multiplication Field Discriminant" larger than 2^100 as required by https://safecurves.cr.yp.to/disc.html
 //  Their "rho cost" is higher than every curve listed by SafeCurves https://safecurves.cr.yp.to/rho.html
@@ -64,7 +67,7 @@ import (
 //  No further consideration is given while choosing the Prime field form or the D coefficient for speed purposes,
 //  because all Elliptic Point math is implemented in pure golang using directly big.Int. The speed of implementation is
 //  sufficient (a Schnorr signature Creation and Verification takes about 100 ms), and a field point multiplication takes
-//  about 35 ms for the TEC_1617_m1874 (test computer is an AMD EPYC 7551P 32-Core Processor which has mediocre Freq.)
+//  about 35 ms for the TEC_545_551p335_m1874 (test computer is an AMD EPYC 7551P 32-Core Processor which has mediocre Freq.)
 //  These running times are deemed for now more than sufficient for single time use.
 //
 //===============================================================================================
@@ -611,11 +614,11 @@ func DefineE521() *FiniteFieldEllipticCurve {
 //
 // Curve TEC-Novel-0001:
 //
-// Name: 			TEC_1617_m1874
+// Name: 			TEC_S545_Pr551p335_m1874
 // Equation is: 		x^2 + y^2 = 1 - 1874 * x^2 * y^2
 // Prime field (P)		2^551 + 335
 //	Decimal Form		7371020360979572953596786290992712677572111758625860211672277930167234692172165726730716260112614780354430419981960634569864423105321860610471551272329484460252725583
-//	Hexadecimal Form	0x209
+//	Hexadecimal Form	??
 //
 // Base-Point Prime Order (Q)	2^549-32999719876419924862440765771944715506860861139489669592317112655962959048275399831
 //	Decimal Form		1842755090244893238399196572748178169393027939656465052918069482541808673043041431649679345151733770226166839223545443135605244636840795560300775162119412066787781481
@@ -627,17 +630,17 @@ func DefineE521() *FiniteFieldEllipticCurve {
 // Curve A Parameter		1
 // Curve D Parameter		-1874
 //
-// Base-Point X                 2
-//	Hexadecimal Form
-// Base-Point Y                 5501022230409387651160486994968341429366041990178351371092942189673622147332545191574204359497248532356106710117122683727294366951792383073058359410033494487297956284
-//	Hexadecimal Form
-func DefineTec1617M1874() *FiniteFieldEllipticCurve {
+// Base-Point X                 77
+//	Hexadecimal Form        ??
+// Base-Point Y                 4527406382422510671343491545630208639882316168543978369766899111005970584921596317933470548146309203522889340017355084124816910211809683022868481792046307208534275660
+//	Hexadecimal Form        ??
+func TEC_S545_Pr551p335_m1874() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
         Q PrimePowerTwo
     )
-    p.Name = "TEC_1617_m1874"
+    p.Name = "TEC_545_551p335_m1874"
 
     //P=2^551 + 335
     P.Power = 551
@@ -663,7 +666,66 @@ func DefineTec1617M1874() *FiniteFieldEllipticCurve {
     p.D.SetInt64(-1874)
 
     //Generator Coordinates
-    p.PBX.SetString("2", 10)
-    p.PBY.SetString("5372662689287747375095357785063354697686466712559330249539593073273672823349366756432292166344067157200099005518461427402418611188579753765899708983934704551575186856", 10)
+    p.PBX.SetString("77", 10)
+    p.PBY.SetString("4527406382422510671343491545630208639882316168543978369766899111005970584921596317933470548146309203522889340017355084124816910211809683022868481792046307208534275660", 10)
+    return &p
+}
+
+// Curve TEC-Novel-0002:
+//
+// Name: 			TEC_S1021_Pr1029p639_p403
+// Equation is: 		x^2 + y^2 = 1 + 403 * x^2 * y^2
+// Prime field (P)		2^1029 + 639
+//	Decimal Form		5752618031559410904733776610524879147577526332615381032749762597047445625776030820246671274317041152675843644155884587445081272602061331919771117780463171980088572589595695528841671027239875011822498654466720184602820821834958812207165219537306471589227216341906761543678311870031350921754731402547975172391551
+//	Hexadecimal Form	??
+//
+// Base-Point Prime Order (Q)	2^1026-18132002252546586200370882567476047696677474403358385255776356556256228841222610345936048352899569081102195019149436007172657992929987550174537497129476947
+//	Decimal Form		719077253944926363091722076315609893447190791576922629093720324630930703222003852530833909289630144084480455519485573430635159075257666489971389722557896479379069321152875740734326310928936679800337928449954767298996046473141010303285306506114956049084320940543326043523781811095925935231791250780999767071917
+//	Hexadecimal Form	??
+// Trace (T)                    145056018020372689602967060539808381573419795226867082046210852450049830729780882767488386823196552648817560153195488057381263943439900401396299977035816216
+// Cofactor R			8
+// Safe Scalar Size S           1021
+//
+// Curve A Parameter		1
+// Curve D Parameter		403
+//
+// Base-Point X                 7
+//	Hexadecimal Form        ??
+// Base-Point Y                 4891032912248904755549456678747695955126708112201164739853488493598067395836251207375320947218556932784190993832563455216168221249361835189332376922566116304463582588297890435958158019792506652899026735502687426779165192420655413434180934724921455425060615757593517360439569697958308074508163823089821242115695
+//	Hexadecimal Form        ??
+func TEC_S1021_Pr1029p639_p403() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        P PrimePowerTwo
+        Q PrimePowerTwo
+    )
+    p.Name = "TEC_S1021_Pr1029p639_p403"
+
+    //P=2^1029 + 639
+    P.Power = 1029
+    P.RestString = "639"
+    P.Sign = true
+    p.P = MakePrime(P)
+
+    //Q=2^1026-18132002252546586200370882567476047696677474403358385255776356556256228841222610345936048352899569081102195019149436007172657992929987550174537497129476947
+    Q.Power = 1026
+    Q.RestString = "18132002252546586200370882567476047696677474403358385255776356556256228841222610345936048352899569081102195019149436007172657992929987550174537497129476947"
+    Q.Sign = false
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
+    p.T.SetString("145056018020372689602967060539808381573419795226867082046210852450049830729780882767488386823196552648817560153195488057381263943439900401396299977035816216", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 1021
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
+    p.A.SetInt64(1)
+    p.D.SetInt64(403)
+
+    //Generator Coordinates
+    p.PBX.SetString("7", 10)
+    p.PBY.SetString("4891032912248904755549456678747695955126708112201164739853488493598067395836251207375320947218556932784190993832563455216168221249361835189332376922566116304463582588297890435958158019792506652899026735502687426779165192420655413434180934724921455425060615757593517360439569697958308074508163823089821242115695", 10)
     return &p
 }
