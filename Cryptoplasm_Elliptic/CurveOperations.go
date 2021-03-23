@@ -22,98 +22,106 @@ var (
 
 type FiniteFieldEllipticCurveMethods interface {
     // Ia - Mod P Methods
-    AddModP		(a,b *big.Int)					*big.Int
-    SubModP		(a,b *big.Int)					*big.Int
-    MulModP		(a,b *big.Int)					*big.Int
-    QuoModP		(a,b *big.Int)					*big.Int
+    AddModP		(a,b *big.Int)					*big.Int			// Ia.1
+    SubModP		(a,b *big.Int)					*big.Int			// Ia.2
+    MulModP		(a,b *big.Int)					*big.Int			// Ia.3
+    QuoModP		(a,b *big.Int)					*big.Int			// Ia.4
     // Ib - Mod Q Methods
-    AddModQ		(a,b *big.Int)					*big.Int
-    SubModQ		(a,b *big.Int)					*big.Int
-    MulModQ		(a,b *big.Int)					*big.Int
-    QuoModQ		(a,b *big.Int)					*big.Int
+    AddModQ		(a,b *big.Int)					*big.Int			// Ib.1
+    SubModQ		(a,b *big.Int)					*big.Int			// Ib.2
+    MulModQ		(a,b *big.Int)					*big.Int			// Ib.3
+    QuoModQ		(a,b *big.Int)					*big.Int			// Ib.4
 
     // II - Coordinates Conversion Methods
-    Affine2Extended 	(InputP AffineCoordinates) 			(OutputP ExtendedCoordinates)
-    Affine2Inverted 	(InputP AffineCoordinates) 			(OutputP InvertedCoordinates)
-    Affine2Projective 	(InputP AffineCoordinates) 			(OutputP ProjectiveCoordinates)
-    Extended2Affine 	(InputP ExtendedCoordinates) 			(OutputP AffineCoordinates)
-    Inverted2Affine 	(InputP InvertedCoordinates) 			(OutputP AffineCoordinates)
-    Projective2Affine 	(InputP ProjectiveCoordinates) 			(OutputP AffineCoordinates)
+    Affine2Extended 	(InputP AffineCoordinates) 			(OutputP ExtendedCoordinates)	// II.1
+    Affine2Inverted 	(InputP AffineCoordinates) 			(OutputP InvertedCoordinates)	// II.2
+    Affine2Projective 	(InputP AffineCoordinates) 			(OutputP ProjectiveCoordinates)	// II.3
+    Extended2Affine 	(InputP ExtendedCoordinates) 			(OutputP AffineCoordinates)	// II.4
+    Inverted2Affine 	(InputP InvertedCoordinates) 			(OutputP AffineCoordinates)	// II.5
+    Projective2Affine 	(InputP ProjectiveCoordinates) 			(OutputP AffineCoordinates)	// II.6
 
     // III - Boolean Methods
-    IsInfinityPoint 	(InputP ExtendedCoordinates) 			bool
-    IsInverseOnCurve	(P1, P2 ExtendedCoordinates) 			bool
-    IsOnCurve 		(InputP ExtendedCoordinates) 			(OnCurve bool, Infinity bool)
-    ArePointsEqualEx	(P1, P2 ExtendedCoordinates) 			bool
-    ArePointsEqualAf	(P1, P2 AffineCoordinates) 			bool
+    IsInfinityPoint 	(InputP ExtendedCoordinates) 			bool				// III.1
+    IsInverseOnCurve	(P1, P2 ExtendedCoordinates) 			bool				// III.2
+    IsOnCurve 		(InputP ExtendedCoordinates) 			(OnCurve bool, Infinity bool)	// III.3
+    ArePointsEqualEx	(P1, P2 ExtendedCoordinates) 			bool				// III.4
+    ArePointsEqualAf	(P1, P2 AffineCoordinates) 			bool				// III.5
 
     // IV - Basic Point Operations Methods
-    DoubleWithZOne 	(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
-    Double 		(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
-    Triple 		(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
-    AdditionZ2OneV2 	(P1, P2 ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
-    AdditionV2 		(P1, P2 ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
+    DoubleWithZOne 	(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)	// IV.1
+    Double 		(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)	// IV.2
+    Triple 		(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)	// IV.3
+    AdditionZ2OneV2 	(P1, P2 ExtendedCoordinates) 			(OutputP ExtendedCoordinates)	// IV.4
+    AdditionV2 		(P1, P2 ExtendedCoordinates) 			(OutputP ExtendedCoordinates)	// IV.5
 
     // V - Complex Point Operations Methods
-    FortyNiner	 	(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)
-    PrecomputingMatrixG	() 						[7][7]ExtendedCoordinates
-    PrecomputingMatrixPt(InputP ExtendedCoordinates) 						[7][7]ExtendedCoordinates
+    FortyNiner	 	(InputP ExtendedCoordinates) 			(OutputP ExtendedCoordinates)	// V.1
+    PrecomputingMatrixG	() 						[7][7]ExtendedCoordinates	// V.2
+    PrecomputingMatrixPt(InputP ExtendedCoordinates) 			[7][7]ExtendedCoordinates	// V.3
 
     // VI - Key Generation Methods
-    GetRandomOnCurve 	() 						*big.Int
-    GetY		(X *big.Int)					*big.Int
-    ScalarMultiplierG	(Scalar *big.Int)				(OutputP ExtendedCoordinates)
-    ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)
-    GetKeys 		() 						(Keys CPKeyPair)
-    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)
-    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)
+    GetRandomOnCurve 	() 						*big.Int			// VI.1
+    GetY		(X *big.Int)					*big.Int			// VI.2
+    ScalarMultiplierG	(Scalar *big.Int)				(OutputP ExtendedCoordinates)	// VI.3
+    ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)	// VI.4
+    GetKeys 		() 						(Keys CPKeyPair)		// VI.5
+    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)		// VI.6
+    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VI.7
 
     // VII - Schnorr Signature Methods
-    SchnorrSign 	(Keys CPKeyPair, Hash []byte) 			(Signature Schnurr)
-    SchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte) 	bool
+    SchnorrSign 	(Keys CPKeyPair, Hash []byte) 			(Signature Schnurr)		// VII.1
+    SchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte) 	bool				// VII.2
 }
-
+//
 // FiniteFieldEllipticCurve Methods
-// I - Mod P Methods
+//
+// Ia - Mod P Methods
+//
+// Ia.1
 func (k *FiniteFieldEllipticCurve) AddModP (a,b *big.Int) *big.Int{
     result := AddModulus(&k.P,a,b)
     return result
 }
+// Ia.2
 func (k *FiniteFieldEllipticCurve) AddModQ (a,b *big.Int) *big.Int{
     result := AddModulus(&k.Q,a,b)
     return result
 }
-
+// Ia.3
 func (k *FiniteFieldEllipticCurve) SubModP (a,b *big.Int) *big.Int{
     result := SubModulus(&k.P,a,b)
     return result
 }
+// Ia.4
 func (k *FiniteFieldEllipticCurve) SubModQ (a,b *big.Int) *big.Int{
     result := SubModulus(&k.Q,a,b)
     return result
 }
-
-
+// Ib - Mod Q Methods
+// Ib.1
 func (k *FiniteFieldEllipticCurve) MulModP (a,b *big.Int) *big.Int{
     result := MulModulus(&k.P,a,b)
     return result
 }
+// Ib.2
 func (k *FiniteFieldEllipticCurve) MulModQ (a,b *big.Int) *big.Int{
     result := MulModulus(&k.Q,a,b)
     return result
 }
-
+// Ib.3
 func (k *FiniteFieldEllipticCurve) QuoModP (a,b *big.Int) *big.Int{
     result := QuoModulus(&k.P,a,b)
     return result
 }
+// Ib.4
 func (k *FiniteFieldEllipticCurve) QuoModQ (a,b *big.Int) *big.Int{
     result := QuoModulus(&k.Q,a,b)
     return result
 }
-
+//
 // III - Boolean Methods
-// 7
+//
+// III.1
 func (k *FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) bool {
     var result bool
 
@@ -129,8 +137,7 @@ func (k *FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) 
     }
     return result
 }
-
-// 8
+// III.2
 func (k *FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates) bool {
     var result bool
     Point1Aff := k.Extended2Affine(P1)
@@ -144,8 +151,7 @@ func (k *FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates)
     }
     return result
 }
-
-// 9
+// III.3
 func (k *FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) (OnCurve bool, Infinity bool) {
     var (
 	PointAffine = k.Extended2Affine(InputP)
@@ -175,8 +181,7 @@ func (k *FiniteFieldEllipticCurve) IsOnCurve (InputP ExtendedCoordinates) (OnCur
     }
     return OnCurve, Infinity
 }
-
-// 10
+// III.4
 func (k *FiniteFieldEllipticCurve) ArePointsEqualEx (P1, P2 ExtendedCoordinates) bool {
     var result bool
     Point1Aff := k.Extended2Affine(P1)
@@ -184,7 +189,7 @@ func (k *FiniteFieldEllipticCurve) ArePointsEqualEx (P1, P2 ExtendedCoordinates)
     result = k.ArePointsEqualAf(Point1Aff,Point2Aff)
     return result
 }
-// 10b
+// III.5
 func (k *FiniteFieldEllipticCurve) ArePointsEqualAf (P1, P2 AffineCoordinates) bool {
     var result bool
 
@@ -199,9 +204,9 @@ func (k *FiniteFieldEllipticCurve) ArePointsEqualAf (P1, P2 AffineCoordinates) b
 
     return result
 }
-
+//
 // IV - Basic Point Operations Methods
-// 11
+//
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -214,6 +219,7 @@ func (k *FiniteFieldEllipticCurve) ArePointsEqualAf (P1, P2 AffineCoordinates) b
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
+// IV.1
 func (k *FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	A 	= new(big.Int)
@@ -235,8 +241,6 @@ func (k *FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (
     OutputP.ET = k.MulModP(E,H)
     return OutputP
 }
-
-//12
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -249,6 +253,7 @@ func (k *FiniteFieldEllipticCurve) DoubleWithZOne (InputP ExtendedCoordinates) (
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
+// IV.2
 func (k *FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	A 	= new(big.Int)
@@ -277,13 +282,13 @@ func (k *FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP 
     }
     return OutputP
 }
-
-//13
 // Formulas used are these: http://hyperelliptic.org/EFD/g1p/data/twisted/extended/tripling/tpl-2015-c
 // Source 2015 Chuengsatiansup
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2,
 // It is assumed that a = 1, and XX is used instead of aXX
+//
+// IV.3
 func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	YY	= new(big.Int)
@@ -320,8 +325,6 @@ func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP 
     }
     return OutputP
 }
-
-//14
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -335,6 +338,7 @@ func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP 
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
 //
+// IV.4
 func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //When Z2 is one, Point2 cant be an InfinityPoint, therefore only a check for Point1 is needed.
     //Also a test is made if Point1 and Point2 are inverse to one another. In this case the sum is the point at Infinity
@@ -365,8 +369,6 @@ func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) 
     }
     return OutputP
 }
-
-//15
 // As described in https://cr.yp.to/ecdh/curve41417-20140706.pdf Appendix A
 // Since CurveE521 has the same Structure (Twisted Edward Curve) as Curve41417,
 // the same formulas hold true for CurveE521 as well.
@@ -379,6 +381,8 @@ func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) 
 // This Addition Variant doesnt make any assumptions regarding Z2 and considers D != 0, and a = 1
 // Standard Elliptic Curve in Twisted Edward form: a * x^2 + y^2 = 1 +      d * x^2 * y^2
 // Since E521 Equation is:			       x^2 + y^2 = 1 - 376014 * x^2 * y^2
+//
+// IV.5
 func (k *FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //Both Points are tested if they are InfinityPoints, or if the are inverse to one another.
     //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
@@ -413,9 +417,10 @@ func (k *FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (Outp
     }
     return OutputP
 }
-
+//
 // V - Complex Point Operations Methods
-//16
+//
+// V.1
 func (k *FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     Point03 := k.Triple(InputP)
     Point06 := k.Double(Point03)
@@ -426,15 +431,14 @@ func (k *FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (Outp
 
     return Point49
 }
-
+// V.2
 func (k *FiniteFieldEllipticCurve) PrecomputingMatrixG () [7][7]ExtendedCoordinates {
     CurveGenerator 	:= AffineCoordinates{AX: &k.PBX, AY: &k.PBY}
     CurveGeneratorExt 	:= k.Affine2Extended(CurveGenerator)
     Result 		:= k.PrecomputingMatrixPt(CurveGeneratorExt)
     return Result
 }
-
-//17
+// V.3
 func (k *FiniteFieldEllipticCurve) PrecomputingMatrixPt (InputP ExtendedCoordinates) [7][7]ExtendedCoordinates {
     //start := time.Now()
     BasePointExt02 	:= k.Double(InputP)
@@ -502,9 +506,11 @@ func (k *FiniteFieldEllipticCurve) PrecomputingMatrixPt (InputP ExtendedCoordina
     //fmt.Println("Computing and verifying 47 points took", elapsed)
     return Matrix
 }
-
-// VI - Key Generation Methods
-//18 Creates a clamped Scalar as big.int according to Curve Cofactor
+//
+// VI - Key Generation Methods - Part I
+//
+// VI.1
+// Creates a clamped Scalar as big.int according to Curve Cofactor
 func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
     var (
 	Scalar = new(big.Int)
@@ -541,12 +547,12 @@ func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
 
     return Scalar
 }
-
+// VI.1a
 func TrimFirstRune(s string) string {
     _, i := utf8.DecodeRuneInString(s)
     return s[i:]
 }
-
+// VI.2
 func (k *FiniteFieldEllipticCurve) GetY (X *big.Int) *big.Int {
     var (
     	XSq = new(big.Int)
@@ -562,15 +568,14 @@ func (k *FiniteFieldEllipticCurve) GetY (X *big.Int) *big.Int {
     Y.ModSqrt(YSq,&k.P)
     return Y
 }
-
+// VI.3
 func (k *FiniteFieldEllipticCurve) ScalarMultiplierG (Scalar *big.Int) (OutputP ExtendedCoordinates) {
     CurveGenerator 	:= AffineCoordinates{AX: &k.PBX, AY: &k.PBY}
     CurveGeneratorExt 	:= k.Affine2Extended(CurveGenerator)
     Result 		:= k.ScalarMultiplierPt(Scalar, CurveGeneratorExt)
     return Result
 }
-
-//19
+// VI.4
 func (k *FiniteFieldEllipticCurve) ScalarMultiplierPt (Scalar *big.Int, InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	//start = time.Now()

@@ -1,17 +1,16 @@
 package Cryptoplasm_Elliptic
 
 import (
+    blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
     "math/big"
     "strings"
-
-    b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
-    blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
-    p "github.com/Crypt0plasm/Firefly-APD"
 )
 
-//PrivateKeyInt and PublicKeyInt are    big.Int(integers)   representing a number in Base10.
-//PrivateKey    and PublicKey    are    strings             representing a number in Base49.
-//CryptoPlasm Address is computed from the PublicKeyInt.
+// PrivateKeyInt and PublicKeyInt are    big.Int(integers)   representing a number in Base10.
+// PrivateKey    and PublicKey    are    strings             representing a number in Base49.
+// CryptoPlasm Address is computed from the PublicKeyInt.
+//
+// PublicKey string has a special form.
 
 var CryptoplasmCurve = DefineE521()
 
@@ -26,47 +25,48 @@ func ConvertBase49toBase10 (NumberBase49 string) *big.Int {
     Result.SetString(NumberBase49,49)
     return Result
 }
-
 func ConvertBase10toBase49 (NumberBase10 *big.Int) string {
     var Result string
     Result = NumberBase10.Text(49)
     return Result
 }
-//
+//======================================================================================================================
 //
 //Main Generation Function
-//CryptoPlasmKeys are generated using CurveE521
+//CryptoPlasmKeys are generated using CryptoplasmCurve defined above.
 func GetCRYPTOPLASMKeysWithAddress () (Keys CPKeyPair, Address string) {
-    //Part 1, Getting Keys
+
+    //First Main Function, Getting Keys
     Keys = CryptoplasmCurve.GetKeys()
-    //Part 2, Getting the Address
+
+    //Second Main Function, Getting the Address
     Address = PublicKey2CRYPTOPLASMAddress(Keys.PublicKey)
     return Keys, Address
 }
+//======================================================================================================================
 //
+// VI - Key Generation Methods - Part II
+// Functions required for the First Main Function:
 //
-//Functions required for Part 1
+// VI.5
 func (k *FiniteFieldEllipticCurve) GetKeys () (Keys CPKeyPair) {
     PrivateKeyInt := k.GetRandomOnCurve()
     Keys.PrivateKey = ConvertBase10toBase49(PrivateKeyInt)
     Keys.PublicKey = k.PrivKey2PubKey(Keys.PrivateKey)
     return Keys
 }
-
+// VI.6
 func (k *FiniteFieldEllipticCurve) PrivKey2PubKey (PrivateKey string) (PublicKey string) {
     PrivateKeyInt := ConvertBase49toBase10(PrivateKey)
     PublicKey = k.PrivKeyInt2PubKey(PrivateKeyInt)
     return PublicKey
 }
-
+// VI.7
 func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (PublicKey string) {
     var (
     	PublicKeyInt = new(big.Int)
         XStringLengthBig = new(big.Int)
     )
-    //Defining Generator and converting to ext Coordinates
-    //Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    //GeneratorExt := k.Affine2Extended(Generator)
 
     //Scalar Multiplication returns Ext Coordinates, and we convert them back to Affine
     PublicKeyPoints := k.ScalarMultiplierG(PrivateKeyInt)
@@ -90,8 +90,10 @@ func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (P
     PublicKey = PublicKeyPrefix + "." + PublicKey
     return PublicKey
 }
-
-//Functions required for Part 2
+//======================================================================================================================
+//
+// Functions required for the Second Main Function
+//
 func PublicKey2CRYPTOPLASMAddress (PublicKey string) string {
     //From the PublicKey string, the Prefix is removed in order to obtain the PublicKeyInt
     SplitString := strings.Split(PublicKey,".")
@@ -123,7 +125,6 @@ func SevenFoldHash (PublicKeyInt *big.Int) []byte {
     S5 := blake3.SumCustom(S4,160)
     S6 := blake3.SumCustom(S5,160)
     S7 := blake3.SumCustom(S6,160)
-
     return S7
 }
 
@@ -703,35 +704,4 @@ func CharacterMatrix () [16][16]rune {
 
     Matrix := [16][16]rune{Row00,Row01,Row02,Row03,Row04,Row05,Row06,Row07,Row08,Row09,Row10,Row11,Row12,Row13,Row14,Row15}
     return Matrix
-}
-
-func PublicKey2Affine (PublicKey string) AffineCoordinates {
-    var (
-        Result AffineCoordinates
-        PublicKeyDecimal *p.Decimal
-    )
-    SplitString := strings.Split(PublicKey,".")
-    XLengthStr := SplitString[0]
-    XLength := ConvertBase49toBase10(XLengthStr)
-    XLengthInt64 := XLength.Int64()
-
-    PublicKeyIntStrBase49 := SplitString[1]
-    PublicKeyInt := ConvertBase49toBase10(PublicKeyIntStrBase49)
-    PublicKeyIntStrBase10 := PublicKeyInt.Text(10)
-
-    PublicKeyDecimal = p.NFS(PublicKeyIntStrBase10)
-    Digits := b.Count4Coma(PublicKeyDecimal)
-
-    YLength := Digits - XLengthInt64
-    Divizor := b.POWxc(p.NFI(10),p.NFI(YLength))
-
-    PublicKeyDecimalDivided := b.DIVxc(PublicKeyDecimal,Divizor)
-    X := b.RemoveDecimals(PublicKeyDecimalDivided)
-    Subtractor := b.MULxc(X,Divizor)
-    Y := b.SUBxc(PublicKeyDecimal,Subtractor)
-
-    Result.AX = &X.Coeff
-    Result.AY = &Y.Coeff
-
-    return Result
 }

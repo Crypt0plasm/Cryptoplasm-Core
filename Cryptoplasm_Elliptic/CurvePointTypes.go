@@ -64,7 +64,7 @@ type ProjectiveCoordinates struct {
 }
 
 // II - Coordinates Conversion Methods
-// 1
+// II.1
 func (k *FiniteFieldEllipticCurve) Affine2Extended (InputP AffineCoordinates) (OutputP ExtendedCoordinates) {
     Cmp1 := InputP.AX.Cmp(Zero)
     Cmp2 := InputP.AY.Cmp(Zero)
@@ -81,16 +81,17 @@ func (k *FiniteFieldEllipticCurve) Affine2Extended (InputP AffineCoordinates) (O
 
     return OutputP
 }
-// 2
+// II.2
 func (k *FiniteFieldEllipticCurve) Affine2Inverted (InputP AffineCoordinates) (OutputP InvertedCoordinates) {
+    //Infinity Test must be added, hasn't been added since no work is done with Inverted Coordinates
     OutputP.IX = k.QuoModP(One,InputP.AX)
     OutputP.IY = k.QuoModP(One,InputP.AY)
     OutputP.IZ = One
     return OutputP
 }
-// 3
+// II.3
 func (k *FiniteFieldEllipticCurve) Affine2Projective (InputP AffineCoordinates) (OutputP ProjectiveCoordinates) {
-    //Infinity Test must be added
+    //Infinity Test must be added, hasn't been added since no work is done with Projective Coordinates
     OutputP.PX = InputP.AX
     OutputP.PY = InputP.AY
     OutputP.PZ = One
@@ -108,14 +109,14 @@ func (k *FiniteFieldEllipticCurve) Extended2Affine (InputP ExtendedCoordinates) 
     }
     return OutputP
 }
-// 5
+// II.5
 func (k *FiniteFieldEllipticCurve) Inverted2Affine (InputP InvertedCoordinates) (OutputP AffineCoordinates) {
     //Infinity Test must be added
     OutputP.AX = k.QuoModP(InputP.IZ,InputP.IX)
     OutputP.AY = k.QuoModP(InputP.IZ,InputP.IY)
     return OutputP
 }
-// 6
+// II.6
 func (k *FiniteFieldEllipticCurve) Projective2Affine (InputP ProjectiveCoordinates) (OutputP AffineCoordinates) {
     //Infinity Test must be added
     OutputP.AX = k.QuoModP(InputP.PX,InputP.PZ)
