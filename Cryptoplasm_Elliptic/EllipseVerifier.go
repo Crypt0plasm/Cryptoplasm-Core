@@ -1,6 +1,7 @@
 package Cryptoplasm_Elliptic
 
 import (
+    aux "Cryptoplasm-Core/Auxiliary"
     "bufio"
     "fmt"
     "log"
@@ -19,7 +20,7 @@ func SafeScalarComputer(Prime, Trace, Cofactor *big.Int) (uint64, string) {
 	X uint64
     )
     CofactorBase2 := Cofactor.Text(2)
-    CofactorBase2trimmed := TrimFirstRune(CofactorBase2)
+    CofactorBase2trimmed := aux.TrimFirstRune(CofactorBase2)
     CofactorBitSize := uint64(len(CofactorBase2trimmed))
 
 
@@ -54,7 +55,7 @@ func Power2DistanceChecker(Number *big.Int) (uint64, bool, *big.Int) {
     )
 
     NumberBase2 := Number.Text(2)
-    Between := TrimFirstRune(NumberBase2)
+    Between := aux.TrimFirstRune(NumberBase2)
     BetweenInt.SetString(Between,2)	//22
 
     LowerPower.Sub(Number,BetweenInt)		//32
@@ -103,6 +104,7 @@ func VerifyAllEllipseResults (Location string, Prime PrimePowerTwo, RyzenCores, 
     T=RyzenT+EpycT
     F=RyzenF+EpycF
     fmt.Println("TotalVerifications =",T+F,"| True =",T,"| False =",F,"| Mode:",Mode)
+    fmt.Println("=======END=======")
     return T,F
 }
 

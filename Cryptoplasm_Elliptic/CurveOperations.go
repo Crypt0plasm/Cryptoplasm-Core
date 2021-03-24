@@ -1,9 +1,10 @@
 package Cryptoplasm_Elliptic
 
 import (
+    aux "Cryptoplasm-Core/Auxiliary"
     "crypto/rand"
+    "fmt"
     "math/big"
-    "unicode/utf8"
 )
 
 var (
@@ -16,7 +17,66 @@ var (
     Eight = big.NewInt(8)
     Sixteen = big.NewInt(16)
 
-    InfinityPoint = ExtendedCoordinates {Zero, One,Zero,Zero}
+    Seven = big.NewInt(7)
+    SquaredSeven = big.NewInt(49)
+    SeventySeven = big.NewInt(77)
+    SevenHundredSeventySeven = big.NewInt(777)
+    SevenTimesSeven = big.NewInt(7777777)
+
+
+    //Technically, InfinityPoint in Extended Coordinates is of the form {0,m,m,0}.
+    //Initially an Extended Point in the form of {0,1,0,0} has been artificially imposed as infinity Point.
+    //Now the simplest Infinity-Point in Extended Coordinates is defined as {0,1,1,0}. This, as all Extended Points in
+    //the Form of {0,m,m,0}, converts to the Affine Point (0,1), which represents the Infinity Point.
+    //However we define more Infinity Points as for observing and aesthetic and troubleshooting purposes.
+    //
+    //Although Elliptic Curves defined over Prime Field in other Forms, dont seem to have an Affine Representation for
+    //the Infinity Point, TEC-Curves seem to have, because the Point (0,1) behaves likes 0 in Elliptic Point Addition,
+    //therefore it can be called Infinity-Point.
+    //
+
+    //InfinityPointSingle results from Additions when two Points are added that are inverse to one another.
+    //	See IsInverseOnCurve Function for more Details:
+    //InfinityPointSquared results from Additions when two Infinity Points are added.
+    //InfinityPointDouble results from Doubling an Infinity Point.
+    //InfinityPointTriple results from Tripling an Infinity Point.
+    //InfinityPointSevenFold is used as Infinity Point in the Scalar Multiplication Function.
+
+    InfinityPointSingle = ExtendedCoordinates {Zero, Seven,Seven,Zero}
+    InfinityPointSquared = ExtendedCoordinates {Zero, SquaredSeven,SquaredSeven,Zero}
+    InfinityPointDouble = ExtendedCoordinates {Zero, SeventySeven,SeventySeven,Zero}
+    InfinityPointTriple = ExtendedCoordinates {Zero, SevenHundredSeventySeven,SevenHundredSeventySeven,Zero}
+    InfinityPointSevenFold = ExtendedCoordinates {Zero, SevenTimesSeven,SevenTimesSeven,Zero}
+
+    //Every TEC curve with Cofactor 4 (Cofactor 8 Curves haven't been studied this way) has in Affine Coordinates
+    //4 Permanent Points, these are:
+    //PP1 = {0,1}							//Order 1
+    //PP2 = {0,P-1}, with P the Prime Field of the Elliptic Curve	//Order 2
+    //PP3 = {1,0}							//Order 4
+    //PP4 = {P-1,0}							//Order 4
+    //
+    //Through experimentation it has been observed these points have some special properties, namely:
+    //
+    //PP1 + Point(x,y) = Point(x,y)
+    //Therefore PP1 can designated the "Infinity-Point" of the Elliptic Curve.
+    //Further it has been observed that Points in Extended Coordinates of the form {0,m,m,0} convert to PP1 in Affine Coordinates
+    //Therefore Extended Coordinates in form of {0,m,m,0} are considered Infinity Points.
+    //PP1 Point is the only point with Order 1
+    //
+    //PP2 + Point1(x,y) = Point2(u,v), with x+u=y+v=P, with P the Prime Field of the Elliptic Curve
+    //Therefore PP2 is designated the "Filler-Point" of the Elliptic Curve
+    //Further it has been observed that Points in Extended Coordinates of the form {0,m,n,0}, where m+n=P, with P the
+    //Prime Field of the Elliptic Curve, convert to PP2 in Affine Coordinates. Therefore such points are "Filler-Points"
+    //in extended Coordinates.
+    //PP2 is the only Point with Order 2
+    //
+    //PP3 + Point1(x,y) = Point2(y,v), with x+v=P, with P the Prime Field of the Elliptic Curve.
+    //Since the x coordinate of Point2 is equal to the y coordinate of Point1, PP3 is designated as "Translator-Point".
+    //PP3 and PP4 have Order 4
+    //
+    //PP4 + Point1(x,y) = Point2(u,x), with y+u=P, with P the Prime Field of the Elliptic Curve.
+    //Since the y coordinate of Point2 is equal to the x coordinate of Point1, PP3 is designated as "Reverse-Translator-Point".
+    //PP3 and PP4 have Order 4
 )
 
 
@@ -69,8 +129,14 @@ type FiniteFieldEllipticCurveMethods interface {
     PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VI.7
 
     // VII - Schnorr Signature Methods
-    SchnorrSign 	(Keys CPKeyPair, Hash []byte) 			(Signature Schnurr)		// VII.1
-    SchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte) 	bool				// VII.2
+    SchnorrHash 	(r *big.Int, PublicKey string, Message []byte) 	*big.Int			// VII.1
+    SchnorrSign 	(Keys CPKeyPair, Hash []byte) 			(Signature Schnurr)		// VII.2
+    SchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte) 	bool				// VII.3
+
+    // VIII - Generator Creating Methods (used for the novel TEC curves to create a Generator)
+    GetPointOrder 	(InputP AffineCoordinates) 			*big.Int
+    MakeGenMin		()						(OutputP AffineCoordinates)
+    MakeGen7		()						(OutputP AffineCoordinates)
 }
 //
 // FiniteFieldEllipticCurve Methods
@@ -126,11 +192,10 @@ func (k *FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) 
     var result bool
 
     Cmp1 := InputP.EX.Cmp(Zero)
-    Cmp2 := InputP.EY.Cmp(One)
-    Cmp3 := InputP.EZ.Cmp(Zero)
-    Cmp4 := InputP.ET.Cmp(Zero)
+    Cmp2 := InputP.ET.Cmp(Zero)
+    Cmp3 := InputP.EY.Cmp(InputP.EZ)
 
-    if Cmp1 == 0 && Cmp2 == 0 && Cmp3 == 0 && Cmp4 == 0 {
+    if Cmp1 == 0 && Cmp2 == 0 && Cmp3 == 0 {
 	result = true
     } else {
 	result = false
@@ -139,10 +204,18 @@ func (k *FiniteFieldEllipticCurve) IsInfinityPoint (InputP ExtendedCoordinates) 
 }
 // III.2
 func (k *FiniteFieldEllipticCurve) IsInverseOnCurve (P1, P2 ExtendedCoordinates) bool {
+    //Normally points with similar X values are named inverse for one another. However it has been observed that such
+    //Points which have equal X Affine Coordinates, when added up, dont result in an Infinity Point.
+    //Paradoxically, it has been observed that Points with equal Y Affine Coordinates do result in an Infinity Point
+    //when added up. (Is this a property of Twisted Edwards Curves?)
+    //Therefore testing if two Points are inverse on curve involves testing whether their Affine Y coordinates are equal.
     var result bool
     Point1Aff := k.Extended2Affine(P1)
     Point2Aff := k.Extended2Affine(P2)
-    Cmp := Point1Aff.AX.Cmp(Point2Aff.AX)
+    //fmt.Println("Point1 is ",Point1Aff.AY)
+    //fmt.Println("Point2 is ",Point2Aff.AY)
+    Cmp := Point1Aff.AY.Cmp(Point2Aff.AY)
+
 
     if Cmp == 0  {
 	result = true
@@ -263,7 +336,7 @@ func (k *FiniteFieldEllipticCurve) Double (InputP ExtendedCoordinates) (OutputP 
     )
 
     if k.IsInfinityPoint(InputP) == true {
-	OutputP = InfinityPoint
+	OutputP = InfinityPointDouble
     } else {
 	A.Exp(InputP.EX,Two,&k.P)
 	B.Exp(InputP.EY,Two,&k.P)
@@ -297,7 +370,7 @@ func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP 
     )
 
     if k.IsInfinityPoint(InputP) == true {
-	OutputP = InfinityPoint
+	OutputP = InfinityPointTriple
     } else {
 	YY.Exp(InputP.EY, Two,&k.P)
 	XX.Exp(InputP.EX, Two,&k.P)
@@ -342,13 +415,16 @@ func (k *FiniteFieldEllipticCurve) Triple (InputP ExtendedCoordinates) (OutputP 
 func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     //When Z2 is one, Point2 cant be an InfinityPoint, therefore only a check for Point1 is needed.
     //Also a test is made if Point1 and Point2 are inverse to one another. In this case the sum is the point at Infinity
-    //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
-    //These are the special cases when added two inverse points or when adding with InfinityPoint
+    //
+    //Although these Test are not needed, when they hold true, no further computation has to be done,
+    //If no Test were to be done, and the computation would proceed as coded in the last part, it would still produce a
+    //correct result.
+    //Therefore the Tests only spare an unnecessary  computation.
 
     if k.IsInfinityPoint(P1) == true {
 	OutputP = P2
     } else if k.IsInverseOnCurve(P1,P2) == true {
-	OutputP = InfinityPoint
+	OutputP = InfinityPointSingle
     } else {
 	A := k.MulModP(P1.EX,P2.EX)
 	B := k.MulModP(P1.EY,P2.EY)
@@ -384,18 +460,21 @@ func (k *FiniteFieldEllipticCurve) AdditionZ2OneV2 (P1, P2 ExtendedCoordinates) 
 //
 // IV.5
 func (k *FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (OutputP ExtendedCoordinates) {
-    //Both Points are tested if they are InfinityPoints, or if the are inverse to one another.
-    //Addition is defined as below when one point is InfinityPoint or when both points are inverse.
-    //These are the special cases when added two inverse points or when adding with InfinityPoint
+    //Both Points are tested if they are each or both InfinityPoints, or if the are inverse to one another.
+    //
+    //Although these Test are not needed, when they hold true, no further computation has to be done,
+    //If no Test were to be done, and the computation would proceed as coded in the last part, it would still produce a
+    //correct result.
+    //Therefore the Tests only spare an unnecessary  computation.
 
     if k.IsInfinityPoint(P1) == true {
 	OutputP = P2
     } else if k.IsInfinityPoint(P2) == true {
 	OutputP = P1
     } else if k.IsInfinityPoint(P1) == true && k.IsInfinityPoint(P2) == true {
-	OutputP = InfinityPoint
+	OutputP = InfinityPointSquared
     } else if k.IsInverseOnCurve(P1,P2) == true {
-	OutputP = InfinityPoint
+	OutputP = InfinityPointSingle
     } else {
 	A := k.MulModP(P1.EX,P2.EX)
 	B := k.MulModP(P1.EY,P2.EY)
@@ -537,7 +616,7 @@ func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
 
     //Creating the final zeros of the string
     BinaryCofactor := k.R.Text(2)
-    TrimmedBinaryCofactor := TrimFirstRune(BinaryCofactor)
+    TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
 
     //Adding the final zeroes to the BinaryString
     BinaryString = BinaryString + TrimmedBinaryCofactor
@@ -546,11 +625,6 @@ func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
     Scalar.SetString(BinaryString,2)
 
     return Scalar
-}
-// VI.1a
-func TrimFirstRune(s string) string {
-    _, i := utf8.DecodeRuneInString(s)
-    return s[i:]
 }
 // VI.2
 func (k *FiniteFieldEllipticCurve) GetY (X *big.Int) *big.Int {
@@ -582,7 +656,7 @@ func (k *FiniteFieldEllipticCurve) ScalarMultiplierPt (Scalar *big.Int, InputP E
 	PrivKey49 		= Scalar.Text(49)
 	PrivKey49SliceRune 	= []rune(PrivKey49)
 	PrivKey49SliceString 	= make([]string,len(PrivKey49))
-	ZeroPoint		= InfinityPoint
+	ZeroPoint		= InfinityPointSevenFold
 	Result			ExtendedCoordinates
     )
     //start := time.Now()
@@ -852,4 +926,81 @@ func (k *FiniteFieldEllipticCurve) ScalarMultiplierPt (Scalar *big.Int, InputP E
     //fmt.Println("")
     //fmt.Println("Computing PublicKey points took:", elapsed)
     return OutputP
+}
+
+func (k *FiniteFieldEllipticCurve) MakeGenMin () (OutputP AffineCoordinates) {
+    var(
+        ComputedP AffineCoordinates
+	Start 	= big.NewInt(1)
+	End 	= k.Q
+	X	= new(big.Int)
+	Y	= new(big.Int)
+    )
+
+    // i must be a new big.Int so it does not overwrite Start
+    for i:=new(big.Int).Set(Start); i.Cmp(&End) < 0; i.Add(i,One) {
+        Y = k.GetY(i)
+        if Y.Cmp(Zero) != 0 {
+            X = i
+	    ComputedP = AffineCoordinates{X,Y}
+	    if k.GetPointOrder(ComputedP) == "Q" {
+	        break
+	    }
+	}
+
+    }
+    IsPointOnCurve,_ := k.IsOnCurve(k.Affine2Extended(ComputedP))
+    if IsPointOnCurve == true {
+	OutputP = ComputedP
+    }
+    return OutputP
+}
+
+func (k *FiniteFieldEllipticCurve) GetPointOrder (InputP AffineCoordinates) string {
+    var (
+	PointOrderS 	string
+    	PointOrder 	= big.NewInt(-1)
+    	MinusOne	= big.NewInt(-1)
+    	QScalar		= new(big.Int)
+    )
+    PointExt := k.Affine2Extended(InputP)
+    CofactorDivisors := aux.ListDivisors(&k.R)
+
+    fmt.Println("Cofactor Divisors are",CofactorDivisors)
+    for i:=0; i<len(CofactorDivisors); i++ {
+        I := k.ScalarMultiplierPt(CofactorDivisors[i],PointExt)
+	fmt.Println("i",i,"is mult by",CofactorDivisors[i],"and results is",I)
+        if k.IsInfinityPoint(I) == true {
+            PointOrder = CofactorDivisors[i]
+	    PointOrderS = PointOrder.Text(10)
+            break
+	}
+    }
+
+    Compare := PointOrder.Cmp(MinusOne)
+    if Compare == 0 {
+	for j:=0; j<len(CofactorDivisors); j++ {
+	    if j == 0 {
+		J := k.ScalarMultiplierPt(&k.Q,PointExt)
+		fmt.Println("j",j,"is mult by Q and results is",J)
+		if k.IsInfinityPoint(J) == true {
+		    PointOrder = &k.Q
+		    PointOrderS = "Q"
+		    break
+		}
+	    } else {
+	        QScalar.Mul(&k.Q,CofactorDivisors[j])
+		J := k.ScalarMultiplierPt(QScalar,PointExt)
+		js := CofactorDivisors[j].Text(10)
+		Ss := js+"Q"
+		fmt.Println("j",j,"is mult by",Ss," and results is",J)
+		if k.IsInfinityPoint(J) == true {
+		    PointOrder = QScalar
+		    PointOrderS = Ss
+		    break
+		}
+	    }
+	}
+    }
+    return PointOrderS
 }

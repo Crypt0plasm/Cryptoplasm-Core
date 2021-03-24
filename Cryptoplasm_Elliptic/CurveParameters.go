@@ -14,19 +14,20 @@ import (
 //
 // Package Cryptoplasm_Elliptic defines:
 //      3 Montgomery Curves
-//          M383
-//          Curve383187
-//          M511
+//          M383                                        //Cofactor 8
+//          Curve383187                                 //Cofactor 8
+//          M511                                        //Cofactor 8
 //      4 Standard known Twisted Edwards Curves,
-//          E382
-//          Curve41417
-//          Ed448-Goldilocks
-//          E521
+//          E382                                        //Cofactor 4
+//          Curve41417                                  //Cofactor 8
+//          Goldilocks                                  //Cofactor 4
+//          E521                                        //Cofactor 4
 //      as defined by Safe Curves https://safecurves.cr.yp.to/index.html, and
-//      3 novel never before used Twisted Edwards Curves,
-//          TEC_S545_Pr551p335_m1874
-//          TEC_S1021_Pr1029p639_p403
-//          TEC_S1023_Pr1029p639_m200
+//      4 novel never before used Twisted Edwards Curves,
+//          TEC_S545_Pr551p335_m1874                    //Cofactor 4
+//          TEC_S1021_Pr1029p639_p403                   //Cofactor 8
+//          TEC_S1023_Pr1029p639_m200                   //Cofactor 4
+//          TEC_S1024_Pr1029p639_m729                   //Cofactor 4
 //
 //  The idea behind the Novel TEC curves, is that they have a higher number of Possible unique Private Keys.
 //  Bitcoin uses secp256k1 Curve, the Generator Point's order is  2^256 - 432420386565659656852420866394968145599.
@@ -58,8 +59,8 @@ import (
 //      Cofactor 4 Curves are searched for, this is the smallest possible Cofactor for TEC curves, to maximize Q size.
 //      D is chosen to be the smallest absolute value that produces the intended S size,
 //      while the largest Subgroup Order Q is of course prime.
-//      The Generator is then chosen as the Point with the smallest x affine coordinate of form 7,77,777,... that is on
-//      the Subgroup Q. (The special form of 7,77,777 is an aesthetic unique Cryptoplasm Marker)
+//      The Generator is then chosen as the Point with the smallest X Coordinate that lies on the Prime Order Subgroup G
+//      Method MakeGenMin return this point. However its return is saved directly as values.
 //
 //  All Novel TEC Curves have the "Complex-Multiplication Field Discriminant" larger than 2^100 as required by https://safecurves.cr.yp.to/disc.html
 //  Their "rho cost" is higher than every curve listed by SafeCurves https://safecurves.cr.yp.to/rho.html
@@ -154,12 +155,12 @@ func MakePrime (PrimeNumber PrimePowerTwo) big.Int {
 //
 // Curve M1:
 //
-// DefineM383 defines the M-383 curve specified in:
+// Function M383 defines the M-383 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
-// http://eprint.iacr.org/2013/647.pdf
+// http://eprint.iacr.org/2013/647.pdf and https://safecurves.cr.yp.to/index.html
 //
 //
-// Name: 			M-383
+// Name: 			M383
 // Equation is: 		y^2 = x^3 + 2065150 * x^2 + x
 // Prime field (P)		2^383 - 187
 //	Decimal Form		19701003098197239606139520050071806902539869635232723333974146702122860885748605305707133127442457820403313995153221
@@ -179,13 +180,13 @@ func MakePrime (PrimeNumber PrimePowerTwo) big.Int {
 //	Hexadecimal Form	0xc
 // Base-Point Y			4737623401891753997660546300375902576839617167257703725630389791524463565757299203154901655432096558642117242906494
 //	Hexadecimal Form	0x1ec7ed04aaf834af310e304b2da0f328e7c165f0e8988abd3992861290f617aa1f1b2e7d0b6e332e969991b62555e77e
-func DefineM383() *FiniteFieldEllipticCurve {
+func M383() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
         Q PrimePowerTwo
     )
-    p.Name = "M-383"
+    p.Name = "M383"
 
     //P=2^383-187
     P.Power = 383
@@ -218,8 +219,8 @@ func DefineM383() *FiniteFieldEllipticCurve {
 //
 // Curve M2:
 //
-// Define383187 defines the Curve383187 curve specified in:
-// ---
+// Function Curve383187 defines the Curve383187 curve specified in:
+// https://safecurves.cr.yp.to/index.html
 // ---
 //
 //
@@ -243,7 +244,7 @@ func DefineM383() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x5
 // Base-Point Y			4759238150142744228328102229734187233490253962521130945928672202662038422584867624507245060283757321006861735839455
 //	Hexadecimal Form	0x1eebe07dc1871896732b12d5504a32370471965c7a11f2c89865f855ab3cbd7c224e3620c31af3370788457dd5ce46df
-func Define383187() *FiniteFieldEllipticCurve {
+func Curve383187() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
@@ -281,12 +282,12 @@ func Define383187() *FiniteFieldEllipticCurve {
 //
 // Curve M3:
 //
-// DefineM511 defines the M-511 curve specified in:
+// Function M511 defines the M-511 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
-// http://eprint.iacr.org/2013/647.pdf
+// http://eprint.iacr.org/2013/647.pdf and https://safecurves.cr.yp.to/index.html
 //
 //
-// Name: 			M-511
+// Name: 			M511
 // Equation is: 		y^2 = x^3 + 530438 * x^2 + x
 // Prime field (P)		2^511 - 187
 //	Decimal Form		6703903964971298549787012499102923063739682910296196688861780721860882015036773488400937149083451713845015929093243025426876941405973284973216824503041861
@@ -306,7 +307,7 @@ func Define383187() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x5
 // Base-Point Y			2500410645565072423368981149139213252211568685173608590070979264248275228603899706950518127817176591878667784247582124505430745177116625808811349787373477
 //	Hexadecimal Form	0x2fbdc0ad8530803d28fdbad354bb488d32399ac1cf8f6e01ee3f96389b90c809422b9429e8a43dbf49308ac4455940abe9f1dbca542093a895e30a64af056fa5
-func DefineM511() *FiniteFieldEllipticCurve {
+func M511() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
@@ -346,16 +347,16 @@ func DefineM511() *FiniteFieldEllipticCurve {
 //
 // Curve TEC-Standard-1:
 //
-// DefineE382 defines the E-382 curve specified in:
+// Function E382 defines the E-382 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
-// http://eprint.iacr.org/2013/647.pdf
+// http://eprint.iacr.org/2013/647.pdf , https://safecurves.cr.yp.to/index.html
 //
 // and more recently in:
 //
 // "Additional Elliptic Curves for IETF protocols"
 // http://tools.ietf.org/html/draft-ladd-safecurves-02
 //
-// Name: 			E-382
+// Name: 			E382
 // Equation is: 		x^2 + y^2 = 1 - 67254 * x^2 * y^2
 // Prime field (P)		2^382 - 105
 //	Decimal Form		9850501549098619803069760025035903451269934817616361666987073351061430442874302652853566563721228910201656997576599
@@ -375,13 +376,13 @@ func DefineM511() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x196f8dd0eab20391e5f05be96e8d20ae68f840032b0b64352923bab85364841193517dbce8105398ebc0cc9470f79603
 // Base-Point Y			17
 //	Hexadecimal Form	0x11
-func DefineE382() *FiniteFieldEllipticCurve {
+func E382() *FiniteFieldEllipticCurve {
     var (
     	p FiniteFieldEllipticCurve
         P PrimePowerTwo
         Q PrimePowerTwo
     )
-    p.Name = "E-382"
+    p.Name = "E382"
 
     //P=2^382 - 105
     P.Power = 382
@@ -409,14 +410,16 @@ func DefineE382() *FiniteFieldEllipticCurve {
     //Generator Coordinates
     p.PBX.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
     p.PBY.SetString("17", 10)
+    //p.PBX.SetString("17", 10)
+    //p.PBY.SetString("3914921414754292646847594472454013487047137431784830634731377862923477302047857640522480241298429278603678181725699", 10)
     return &p
 }
 //
 // Curve TEC-Standard-2:
 //
-// Define41417 defines the Curve41417 curve, as specified in:
+// Function Curve41417 defines the Curve41417 curve, as specified in:
 // Bernstein et al, "Curve41417: Karatsuba revisited",
-// http://eprint.iacr.org/2014/526.pdf
+// http://eprint.iacr.org/2014/526.pdf and https://safecurves.cr.yp.to/index.html
 //
 // Name: 			Curve41417
 // Equation is: 		x^2 + y^2 = 1 + 3617 * x^2 * y^2
@@ -438,7 +441,7 @@ func DefineE382() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x1a334905141443300218c0631c326e5fcd46369f44c03ec7f57ff35498a4ab4d6d6ba111301a73faa8537c64c4fd3812f3cbc595
 // Base-Point Y			34
 //	Hexadecimal Form	0x22
-func Define41417() *FiniteFieldEllipticCurve {
+func Curve41417() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
@@ -477,11 +480,11 @@ func Define41417() *FiniteFieldEllipticCurve {
 //
 // Curve TEC-Standard-3:
 //
-// DefineGoldilocks defines the Ed448-Goldilocks curve, as specified in:
+// Function Goldilocks defines the Ed448-Goldilocks curve, as specified in:
 // Bernstein et al, "Ed448-Goldilocks, a new elliptic curve",
-// https://eprint.iacr.org/2015/625.pdf
+// https://eprint.iacr.org/2015/625.pdf and https://safecurves.cr.yp.to/index.html
 //
-// Name: 			Ed448-Goldilocks
+// Name: 			Goldilocks
 // Equation is: 		x^2 + y^2 = 1 - 39081 * x^2 * y^2
 // Prime field (P)		2^448 - 2^224 - 1
 //	Decimal Form		726838724295606890549323807888004534353641360687318060281490199180612328166730772686396383698676545930088884461843637361053498018365439
@@ -501,14 +504,14 @@ func Define41417() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x297ea0ea2692ff1b4faff46098453a6a26adf733245f065c3c59d0709cecfa96147eaaf3932d94c63d96c170033f4ba0c7f0de840aed939f
 // Base-Point Y			19
 //	Hexadecimal Form	0x13
-func DefineGoldilocks() *FiniteFieldEllipticCurve {
+func Goldilocks() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
         R PrimePowerTwo
         Q PrimePowerTwo
     )
-    p.Name = "Ed448-Goldilocks"
+    p.Name = "Goldilocks"
 
     //Rp=2^224 + 1
     R.Power = 224
@@ -546,15 +549,15 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
 //
 // Curve TEC-Standard-4:
 //
-// DefineE521 defines the E-521 curve specified in:
+// Function E521 defines the E-521 curve specified in:
 // Aranha et al, "A note on high-security general-purpose elliptic curves",
-// http://eprint.iacr.org/2013/647.pdf
+// http://eprint.iacr.org/2013/647.pdf , https://safecurves.cr.yp.to/index.html
 //
 // and more recently included in:
 // "Additional Elliptic Curves for IETF protocols"
 // http://tools.ietf.org/html/draft-ladd-safecurves-02
 //
-// Name: 			E-521
+// Name: 			E521
 // Equation is: 		x^2 + y^2 = 1 - 376014 * x^2 * y^2
 // Prime field (P)		2^521 - 1
 //	Decimal Form		6864797660130609714981900799081393217269435300143305409394463459185543183397656052122559640661454554977296311391480858037121987999716643812574028291115057151
@@ -574,13 +577,13 @@ func DefineGoldilocks() *FiniteFieldEllipticCurve {
 //	Hexadecimal Form	0x752cb45c48648b189df90cb2296b2878a3bfd9f42fc6c818ec8bf3c9c0c6203913f6ecc5ccc72434b1ae949d568fc99c6059d0fb13364838aa302a940a2f19ba6c
 // Base-Point Y			12
 //	Hexadecimal Form	0xc
-func DefineE521() *FiniteFieldEllipticCurve {
+func E521() *FiniteFieldEllipticCurve {
     var (
         p FiniteFieldEllipticCurve
         P PrimePowerTwo
         Q PrimePowerTwo
     )
-    p.Name = "E-521"
+    p.Name = "E521"
 
     //P=2^521 - 1
     P.Power = 521
@@ -610,10 +613,79 @@ func DefineE521() *FiniteFieldEllipticCurve {
     p.PBY.SetString("12", 10)
     return &p
 }
-//
+//======================================================================================================================
 // Novel never before used Twisted Edwards Curves
 //
+// Curve TEC-Novel-0000:
+//
+// Function LittleOne defines an elliptic curve of Cofactor 4 over a small prime field of 997,
+// used for testing and observing purposes.
+//
+// Name: 			LittleOne
+// Equation is: 		x^2 + y^2 = 1 + 446 * x^2 * y^2
+// Prime field (P)		2^10 - 27
+//	Decimal Form		997
+//	Hexadecimal Form	??
+//
+// Base-Point Prime Order (Q)	2^8+1
+//	Decimal Form		257
+//	Hexadecimal Form	??
+// Trace (T)                    -30
+// Cofactor R			4
+// Safe Scalar Size S           5
+//
+// Curve A Parameter		1
+// Curve D Parameter		446
+//
+// Base-Point X                 24
+//	Hexadecimal Form        ??
+// Base-Point Y                 440
+//	Hexadecimal Form        ??
+func LittleOne() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        P PrimePowerTwo
+        Q PrimePowerTwo
+    )
+    p.Name = "LittleOne"
+
+    //P=2^10 - 27
+    P.Power = 10
+    P.RestString = "27"
+    P.Sign = false
+    p.P = MakePrime(P)
+
+    //Q=2^8+1
+    Q.Power = 8
+    Q.RestString = "1"
+    Q.Sign = true
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
+    p.T.SetString("-30", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 545
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
+    p.A.SetInt64(1)
+    p.D.SetInt64(446)
+
+    //Generator Coordinates
+    p.PBX.SetString("24", 10)
+    p.PBY.SetString("440", 10)
+    return &p
+}
+//======================================================================================================================
+//
 // Curve TEC-Novel-0001:
+//
+// Function TEC_S545_Pr551p335_m1874 defines the first Curve discovered with an S-value higher than the highest S-Value
+// Public TEC Curve, the E521. It's D coefficient was discovered fairly easy after computing approximately 15000
+// Coefficients (Computing Coefficients refers to computing the Trace for a given D coefficient and prime field) with
+// Sage on 2 CPUs (Ryzen 5950 testing negative D coefficients, and an Epyc 7551P testing positive Coefficients), over
+// the course of approximately 1 and a half day.
 //
 // Name: 			TEC_S545_Pr551p335_m1874
 // Equation is: 		x^2 + y^2 = 1 - 1874 * x^2 * y^2
@@ -631,9 +703,9 @@ func DefineE521() *FiniteFieldEllipticCurve {
 // Curve A Parameter		1
 // Curve D Parameter		-1874
 //
-// Base-Point X                 77
+// Base-Point X                 5
 //	Hexadecimal Form        ??
-// Base-Point Y                 4527406382422510671343491545630208639882316168543978369766899111005970584921596317933470548146309203522889340017355084124816910211809683022868481792046307208534275660
+// Base-Point Y                 4518488039903337342061416616304793185577751419009710712882273229786958102867981468569632796010757506367702155510163192445896310025029799220155797291359909742186717128
 //	Hexadecimal Form        ??
 func TEC_S545_Pr551p335_m1874() *FiniteFieldEllipticCurve {
     var (
@@ -667,12 +739,16 @@ func TEC_S545_Pr551p335_m1874() *FiniteFieldEllipticCurve {
     p.D.SetInt64(-1874)
 
     //Generator Coordinates
-    p.PBX.SetString("77", 10)
-    p.PBY.SetString("4527406382422510671343491545630208639882316168543978369766899111005970584921596317933470548146309203522889340017355084124816910211809683022868481792046307208534275660", 10)
+    p.PBX.SetString("5", 10)
+    p.PBY.SetString("4518488039903337342061416616304793185577751419009710712882273229786958102867981468569632796010757506367702155510163192445896310025029799220155797291359909742186717128", 10)
     return &p
 }
-
+//
 // Curve TEC-Novel-0002:
+//
+// Function TEC_S1021_Pr1029p639_p403 defines the first Curve discovered while searching for a Curve with an S value of
+// 1024 on the same systems used for finding the D coefficient for the TEC_S545_Pr551p335_m1874. The Coefficient appeared
+// after approximately 1 day of Testing. At the point of its discovery, it became the biggest S-Value curve defined here.
 //
 // Name: 			TEC_S1021_Pr1029p639_p403
 // Equation is: 		x^2 + y^2 = 1 + 403 * x^2 * y^2
@@ -690,9 +766,9 @@ func TEC_S545_Pr551p335_m1874() *FiniteFieldEllipticCurve {
 // Curve A Parameter		1
 // Curve D Parameter		403
 //
-// Base-Point X                 7
+// Base-Point X                 39
 //	Hexadecimal Form        ??
-// Base-Point Y                 4891032912248904755549456678747695955126708112201164739853488493598067395836251207375320947218556932784190993832563455216168221249361835189332376922566116304463582588297890435958158019792506652899026735502687426779165192420655413434180934724921455425060615757593517360439569697958308074508163823089821242115695
+// Base-Point Y                 5576533075937720038098979394411727019827964480087178017371868264528072186969486283264858007407820973699691992666589452515693225782545746655700587813300615359050446313584121584063198554946923237708227614531033897522367303509581575612135794007129867293613969915343060843254041982275099993760177593077210810921912
 //	Hexadecimal Form        ??
 func TEC_S1021_Pr1029p639_p403() *FiniteFieldEllipticCurve {
     var (
@@ -726,11 +802,15 @@ func TEC_S1021_Pr1029p639_p403() *FiniteFieldEllipticCurve {
     p.D.SetInt64(403)
 
     //Generator Coordinates
-    p.PBX.SetString("7", 10)
-    p.PBY.SetString("4891032912248904755549456678747695955126708112201164739853488493598067395836251207375320947218556932784190993832563455216168221249361835189332376922566116304463582588297890435958158019792506652899026735502687426779165192420655413434180934724921455425060615757593517360439569697958308074508163823089821242115695", 10)
+    p.PBX.SetString("39", 10)
+    p.PBY.SetString("5576533075937720038098979394411727019827964480087178017371868264528072186969486283264858007407820973699691992666589452515693225782545746655700587813300615359050446313584121584063198554946923237708227614531033897522367303509581575612135794007129867293613969915343060843254041982275099993760177593077210810921912", 10)
     return &p
 }
 // Curve TEC-Novel-0003:
+//
+// Function TEC_S1023_Pr1029p639_m200 defines the second Curve discovered while searching for a Curve with an S value of
+// 1024 on the same systems used for finding the D coefficient for the TEC_S545_Pr551p335_m1874. The Coefficient appeared
+// after approximately 2 days of Testing. At the point of its discovery, it became the biggest S-Value curve defined here.
 //
 // Name: 			TEC_S1023_Pr1029p639_m200
 // Equation is: 		x^2 + y^2 = 1 - 200 * x^2 * y^2
@@ -748,9 +828,9 @@ func TEC_S1021_Pr1029p639_p403() *FiniteFieldEllipticCurve {
 // Curve A Parameter		1
 // Curve D Parameter		-200
 //
-// Base-Point X                 _
+// Base-Point X                 18
 //	Hexadecimal Form        ??
-// Base-Point Y                 _
+// Base-Point Y                 5006392512810367543241026017186205828475671321699765938632799901604288413670061260105487647663536568022230479638139010351335665470173712718298837530633945899923869302110921390691280063917337749102198086546109683731403172016859789550276802795383170944526602213977392860793115308281053135496569817870067300616902
 //	Hexadecimal Form        ??
 func TEC_S1023_Pr1029p639_m200() *FiniteFieldEllipticCurve {
     var (
@@ -784,7 +864,70 @@ func TEC_S1023_Pr1029p639_m200() *FiniteFieldEllipticCurve {
     p.D.SetInt64(-200)
 
     //Generator Coordinates
-    p.PBX.SetString("77777", 10)
-    p.PBY.SetString("1920404618337535948842950115553355971330594871583521503931208077577083211608535336897810940310257151668941464553044434358190508672062677975479305884988272452213098822465098676355540385217755809632045706204114244180215429330468348540991256675714461591165426812878446007144013990876113319044457996499800785201032", 10)
+    p.PBX.SetString("18", 10)
+    p.PBY.SetString("5006392512810367543241026017186205828475671321699765938632799901604288413670061260105487647663536568022230479638139010351335665470173712718298837530633945899923869302110921390691280063917337749102198086546109683731403172016859789550276802795383170944526602213977392860793115308281053135496569817870067300616902", 10)
+    return &p
+}
+//
+// Curve TEC-Novel-0003:
+//
+// Function TEC_S1024_Pr1029p639_m2729 defines the first Cofactor 4 TEC Curve discovered  with an S value of
+// 1024 on the same systems used for finding the D coefficient for the TEC_S545_Pr551p335_m1874. The Coefficient appeared
+// after approximately 3 days of Testing. At the point of its discovery, it became the biggest S-Value curve defined here.
+//
+// Name: 			TEC_S1024_Pr1029p639_m729
+// Equation is: 		x^2 + y^2 = 1 - 729 * x^2 * y^2
+// Prime field (P)		2^1029 + 639
+//	Decimal Form		5752618031559410904733776610524879147577526332615381032749762597047445625776030820246671274317041152675843644155884587445081272602061331919771117780463171980088572589595695528841671027239875011822498654466720184602820821834958812207165219537306471589227216341906761543678311870031350921754731402547975172391551
+//	Hexadecimal Form	??
+//
+// Base-Point Prime Order (Q)	2^1027+9418258840691661048958693280848051387209299408194089012775090979625514940291099061879232380228215863338991692577868713164205283324554730781862605682126581
+//	Decimal Form            1438154507889852726183444152631219786894381583153845258187440649261861406444007705061667818579260288168960911038971146861270318150515332979942779445115793004440401988090584931169111037658020140164924071810769058925796185084254643342890366763558998125522667424468382963788291131713121054993413632499599475224309
+//	Hexadecimal Form	??
+// Trace (T)                    -37673035362766644195834773123392205548837197632776356051100363918502059761164396247516929520912863453355966770311474852656821133298218923127450422728505684
+// Cofactor R			4
+// Safe Scalar Size S           1024
+//
+// Curve A Parameter		1
+// Curve D Parameter		-729
+//
+// Base-Point X                 18
+//	Hexadecimal Form        ??
+// Base-Point Y                 215278369951571488896917596155404324026002302190181825431681175816997859909367143653000579666656344456792257669605762582468610930751115704301503268336066379058325768607564533090162357247378501333085803173440477981455490888754538866823680129180124913908161391361773138634347515375569488540295649449731695734303
+//	Hexadecimal Form        ??
+func TEC_S1024_Pr1029p639_m729() *FiniteFieldEllipticCurve {
+    var (
+        p FiniteFieldEllipticCurve
+        P PrimePowerTwo
+        Q PrimePowerTwo
+    )
+    p.Name = "TEC_S1023_Pr1029p639_m200"
+
+    //P=2^1029 + 639
+    P.Power = 1029
+    P.RestString = "639"
+    P.Sign = true
+    p.P = MakePrime(P)
+
+    //Q=2^1027+9418258840691661048958693280848051387209299408194089012775090979625514940291099061879232380228215863338991692577868713164205283324554730781862605682126581
+    Q.Power = 1027
+    Q.RestString = "9418258840691661048958693280848051387209299408194089012775090979625514940291099061879232380228215863338991692577868713164205283324554730781862605682126581"
+    Q.Sign = true
+    p.Q = MakePrime(Q)
+
+    //Trace and Cofactor
+    p.T.SetString("-37673035362766644195834773123392205548837197632776356051100363918502059761164396247516929520912863453355966770311474852656821133298218923127450422728505684", 10)
+    p.R = CurveCofactor(p.P,p.Q,p.T)
+
+    //Safe Scalar Size in bits = 1024
+    p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
+
+    //A and D Coefficients
+    p.A.SetInt64(1)
+    p.D.SetInt64(-729)
+
+    //Generator Coordinates
+    p.PBX.SetString("18", 10)
+    p.PBY.SetString("215278369951571488896917596155404324026002302190181825431681175816997859909367143653000579666656344456792257669605762582468610930751115704301503268336066379058325768607564533090162357247378501333085803173440477981455490888754538866823680129180124913908161391361773138634347515375569488540295649449731695734303", 10)
     return &p
 }

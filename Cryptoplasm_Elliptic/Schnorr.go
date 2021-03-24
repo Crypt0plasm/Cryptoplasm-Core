@@ -2,6 +2,7 @@ package Cryptoplasm_Elliptic
 
 import (
     b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
+    "fmt"
     blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
     p "github.com/Crypt0plasm/Firefly-APD"
     "math/big"
@@ -16,19 +17,15 @@ type Schnurr struct {
 // Part I - Converting a Hash to a big.Int
 //
 func Hash2BigInt (Hash []byte) *big.Int {
-    HexString := ByteSlice2HexString(Hash)
-    result := HexString2BigInt(HexString)
-    return result
-}
-
-func ByteSlice2HexString (Hash []byte) string {
-    var (
+    // Internal Function 1
+    ByteSlice2HexString := func (Hash []byte) string {
+        var (
         result string
         HashElement byte
         HashElementBig = new(big.Int)
     )
 
-    for i := 0; i < len(Hash); i++ {
+        for i := 0; i < len(Hash); i++ {
         HashElement = Hash[i]
         HashElementInt64 := int64(HashElement)
         HashElementBig.SetInt64(HashElementInt64)
@@ -36,20 +33,27 @@ func ByteSlice2HexString (Hash []byte) string {
 
         //Converts "c" to "0c" as per correct Blake3Output in Hex
         switch HashElementHex {
-        case "a":HashElementHex = "0" + HashElementHex
-        case "b":HashElementHex = "0" + HashElementHex
-        case "c":HashElementHex = "0" + HashElementHex
-        case "d":HashElementHex = "0" + HashElementHex
-        case "e":HashElementHex = "0" + HashElementHex
-        case "f":HashElementHex = "0" + HashElementHex
-        }
+    case "a":HashElementHex = "0" + HashElementHex
+    case "b":HashElementHex = "0" + HashElementHex
+    case "c":HashElementHex = "0" + HashElementHex
+    case "d":HashElementHex = "0" + HashElementHex
+    case "e":HashElementHex = "0" + HashElementHex
+    case "f":HashElementHex = "0" + HashElementHex
+    }
         result = result + HashElementHex
     }
-    return result
-}
-func HexString2BigInt (HexString string) *big.Int {
-    var result = new(big.Int)
-    result.SetString(HexString,16)
+        return result
+    }
+    // Internal Function 2
+    HexString2BigInt := func(HexString string) *big.Int {
+        var result = new(big.Int)
+        result.SetString(HexString,16)
+        return result
+    }
+
+    //Main Body Function
+    HexString := ByteSlice2HexString(Hash)
+    result := HexString2BigInt(HexString)
     return result
 }
 //
@@ -112,7 +116,8 @@ func PublicKey2Affine (PublicKey string) AffineCoordinates {
 //
 // Function that creates the big.Int from the Hashed Schnorr Parameters
 //
-func SchnorrHash (r *big.Int, PublicKey string, Message []byte) *big.Int {
+// VII.1
+func (k *FiniteFieldEllipticCurve) SchnorrHash (r *big.Int, PublicKey string, Message []byte) *big.Int {
     SmallRBinary := r.Text(2)
 
     PKAffine := PublicKey2Affine(PublicKey)
@@ -126,7 +131,8 @@ func SchnorrHash (r *big.Int, PublicKey string, Message []byte) *big.Int {
 
     //OutputSize in Bytes must not necessarily be as big as the bit-size of the Prime Number of the Curve.
     //But it is settled on that size.
-    Hash := blake3.SumCustom(ConcatenatedBinaryStringToByteSlice,65)
+    OutputSizeInBytes := int(k.S) / 8
+    Hash := blake3.SumCustom(ConcatenatedBinaryStringToByteSlice,OutputSizeInBytes)
     SchnorrHashInt := Hash2BigInt(Hash)
     return SchnorrHashInt
 }
@@ -134,7 +140,7 @@ func SchnorrHash (r *big.Int, PublicKey string, Message []byte) *big.Int {
 // The Schnorr Sign Function. It takes a Pair of CryptoPlasm Keys (Strings in 49Base Format, and special Construction for the Public.Key)
 // and a Hashed Output as the Message to be singed for, and provides a Signature.
 //
-// VII.1
+// VII.2
 func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Signature Schnurr) {
     var (
         z = new(big.Int)
@@ -144,20 +150,21 @@ func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Si
     //Step 1, choosing random number kappa within prime field interval
     z = k.GetRandomOnCurve()
 
-    //Step 2, computing Q (x,y) as z multiplied by Curve Generator Point
-    //Generator := AffineCoordinates {&k.PBX, &k.PBY}
-    //GeneratorExt := k.Affine2Extended(Generator)
+    //Step 2, computing R (x,y) as z multiplied by Curve Generator Point
     RExt  := k.ScalarMultiplierG(z)
     RAff := k.Extended2Affine(RExt)
 
-    SchnorredHash := SchnorrHash(RAff.AX,Keys.PublicKey,Hash)
+    SchnorredHash := k.SchnorrHash(RAff.AX,Keys.PublicKey,Hash)
 
     //If MulMod and AddMod is used, signature doesnt verify.
-    //Numbers must be allowed to grow non modulo P
-    // For k*G=P(k private, P public), H*k*G != H*P if H*k wraps around modulo P.
-    // But it does work if it wraps modulo Q
-    v1 = k.MulModQ(SchnorredHash,ConvertBase49toBase10(Keys.PrivateKey))
-    s  = k.AddModQ(z,v1)
+    //Numbers must be allowed to grow freely. Restricting them modulo Q or P breaks the signature.
+    //SchnorredHash size in similar to Curve S size in bytes. Multiplied by the private key which is of similar size,
+    //The resulting s is roughly two times the size of the private Key is bits
+    v1.Mul(SchnorredHash,ConvertBase49toBase10(Keys.PrivateKey))
+    s.Add(z,v1)
+    fmt.Println("s is",s)
+    //v1 = k.MulModQ(SchnorredHash,ConvertBase49toBase10(Keys.PrivateKey))
+    //s  = k.AddModQ(z,v1)
 
     Signature.R = RAff
     Signature.S = s
@@ -166,7 +173,7 @@ func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Si
 // The Schnorr Verify Function. It takes a Signature, a CryptoPlasm PublicKey (in CryptoPlasm PublicKey Format),
 // and a Hashed Output as the Message, and returns true is the Signature is valid for the Public Key.
 //
-// VII.2
+// VII.3
 func (k *FiniteFieldEllipticCurve) SchnorrVerify (Sigma Schnurr, PublicKey string, Hash []byte) bool {
     var Result bool
     //GeneratorAff := AffineCoordinates {&k.PBX, &k.PBY}
@@ -174,7 +181,7 @@ func (k *FiniteFieldEllipticCurve) SchnorrVerify (Sigma Schnurr, PublicKey strin
     sGExt := k.ScalarMultiplierG(Sigma.S)
     sGAff := k.Extended2Affine(sGExt)
 
-    SchnorredHash := SchnorrHash(Sigma.R.AX,PublicKey,Hash)
+    SchnorredHash := k.SchnorrHash(Sigma.R.AX,PublicKey,Hash)
     PublicKeyGeneratorAff := PublicKey2Affine(PublicKey)
     PublicKeyGeneratorExt := k.Affine2Extended(PublicKeyGeneratorAff)
 
