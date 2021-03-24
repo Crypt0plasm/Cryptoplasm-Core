@@ -104,7 +104,7 @@ func VerifyAllEllipseResults (Location string, Prime PrimePowerTwo, RyzenCores, 
     T=RyzenT+EpycT
     F=RyzenF+EpycF
     fmt.Println("TotalVerifications =",T+F,"| True =",T,"| False =",F,"| Mode:",Mode)
-    fmt.Println("=======END=======")
+    fmt.Println("=========END========")
     return T,F
 }
 
