@@ -7,8 +7,8 @@ func main () {
 	PrimeNumber el.PrimePowerTwo
     )
 
-    PrimeNumber.Power = 1029
-    PrimeNumber.RestString = "639"
+    PrimeNumber.Power = 2250
+    PrimeNumber.RestString = "6727"
     PrimeNumber.Sign = true
 
     //Export for Ryzen (16 Cores, Negative Coefficients)

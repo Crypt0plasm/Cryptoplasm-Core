@@ -15,8 +15,8 @@ func main () {
 	Mode16 = "Easy16"
     )
 
-    PrimeNumber.Power = 1029
-    PrimeNumber.RestString = "639"
+    PrimeNumber.Power = 2250
+    PrimeNumber.RestString = "6727"
     PrimeNumber.Sign = true
 
     //Verify Ryzen Ellipse
