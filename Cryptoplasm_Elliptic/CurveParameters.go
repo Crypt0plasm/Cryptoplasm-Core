@@ -665,7 +665,7 @@ func LittleOne() *FiniteFieldEllipticCurve {
     p.T.SetString("-30", 10)
     p.R = CurveCofactor(p.P,p.Q,p.T)
 
-    //Safe Scalar Size in bits = 545
+    //Safe Scalar Size in bits = 5
     p.S,_ = SafeScalarComputer(&p.P,&p.T,&p.R)
 
     //A and D Coefficients
