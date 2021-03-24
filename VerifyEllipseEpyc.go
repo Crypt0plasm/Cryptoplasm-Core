@@ -7,7 +7,7 @@ import (
 func main () {
     var (
 	PrimeNumber el.PrimePowerTwo
-	VerifyLocation = ".ElipseComputing/"
+	VerifyLocation = ".EllipseComputing/"
 	ModeU = "Unity"
 	ModeT = "Trinity"
 	Mode4 = "Easy4"
