@@ -52,11 +52,7 @@ var (
 
     YSquared = Polynom {
         3,
-	[]uint64{
-            0,
-            1,
-            2,
-            3},
+	[]uint64{0, 1, 2, 3},
 	[][]Coefficient{{YSqX0},{YSqX1},{YSqX2},{YSqX3}},
     }
 )
@@ -273,9 +269,7 @@ func AddCoefficientChains (C1, C2 []Coefficient) (Result []Coefficient) {
     Result = ReduceCoefficients(IntermediaryResult)
     return Result
 }
-
-
-
+//
 //Adding Coefficients simply puts single Coefficients in a Coefficient Slice and Reduces the resulting slice
 func AddCoefficients (Coefficients ...Coefficient) (Result []Coefficient) {
     var IntermediaryResult = make([]Coefficient, len(Coefficients))
@@ -308,38 +302,23 @@ func ReduceCoefficients (ChainLink []Coefficient) []Coefficient {
 		    BoolChain[i+1] = true
 		}
 	    }
-	    //fmt.Println("Bool",BoolChain)
 	    var (
 	    	Sum = big.NewInt(0)
 	    	Element Coefficient
 	    	RemovalCount = 0
 	    )
 	    for j:=0; j<len(BoolChain); j++ {
-		//fmt.Println("Suma pulii este",Sum)
 	        if BoolChain[j] == true {
-		    //fmt.Println("Len Chain is",len(Chain))
 	            Element = Chain[j-RemovalCount]
-		    //fmt.Println("Cu care se aduna suma este la j =",j,Chain[j-RemovalCount].Numeral,"lungimea chain este",len(Chain))
-		    //fmt.Println("Pt ca Chainul este",Chain)
 	            Sum.Add(Sum,Chain[j-RemovalCount].Numeral)
-		    //fmt.Println("Suma pulii este in chain",Sum)
-		    //fmt.Println("Removing El",j,"dar in realitate",j-RemovalCount)
 	            Chain = RemoveCoefficient(Chain,j-RemovalCount)
 	            RemovalCount = RemovalCount + 1
-		    //fmt.Println("Chain after clear is",Chain)
-		    //fmt.Println("Chain after clear is",len(Chain))
 		}
-		//fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	    }
-	    //fmt.Println("Sum izzz",Sum)
-	    //fmt.Println("Chain after clear is",Chain)
-	    //fmt.Println("Chain after clear is",len(Chain))
-	    //fmt.Println("*****************************************")
 	    Element.Numeral = Sum
 	    FinalChain = AppendCoefficient(FinalChain,Element)
 	}
     }
-    //fmt.Println("Finish")
     return FinalChain
 }
 
@@ -348,9 +327,6 @@ func MulCoefficient (C1, C2 Coefficient)  Coefficient {
 	Product Coefficient		//Result ABStringCoeff doesnt work,
 	ProductA Letter
 	ProductB Letter
-
-	//It needs to be initialised as the Zero ABStringCoeff
-	//This is the YSqX3 variable
 	NumberValue = new(big.Int)
 	ExpA = new(big.Int)
 	ExpB = new(big.Int)
@@ -381,12 +357,11 @@ func MulCoefficient (C1, C2 Coefficient)  Coefficient {
     ProductB.Letter = "B"
     ProductB.Exponent = ExpB
 
-
     //Constructing the Product
     Product.Numeral = NumberValue
     Product.ACoeff = ProductA
     Product.BCoeff = ProductB
-
+    
     return Product
 }
 
