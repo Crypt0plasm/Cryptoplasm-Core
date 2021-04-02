@@ -12,5 +12,5 @@ func main () {
     PrimeNumber.Sign = true
 
     //Export for Ryzen (16 Cores, Negative Coefficients)
-    el.ExportEllipse(PrimeNumber,0,12000,16,false)
+    el.ExportEllipse(PrimeNumber,0,120000,12,false)
 }

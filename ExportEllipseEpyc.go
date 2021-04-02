@@ -7,10 +7,10 @@ func main () {
 	PrimeNumber el.PrimePowerTwo
     )
 
-    PrimeNumber.Power = 2250
-    PrimeNumber.RestString = "6727"
+    PrimeNumber.Power = 1605
+    PrimeNumber.RestString = "2315"
     PrimeNumber.Sign = true
 
     //Export for Epyc (32 Cores, Positive Coefficients)
-    el.ExportEllipse(PrimeNumber,0,1200000,32,true)
+    el.ExportEllipse(PrimeNumber,0,120000,12,true)
 }

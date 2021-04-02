@@ -361,7 +361,7 @@ func MulCoefficient (C1, C2 Coefficient)  Coefficient {
     Product.Numeral = NumberValue
     Product.ACoeff = ProductA
     Product.BCoeff = ProductB
-    
+
     return Product
 }
 
@@ -533,4 +533,17 @@ func PolynomMul (P1, P2 Polynom) Polynom {
 	}
     }
     return Product
+}
+
+func PolynomSqr (P Polynom) Polynom {
+    var Sqr Polynom
+    Sqr = PolynomMul(P,P)
+    return Sqr
+}
+
+func PolynomCube (P Polynom) Polynom {
+    var Cube Polynom
+    Sqr := PolynomSqr(P)
+    Cube = PolynomMul(Sqr,P)
+    return Cube
 }
