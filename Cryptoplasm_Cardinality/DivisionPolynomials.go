@@ -18,44 +18,22 @@ type Coefficient struct {
     BCoeff Letter
 }
 
+type YCoefficient struct {
+    Numeral *big.Int
+    NumeralExponent *big.Int
+    YCoeff Letter
+}
+
 type Polynom struct {
     Degree uint64
     Rank []uint64
     Coefficients [][]Coefficient
 }
 
-var (
-    Zero = big.NewInt(0)
-    One  = big.NewInt(1)
-    Two  = big.NewInt(2)
-
-    A0 = Letter{
-	Letter: "A",
-	Exponent: Zero,
-    }
-    B0 = Letter{
-	Letter: "B",
-	Exponent: Zero,
-    }
-    A1 = Letter{
-	Letter: "A",
-	Exponent: One,
-    }
-    B1 = Letter{
-	Letter: "B",
-	Exponent: One,
-    }
-    YSqX0 = Coefficient{One,A0,B1}
-    YSqX1 = Coefficient{One,A1,B0}
-    YSqX2 = Coefficient{Zero,A0,B0}
-    YSqX3 = Coefficient{One,A0,B0}
-
-    YSquared = Polynom {
-        3,
-	[]uint64{0, 1, 2, 3},
-	[][]Coefficient{{YSqX0},{YSqX1},{YSqX2},{YSqX3}},
-    }
-)
+type DivisionPolynom struct {
+    NonY Polynom
+    Y YCoefficient
+}
 
 func PrintPolynom (P Polynom, Mode string) string {
     var (
