@@ -52,6 +52,8 @@ func PrintPolynom (P Polynom, Mode string) string {
 	for i:=0; i<len(ReverseSlice); i++ {
 	    if i == 0 {
 		Result = ReverseSlice[i]
+	    } else if len(ReverseSlice) > 1 && ReverseSlice[i][:1] == "-" {
+		Result = Result + ReverseSlice[i]
 	    } else {
 		Result = Result + "+" + ReverseSlice[i]
 	    }
@@ -75,6 +77,8 @@ func PrintPolynom (P Polynom, Mode string) string {
 	for i:=0; i<len(ReverseSlice); i++ {
 	    if i == 0 {
 		Result = ReverseSlice[i]
+	    }else if len(ReverseSlice) > 1 && ReverseSlice[i][:1] == "-" {
+		Result = Result + ReverseSlice[i]
 	    } else {
 		Result = Result + "+" + ReverseSlice[i]
 	    }
@@ -109,7 +113,12 @@ func PrintCoefficients (C []Coefficient) string {
 	        if Result == "" {
 	            Result = StringSlice[i]
 		} else {
-		    Result = Result + "+" + StringSlice[i]
+		    if StringSlice[i][:1] == "-" {
+			Result = Result + StringSlice[i]
+		    } else {
+			Result = Result + "+" + StringSlice[i]
+		    }
+
 		    Size = true
 		}
 	    }
@@ -217,6 +226,21 @@ func PrintCoefficient (C Coefficient) string {
     }
     return Result
 }
+
+func GetCoeffSign(C Coefficient) bool {
+    var (
+	PrintedCoeff string
+	Sign bool
+    )
+    PrintedCoeff = PrintCoefficient(C)
+    if PrintedCoeff[:1] == "-" {
+        Sign = false
+    } else {
+        Sign = true
+    }
+    return Sign
+}
+
 //
 // Auxiliary Function
 //

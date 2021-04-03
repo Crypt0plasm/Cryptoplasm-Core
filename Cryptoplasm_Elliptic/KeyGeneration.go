@@ -12,7 +12,7 @@ import (
 //
 // PublicKey string has a special form.
 
-var CryptoplasmCurve = E521()
+var CryptoplasmCurve = TEC_S1600_Pr1605p2315_m26()
 
 //A CPKeyPair (CryptoPlasm Key Pair) is a pair consisting of two strings both representing a number in base 49.
 type CPKeyPair struct {
