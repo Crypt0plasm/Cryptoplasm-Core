@@ -95,7 +95,6 @@ func DILongWeierstrass(prime, a1,a2,a3,a4,a6 *big.Int) (Delta, J *big.Int) {
 	v15 = new(big.Int)
 	v17 = new(big.Int)
 	v24 = new(big.Int)
-	Eight = big.NewInt(8)
 	TwentySeven = big.NewInt(27)
 	TwentyFour = big.NewInt(24)
 	Nine = big.NewInt(9)

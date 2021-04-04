@@ -48,13 +48,22 @@ var (
 	Letter: "Y",
 	Exponent: DPZero,
     }
+    Ym1 = Letter{
+	Letter: "Y",
+	Exponent: DPmOne,
+    }
     Y1 = Letter{
 	Letter: "Y",
 	Exponent: DPOne,
     }
+    Y3 = Letter{
+	Letter: "Y",
+	Exponent: Three,
+    }
+
 
     //No Y Coefficient
-    NoY = YCoefficient{DPOne,DPOne,Y0}
+    NoY = YCoefficient{Two,DPZero,Y0}
 
     //Defining Y^2
     YSqX0 = Coefficient{DPOne,A0,B1}
@@ -73,6 +82,12 @@ var (
 	},
     }
 
+    // 1/2Y as DivisionPolynom
+    OneUnder2YDP = DivisionPolynom{
+	POne,
+	YCoefficient{Two,DPmOne,Ym1},
+    }
+
     //Division Polynom One, defined as Polynom, used in the Definition of Division Polynom 2
     POne = Polynom {
         0,
@@ -85,6 +100,11 @@ var (
         POne,
         YCoefficient{Two,DPOne,Y1},
     }
+
+
+
+
+
 
     //Division Polynom Three
     DP3X0 = Coefficient{DPmOne,A2,B0}
@@ -136,7 +156,6 @@ var (
 
     DP4 = DivisionPolynom{
 	PD4,
-	YCoefficient{big.NewInt(4),DPOne,Y1},
+	YCoefficient{big.NewInt(2),Two,Y1},
     }
-
 )

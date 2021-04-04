@@ -6,7 +6,10 @@ import (
     "strconv"
     "strings"
 )
-
+//======================================================================================================================
+//
+// PART I - Type Definitions
+//
 type Letter struct {
     Letter string
     Exponent *big.Int
@@ -34,7 +37,28 @@ type DivisionPolynom struct {
     NonY Polynom
     Y YCoefficient
 }
-
+//======================================================================================================================
+//
+// Part II - Printing Functions
+//
+// II.1 PrintDPolynom prints a Division-Polynom
+//
+func PrintDPolynom (P DivisionPolynom) string {
+    var Result string
+    P1 := PrintPolynom(P.NonY,"Short")
+    P2 := PrintYCoefficient(P.Y)
+    if P2 == "1" {
+	Result = P1
+    }else if P1 == "1" {
+	Result = P2
+    } else {
+	Result = "(" + P1 + ")*" + P2
+    }
+    return Result
+}
+//
+// II.2 PrintPolynom prints a simple AB-Polynom; The AB-Polynom is the nonY Part of the Division Polynom
+//
 func PrintPolynom (P Polynom, Mode string) string {
     var (
 	Result string
@@ -87,7 +111,9 @@ func PrintPolynom (P Polynom, Mode string) string {
     FinalResult := strings.ReplaceAll(Result,"+.","")
     return FinalResult
 }
-
+//
+// II.3 PrintCoefficients prints a Chain of Coefficients
+//
 func PrintCoefficients (C []Coefficient) string {
     var (
 	Result string
@@ -132,7 +158,42 @@ func PrintCoefficients (C []Coefficient) string {
     }
     return Result
 }
+//
+// II.4 PrintYCoefficient prints the YCoefficient, the Y Polynom Part of the DivisionPolynom.
+//
+func PrintYCoefficient (C YCoefficient) string {
+    var (
+        Y string
+        Number string
+	Result string
+    )
 
+    if C.NumeralExponent.Cmp(DPZero) == 0 {
+	Number = "1"
+    } else if C.NumeralExponent.Cmp(DPOne) == 0 {
+	Number = C.Numeral.Text(10)
+    } else {
+	Number = C.Numeral.Text(10)+"^"+C.NumeralExponent.Text(10)
+    }
+
+    if C.YCoeff.Exponent.Cmp(DPZero) == 0 {
+	Y = "1"
+    } else if C.YCoeff.Exponent.Cmp(DPOne) == 0 {
+	Y = "Y"
+    } else {
+	Y = "Y^"+C.YCoeff.Exponent.Text(10)
+    }
+
+    if Number == "1" && Y == "1" {
+	Result = "1"
+    } else {
+	Result = Number + Y
+    }
+    return Result
+}
+//
+// II.5 PrintCoefficient prints a single Coefficient.
+//
 func PrintCoefficient (C Coefficient) string {
     var (
 	Result string
@@ -226,64 +287,50 @@ func PrintCoefficient (C Coefficient) string {
     }
     return Result
 }
-
-func GetCoeffSign(C Coefficient) bool {
-    var (
-	PrintedCoeff string
-	Sign bool
-    )
-    PrintedCoeff = PrintCoefficient(C)
-    if PrintedCoeff[:1] == "-" {
-        Sign = false
-    } else {
-        Sign = true
-    }
-    return Sign
-}
-
+//======================================================================================================================
 //
-// Auxiliary Function
+// Part III - Auxiliary Function
 //
-//Adding Coefficients Chains simply creates a single Chain from the initial Chains and Reduces the resulting Slice
+// III.1 - Function RemoveCoefficient remove a Coefficient from the specified Position
+//
 func RemoveCoefficient (Chain []Coefficient, Position int) []Coefficient {
     copy(Chain[Position:], Chain[Position+1:])
     Chain = Chain[:len(Chain)-1]
     return Chain
 }
-
+//
+// III.2 - Function AppendCoefficient appends a Coefficient to a Coefficient-Chain.
+//
 func AppendCoefficient (Chain []Coefficient, ToAppend Coefficient) (Result []Coefficient) {
     Result = append(Chain,ToAppend)
     return Result
 }
-
+//
+// III.2 - Function AppendChain appends a Coefficient-Chain to a Coefficient-Chain of Chains.
+//
 func AppendChain(Chain [][]Coefficient, ToAppend []Coefficient) (Result [][]Coefficient) {
     Result = append(Chain,ToAppend)
     return Result
 }
-
-func AppendPolynom(PolynomChain []Polynom, ToAppend Polynom) (Result []Polynom) {
-    Result = append(PolynomChain,ToAppend)
-    return Result
-}
-
+//
+// III.3 - Function AddCoefficientChains adds two Coefficients Chains into one, by appending them together
+//
 func AddCoefficientChains (C1, C2 []Coefficient) (Result []Coefficient) {
     IntermediaryResult := append(C1,C2...)
     Result = ReduceCoefficients(IntermediaryResult)
     return Result
 }
 //
-//Adding Coefficients simply puts single Coefficients in a Coefficient Slice and Reduces the resulting slice
-func AddCoefficients (Coefficients ...Coefficient) (Result []Coefficient) {
-    var IntermediaryResult = make([]Coefficient, len(Coefficients))
-
-    for i, SingleCoefficient := range Coefficients {
-	IntermediaryResult[i] = SingleCoefficient
-    }
-    Result = ReduceCoefficients(IntermediaryResult)
+// III.4 - Function AddCoefficientChains adds two Coefficients Chains into one, by appending them together
+//
+func AppendDPolynom(DP []DivisionPolynom, ToAppend DivisionPolynom) (Result []DivisionPolynom) {
+    Result = append(DP,ToAppend)
     return Result
 }
-
-//Reduce Similar values (values that have the same AB exponent) to a single value
+//
+// III.4 - Function ReduceCoefficients reduces multiple similar Coefficient values, if they exist
+// (values that have the same AB exponent), to a single value.
+//
 func ReduceCoefficients (ChainLink []Coefficient) []Coefficient {
     var (
 	FinalChain []Coefficient
@@ -292,29 +339,29 @@ func ReduceCoefficients (ChainLink []Coefficient) []Coefficient {
     if len(ChainLink) == 1 {
 	FinalChain = ChainLink
     } else {
-        Chain := ChainLink
-        for ok := true; ok; ok = !(len(Chain) == 0) {
-            ChainLength := len(Chain)
-            BoolChain := make([]bool, ChainLength)
-            BoolChain[0] = true
-            for i:=0; i<len(BoolChain)-1; i++ {
-                Cmp1 := Chain[0].ACoeff.Exponent.Cmp(Chain[i+1].ACoeff.Exponent)
+	Chain := ChainLink
+	for ok := true; ok; ok = !(len(Chain) == 0) {
+	    ChainLength := len(Chain)
+	    BoolChain := make([]bool, ChainLength)
+	    BoolChain[0] = true
+	    for i:=0; i<len(BoolChain)-1; i++ {
+		Cmp1 := Chain[0].ACoeff.Exponent.Cmp(Chain[i+1].ACoeff.Exponent)
 		Cmp2 := Chain[0].BCoeff.Exponent.Cmp(Chain[i+1].BCoeff.Exponent)
 		if Cmp1 == 0 && Cmp2 == 0 {
 		    BoolChain[i+1] = true
 		}
 	    }
 	    var (
-	    	Sum = big.NewInt(0)
-	    	Element Coefficient
-	    	RemovalCount = 0
+		Sum = big.NewInt(0)
+		Element Coefficient
+		RemovalCount = 0
 	    )
 	    for j:=0; j<len(BoolChain); j++ {
-	        if BoolChain[j] == true {
-	            Element = Chain[j-RemovalCount]
-	            Sum.Add(Sum,Chain[j-RemovalCount].Numeral)
-	            Chain = RemoveCoefficient(Chain,j-RemovalCount)
-	            RemovalCount = RemovalCount + 1
+		if BoolChain[j] == true {
+		    Element = Chain[j-RemovalCount]
+		    Sum.Add(Sum,Chain[j-RemovalCount].Numeral)
+		    Chain = RemoveCoefficient(Chain,j-RemovalCount)
+		    RemovalCount = RemovalCount + 1
 		}
 	    }
 	    Element.Numeral = Sum
@@ -323,7 +370,104 @@ func ReduceCoefficients (ChainLink []Coefficient) []Coefficient {
     }
     return FinalChain
 }
+//======================================================================================================================
+//
+// Part IV - Coefficient and Polynom Scalar Multiplication Function
+//
+// IV.1 - Function ScalarMulCoefficient multiplies a Coefficient by a Scalar, which is a big.Int number.
+//
+func ScalarMulCoefficient (C Coefficient,S *big.Int) Coefficient {
+    var (
+	Product Coefficient
+	MulValue = new(big.Int)
+    )
+    if C.Numeral.Cmp(DPZero) == 0 {
+	MulValue = DPZero
+    } else {
+	MulValue.Mul(C.Numeral,S)
+    }
+    Product.Numeral = MulValue
+    Product.ACoeff = C.ACoeff
+    Product.BCoeff = C.BCoeff
+    return Product
+}
+//
+// IV.2 - Function ScalarMulCoefficients multiplies a Coefficient-Chain by a Scalar, which is a big.Int number.
+//
+func ScalarMulCoefficients (C []Coefficient,S *big.Int) []Coefficient {
+    var (
+	Multiplication []Coefficient
+    )
+    for i:=0; i<len(C); i++{
+	MultipliedCoeff := ScalarMulCoefficient(C[i],S)
+	Multiplication = AppendCoefficient(Multiplication,MultipliedCoeff)
+    }
+    return Multiplication
+}
+//
+// IV.3 - Function ScalarPolynomMul multiplies a Polynom by a Scalar, which is a big.Int number.
+//
+func ScalarPolynomMul (C Polynom, S *big.Int) Polynom {
+    var (
+	MultipliedP Polynom
+	MultipliedChain [][]Coefficient
+    )
+    for i:=0; i<len(C.Rank); i++{
+	NegatedCoeffChain := ScalarMulCoefficients(C.Coefficients[i],S)
+	MultipliedChain = AppendChain(MultipliedChain,NegatedCoeffChain)
+    }
+    MultipliedP.Degree = C.Degree
+    MultipliedP.Rank = C.Rank
+    MultipliedP.Coefficients = MultipliedChain
+    return MultipliedP
+}
+//
+// IV.4 - Function NegatePolynom multiplies a Polynom by a -1 Scalar, which in effect negates it.
+//
+func NegatePolynom (C Polynom) Polynom {
+    Multiplier := DPmOne
+    Result := ScalarPolynomMul(C,Multiplier)
+    return Result
+}
+//======================================================================================================================
+//
+// Part V - Coefficient Operation Functions, needed for Polynom Operation Function.
+//
+// V.1 - Function MulYCoefficient multiplies two YCoefficient.
+//
+func MulYCoefficient (C1, C2 YCoefficient)  YCoefficient {
+    var(
+        Product YCoefficient
+        MulExp = new(big.Int)
+	C1N = new(big.Int)
+	C2N = new(big.Int)
+	C1Y = new(big.Int)
+	C2Y = new(big.Int)
+	ExpY = new(big.Int)
+    )
+    //Constructing Numeral - Numeral remains2
+    MulNum := Two
 
+    //Constructing Exponent
+    C1N = C1.NumeralExponent
+    C2N = C2.NumeralExponent
+    MulExp.Add(C1N,C2N)
+
+    //Constructing Letter Y
+    C1Y = C1.YCoeff.Exponent
+    C2Y = C2.YCoeff.Exponent
+    ExpY.Add(C1Y,C2Y)
+    MulLetter := Letter{"Y",ExpY}
+
+    //Constructing Product
+    Product.Numeral = MulNum
+    Product.NumeralExponent = MulExp
+    Product.YCoeff = MulLetter
+    return Product
+}
+//
+// V.2 - Function MulCoefficient multiplies two Coefficient.
+//
 func MulCoefficient (C1, C2 Coefficient)  Coefficient {
     var (
 	Product Coefficient		//Result ABStringCoeff doesnt work,
@@ -366,7 +510,9 @@ func MulCoefficient (C1, C2 Coefficient)  Coefficient {
 
     return Product
 }
-
+//
+// V.3 - Function MulCoefficients multiplies two Coefficient-Chains.
+//
 func MulCoefficients (C1, C2 []Coefficient)  []Coefficient {
     var(
         Product = make([]Coefficient, len(C1)*len(C2))
@@ -386,7 +532,13 @@ func MulCoefficients (C1, C2 []Coefficient)  []Coefficient {
     FinalProduct := ReduceCoefficients(Product)
     return FinalProduct
 }
-
+//======================================================================================================================
+//
+// Part VI - Polynom Operation Functions
+//
+// VI.1 - Function UniqueSlice creates a Unique uint64 Slice from two uint64 Slices that might have similar elements.
+// It is used to unify Rank Slices from two Polynom.
+//
 func UniqueSlice(Slice1,Slice2 []uint64) (Unique []uint64) {
     Unique = Slice1
     for i:=0; i<len(Slice2); i++ {
@@ -404,8 +556,32 @@ func UniqueSlice(Slice1,Slice2 []uint64) (Unique []uint64) {
     }
     return Unique
 }
-
-//Polynom Functions
+//
+// VI.2 - Function ModifyRank increases the uint64 slice elements by a given Value
+// It is used in Polynom multiplication.
+//
+func ModifyRank (Rank []uint64, Value uint64) []uint64 {
+    var Result = make([]uint64, len(Rank))
+    for i:=0; i<len(Rank); i++ {
+	Result[i] = Rank[i] + Value
+    }
+    return Result
+}
+//
+// VI.3 - Function ComposePolynom creates a Polynom from its composing Elements
+// It is used in Polynom multiplication.
+//
+func ComposePolynom(Degree uint64, Rank []uint64, Chain [][]Coefficient) Polynom {
+    var ComposedPolynom Polynom
+    ComposedPolynom.Degree = Degree
+    ComposedPolynom.Rank = Rank
+    ComposedPolynom.Coefficients = Chain
+    return ComposedPolynom
+}
+//
+// VI.4 - Function PolynomAdd adds two Polynom together
+// It is also a part of Polynom multiplication.
+//
 func PolynomAdd (P1, P2 Polynom) Polynom {
     var (
         CChain []Coefficient
@@ -468,23 +644,19 @@ func PolynomAdd (P1, P2 Polynom) Polynom {
     SummedPolynom.Coefficients = SummedCoefficients
     return SummedPolynom
 }
-
-func ComposePolynom(Degree uint64, Rank []uint64, Chain [][]Coefficient) Polynom {
-    var ComposedPolynom Polynom
-    ComposedPolynom.Degree = Degree
-    ComposedPolynom.Rank = Rank
-    ComposedPolynom.Coefficients = Chain
-    return ComposedPolynom
-}
-
-func ModifyRank (Rank []uint64, Value uint64) []uint64 {
-    var Result = make([]uint64, len(Rank))
-    for i:=0; i<len(Rank); i++ {
-	Result[i] = Rank[i] + Value
-    }
+//
+// VI.5 - Function PolynomSub subtracts a Polynom from another Polynom.
+// It is used in computing the DivisionPolynom
+//
+func PolynomSub (P1, P2 Polynom) Polynom {
+    P3 := NegatePolynom(P2)
+    Result := PolynomAdd(P1,P3)
     return Result
 }
-
+//
+// VI.6 - Function PolynomMul multiplies two Polynom together
+// It is used in computing the DivisionPolynom
+//
 func PolynomMul (P1, P2 Polynom) Polynom {
     var (
         PolynomChain = make([]Polynom, len(P1.Rank))
@@ -536,16 +708,111 @@ func PolynomMul (P1, P2 Polynom) Polynom {
     }
     return Product
 }
-
+//
+// VI.7 - Function PolynomSqr multiplies a Polynom with itself.
+// It is used in computing the DivisionPolynom
+//
 func PolynomSqr (P Polynom) Polynom {
     var Sqr Polynom
     Sqr = PolynomMul(P,P)
     return Sqr
 }
-
+//
+// VI.8 - Function PolynomCube multiplies a Polynom with itself two times.
+// It is used in computing the DivisionPolynom
+//
 func PolynomCube (P Polynom) Polynom {
     var Cube Polynom
     Sqr := PolynomSqr(P)
     Cube = PolynomMul(Sqr,P)
     return Cube
+}
+//======================================================================================================================
+//
+// Part VII - DivisionPolynom Operation Functions
+//
+// VII.1 - Function DPolynomMul multiplies two DivisionPolynom together.
+// It is used in computing the DivisionPolynom
+//
+func DPolynomMul (P1, P2 DivisionPolynom) DivisionPolynom {
+    var Result DivisionPolynom
+    MulPoly := PolynomMul(P1.NonY,P2.NonY)
+    MulYPoly := MulYCoefficient(P1.Y,P2.Y)
+
+    Result.NonY = MulPoly
+    Result.Y = MulYPoly
+    return Result
+}
+//
+// VII.2 - Function DPolynomSqr multiplies a DivisionPolynom with itself.
+// It is used in computing the DivisionPolynom
+//
+func DPolynomSqr (P DivisionPolynom) DivisionPolynom {
+    var Sqr DivisionPolynom
+    Sqr = DPolynomMul(P,P)
+    return Sqr
+}
+//
+// VII.2 - Function DPolynomCube multiplies a DivisionPolynom with itself two times.
+// It is used in computing the DivisionPolynom
+//
+func DPolynomCube (P DivisionPolynom) DivisionPolynom {
+    var Cube DivisionPolynom
+    Sqr := DPolynomSqr(P)
+    Cube = DPolynomMul(Sqr,P)
+    return Cube
+}
+//
+//
+//
+func IsDivisibleByTwo (Number *big.Int) (bool, *big.Int) {
+    var (
+	Quotient = new(big.Int)
+	Remainder = new(big.Int)
+	Result bool
+    )
+
+    Quotient.QuoRem(Number,Two,Remainder)
+    Cmp := Remainder.Cmp(DPZero)
+    if Cmp == 0 {
+	Result = true
+    } else {
+	Result = false
+    }
+
+    return Result, Quotient
+}
+
+func ConvertYtoAB (C YCoefficient) Polynom {
+    var (
+	Start 	= big.NewInt(0)
+    	Scalar = new(big.Int)
+    	Result Polynom
+    )
+    Scalar.Exp(C.Numeral,C.NumeralExponent,nil)
+    Truth,Quotient := IsDivisibleByTwo(C.YCoeff.Exponent)
+    if Truth == true {
+	for i:=new(big.Int).Set(Start); i.Cmp(Quotient) == -1; i.Add(i,DPOne) {
+	    if i.Cmp(DPZero) == 0 {
+		//fmt.Println("i is",i)
+		Result = YSquared
+	    }else  {
+	        //fmt.Println("i is",i)
+	        Result = PolynomMul(Result,YSquared)
+	    }
+	}
+    }
+    FinalResult := ScalarPolynomMul(Result,Scalar)
+    return FinalResult
+}
+
+func ReduceDivisionPolynom (P DivisionPolynom) Polynom {
+    var Result Polynom
+    if PrintYCoefficient(P.Y) == "1" {
+        Result = P.NonY
+    } else {
+        Multiplier := ConvertYtoAB(P.Y)
+        Result = PolynomMul(P.NonY,Multiplier)
+    }
+    return Result
 }
