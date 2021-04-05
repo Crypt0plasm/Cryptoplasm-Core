@@ -2,6 +2,7 @@ package Cryptoplasm_Cardinality
 
 import (
     aux "Cryptoplasm-Core/Auxiliary"
+    "fmt"
     "math/big"
     "strconv"
     "strings"
@@ -45,14 +46,14 @@ type DivisionPolynom struct {
 //
 func PrintDPolynom (P DivisionPolynom) string {
     var Result string
-    P1 := PrintPolynom(P.NonY,"Short")
-    P2 := PrintYCoefficient(P.Y)
+    P2 := PrintPolynom(P.NonY,"Short")
+    P1 := PrintYCoefficient(P.Y)
     if P2 == "1" {
 	Result = P1
     }else if P1 == "1" {
 	Result = P2
     } else {
-	Result = "(" + P1 + ")*" + P2
+	Result = P1 + "*(" + P2 + ")"
     }
     return Result
 }
@@ -608,6 +609,12 @@ func PolynomAdd (P1, P2 Polynom) Polynom {
     //Part III - Setting Coefficients
     //Iterating over the 1st Polynom Coefficient-Chains
     for i:=0; i<len(P1.Rank); i++ {
+	//Showing Info on Screen
+	BaseStringPoint:= "Adding 1st pass"
+	StringPoint := strings.Repeat(".",i)
+	StringToPrint := BaseStringPoint + StringPoint
+	fmt.Print("\r",StringToPrint)
+
 	var Count = uint64(0)
 	for j := 0; j<len(P2.Rank); j++ {
 	    if P1.Rank[i] == P2.Rank[j] {
@@ -623,8 +630,15 @@ func PolynomAdd (P1, P2 Polynom) Polynom {
 	    SummedCoefficients = AppendChain(SummedCoefficients,CChain)
 	}
     }
+    fmt.Println("DONE")
     //Iterating over the 2nd Polynom Coefficient-Chains
     for k:=0; k<len(P2.Rank); k++ {
+	//Showing Info on Screen
+	BaseStringPoint:= "Adding 2nd pass"
+	StringPoint := strings.Repeat(".",k)
+	StringToPrint := BaseStringPoint + StringPoint
+	fmt.Print("\r",StringToPrint)
+
 	var Count = uint64(0)
 	for l := 0; l<len(P1.Rank); l++ {
 	    if P2.Rank[k] == P1.Rank[l] {
@@ -638,6 +652,7 @@ func PolynomAdd (P1, P2 Polynom) Polynom {
 	    SummedCoefficients = AppendChain(SummedCoefficients,CChain)
 	}
     }
+    fmt.Println("DONE")
 
     SummedPolynom.Degree = SummedDegree
     SummedPolynom.Rank = SummedRank
@@ -665,6 +680,12 @@ func PolynomMul (P1, P2 Polynom) Polynom {
     )
 
     for i:=0; i<len(P1.Rank); i++ {
+	//Showing Info on Screen
+	BaseStringPoint:= "Multiplying"
+	StringPoint := strings.Repeat(".",i)
+	StringToPrint := BaseStringPoint + StringPoint
+	fmt.Print("\r",StringToPrint)
+
         var (
 	    //ID = new(big.Int)
 	    CChain []Coefficient
@@ -694,7 +715,7 @@ func PolynomMul (P1, P2 Polynom) Polynom {
 	//Making the PolynomChain
 	PolynomChain[i] = Intermediary
     }
-
+    fmt.Println("DONE")
     //Setting Product
     if len(PolynomChain) == 1 {
         Product = PolynomChain[0]
@@ -815,4 +836,57 @@ func ReduceDivisionPolynom (P DivisionPolynom) Polynom {
         Result = PolynomMul(P.NonY,Multiplier)
     }
     return Result
+}
+
+func GCDYCoeff (C1, C2 YCoefficient) YCoefficient {
+    var (
+        Exp1 = new(big.Int)
+	Exp2 = new(big.Int)
+    )
+    if C1.NumeralExponent.Cmp(C2.NumeralExponent) == 0 || C1.NumeralExponent.Cmp(C2.NumeralExponent) == -1 {
+        Exp1 = C1.NumeralExponent
+    } else  {
+	Exp1 = C2.NumeralExponent
+    }
+
+    if C1.YCoeff.Exponent.Cmp(C2.YCoeff.Exponent) == 0 || C1.YCoeff.Exponent.Cmp(C2.YCoeff.Exponent) == -1 {
+	Exp2 = C1.YCoeff.Exponent
+    } else  {
+	Exp2 = C2.YCoeff.Exponent
+    }
+
+    YLetter := Letter{"Y",Exp2}
+    Result := YCoefficient{Two,Exp1,YLetter}
+    return Result
+}
+//Outputs two big.Int, the result of the division of the YCoefficient with their GCD.
+//Assuming their Y exponent is equal the correct output are two ig.Int
+func GetScalarFromGCDDivision(C1, C2 YCoefficient) (*big.Int, *big.Int) {
+    var (
+        Exp1 = new(big.Int)
+	Exp2 = new(big.Int)
+	R1 = new(big.Int)
+	R2 = new(big.Int)
+    )
+
+    if C1.YCoeff.Exponent.Cmp(C2.YCoeff.Exponent) == 0 {
+        GCD := GCDYCoeff(C1,C2)
+        Exp1.Sub(C1.NumeralExponent,GCD.NumeralExponent)
+	Exp2.Sub(C2.NumeralExponent,GCD.NumeralExponent)
+        R1.Exp(Two,Exp1,nil)
+	R2.Exp(Two,Exp2,nil)
+    } else {
+        fmt.Println("Y exponents are not equal")
+    }
+    return R1,R2
+}
+
+func DivisionPolynomSub (P1, P2 DivisionPolynom) DivisionPolynom{
+    GCD := GCDYCoeff(P1.Y,P2.Y)
+    S1,S2 := GetScalarFromGCDDivision(P1.Y,P2.Y)
+    P1S1 := ScalarPolynomMul(P1.NonY,S1)
+    P2S2 := ScalarPolynomMul(P2.NonY,S2)
+    P1S1mP2S2 := PolynomSub(P1S1,P2S2)
+    T12mT34 := DivisionPolynom{NonY: P1S1mP2S2, Y: GCD}
+    return T12mT34
 }
