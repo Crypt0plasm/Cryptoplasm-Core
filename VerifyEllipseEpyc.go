@@ -15,15 +15,15 @@ func main () {
 	Mode16 = "Easy16"
     )
 
-    PrimeNumber.Power = 1605
-    PrimeNumber.RestString = "2315"
+    PrimeNumber.Power = 6405
+    PrimeNumber.RestString = "95"
     PrimeNumber.Sign = true
 
     //Verify Ryzen Ellipse
-    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,12,ModeU)
-    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,12,ModeT)
-    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,12,Mode4)
-    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,12,Mode8)
-    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,12,Mode16)
+    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,1,ModeU)
+    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,1,ModeT)
+    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,1,Mode4)
+    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,1,Mode8)
+    _,_ = el.VerifyEllipseResultsEpyc(VerifyLocation,PrimeNumber,1,Mode16)
 
 }

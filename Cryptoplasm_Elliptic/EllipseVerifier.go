@@ -118,7 +118,7 @@ func VerifyEllipseResultsRyzen (Location string, Prime PrimePowerTwo, RyzenCores
 	RyzenF		uint64
     )
 
-    Ryzen 	:= int64(RyzenCores) + int64(RyzenCores) / 2
+    Ryzen 	:= int64(RyzenCores)	//+ int64(RyzenCores) / 2
     PrimeNumber := MakePrime(Prime)
 
     FirstRoot 	:= MakeEllipticExportString(Prime)
@@ -151,7 +151,7 @@ func VerifyEllipseResultsEpyc (Location string, Prime PrimePowerTwo, EpycCores u
 	EpycF		uint64
     )
 
-    Epyc 	:= int64(EpycCores) + int64(EpycCores) / 2
+    Epyc 	:= int64(EpycCores)	//+ int64(EpycCores) / 2
     PrimeNumber := MakePrime(Prime)
 
     FirstRoot 	:= MakeEllipticExportString(Prime)

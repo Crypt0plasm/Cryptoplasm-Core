@@ -56,7 +56,7 @@ func ExportEllipse(Prime PrimePowerTwo, StartPoint int64, IntervalSize, Cores ui
     //fmt.Println("SecondRoot izz",SecondRoot)
 
     //Define the Number of instances created
-    Instances := int64(Cores) + int64(Cores) / 2
+    Instances := int64(Cores)	//+ int64(Cores) / 2
 
     if Direction == true {
 	for k:=int64(1); k<=Instances; k++ {
