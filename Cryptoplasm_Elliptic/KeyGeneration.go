@@ -1,6 +1,7 @@
 package Cryptoplasm_Elliptic
 
 import (
+    "fmt"
     blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
     "math/big"
     "strings"
@@ -13,6 +14,7 @@ import (
 // PublicKey string has a special form.
 
 var CryptoplasmCurve = TEC_S1600_Pr1605p2315_m26()
+//var CryptoplasmCurve = LittleOne()
 
 //A CPKeyPair (CryptoPlasm Key Pair) is a pair consisting of two strings both representing a number in base 49.
 type CPKeyPair struct {
@@ -34,10 +36,12 @@ func ConvertBase10toBase49 (NumberBase10 *big.Int) string {
 //
 //Main Generation Function
 //CryptoPlasmKeys are generated using CryptoplasmCurve defined above.
-func GetCRYPTOPLASMKeysWithAddress () (Keys CPKeyPair, Address string) {
+//
+//Generates a CryptoPlasm PublicKey and Address from a compatible BitString
+func BitString2CRYPTOPLASM (BitString string) (Keys CPKeyPair, Address string) {
 
     //First Main Function, Getting Keys
-    Keys = CryptoplasmCurve.GetKeys()
+    Keys = CryptoplasmCurve.GetKeys(BitString)
 
     //Second Main Function, Getting the Address
     Address = PublicKey2CRYPTOPLASMAddress(Keys.PublicKey)
@@ -49,19 +53,29 @@ func GetCRYPTOPLASMKeysWithAddress () (Keys CPKeyPair, Address string) {
 // Functions required for the First Main Function:
 //
 // VI.5
-func (k *FiniteFieldEllipticCurve) GetKeys () (Keys CPKeyPair) {
-    PrivateKeyInt := k.GetRandomOnCurve()
+//
+// Generated a CryptoPlasm PublicKey and Address from a Random BitString
+func (k *FiniteFieldEllipticCurve) RBS2CRYPTOPLASM () (Keys CPKeyPair, Address string) {
+
+    //First Main Function, Getting Keys
+    BitString := k.GetRandomBitsOnCurve()
+    Keys,Address = BitString2CRYPTOPLASM(BitString)
+    return Keys, Address
+}
+// VI.6
+func (k *FiniteFieldEllipticCurve) GetKeys (BitString string) (Keys CPKeyPair) {
+    PrivateKeyInt := k.ClampBitString(BitString)
     Keys.PrivateKey = ConvertBase10toBase49(PrivateKeyInt)
     Keys.PublicKey = k.PrivKey2PubKey(Keys.PrivateKey)
     return Keys
 }
-// VI.6
+// VI.7
 func (k *FiniteFieldEllipticCurve) PrivKey2PubKey (PrivateKey string) (PublicKey string) {
     PrivateKeyInt := ConvertBase49toBase10(PrivateKey)
     PublicKey = k.PrivKeyInt2PubKey(PrivateKeyInt)
     return PublicKey
 }
-// VI.7
+// VI.8
 func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (PublicKey string) {
     var (
     	PublicKeyInt = new(big.Int)
@@ -704,4 +718,118 @@ func CharacterMatrix () [16][16]rune {
 
     Matrix := [16][16]rune{Row00,Row01,Row02,Row03,Row04,Row05,Row06,Row07,Row08,Row09,Row10,Row11,Row12,Row13,Row14,Row15}
     return Matrix
+}
+//======================================================================================================================
+//
+func (k *FiniteFieldEllipticCurve) MakeCryptoplasmKeys () {
+    var(
+        FirstAnswer uint
+        Answer11, Answer21, Answer31 uint
+        Answer111 uint
+        Answer1112 string
+        Condition1 bool
+
+        Print1 = `1.Create New Cryptoplasm Keys
+2.Restore Cryptoplasm Keys
+3.Open Existing Cryptoplasm Keys`
+        Print10 = `How do you want to create the Private Key ?`
+        Print11 = `1.1.BitString         - create Cryptoplasm Private Key from a BitString
+1.2.Number in Base 10 - create Cryptoplasm Private Key from a Base 10 Number
+1.3.Number in Base 49 - create Cryptoplasm Private Key from a Base 49 Number
+1.4.Monochrome Bitmap - create Cryptoplasm Private Key from a Monochrome Bitmap. Whites are 0, Blacks are 1
+1.5.Custom Seed Words - create Cryptoplasm Private Key from a custom List of Words`
+        Print111 = `1.1.1 Random BitString - create a Cryptoplasm Private Key from a random BitString
+1.1.2 Manual BitString - create a Cryptoplasm Private Key from a manually inputted BitString`
+        Print20 = `Restoring assumes the following are password protected.
+What do you want to restore the Private Key from?`
+        Print21 = `2.1.BitString         - create Cryptoplasm Private Key from a BitString
+2.2.Number in Base 10 - create Cryptoplasm Private Key from a Base 10 Number
+2.3.Number in Base 49 - create Cryptoplasm Private Key from a Base 49 Number
+2.4.Monochrome Bitmap - create Cryptoplasm Private Key from a Monochrome Bitmap. Whites are 0, Blacks are 1
+2.5.Custom Seed Words - create Cryptoplasm Private Key from a custom List of Words`
+        Print30 = `How do you have the Private Key saved ?`
+        Print31 = `1.Key File          - open Cryptoplasm Private Key from a Key-File
+2.Monochrome Bitmap - the Cryptoplasm Private Key from a Monochrome-Bitmap`
+
+    )
+    fmt.Println("What do you want to do ?")
+    fmt.Println(Print1)
+    _, _ = fmt.Scanln(&FirstAnswer)
+    if FirstAnswer == 1 {
+        fmt.Println(Print10)
+        fmt.Println(Print11)
+        _, _ = fmt.Scanln(&Answer11)
+        switch Answer11 {
+        case 1 :
+            fmt.Println("Case 1")
+            fmt.Println(Print111)
+            _, _ = fmt.Scanln(&Answer111)
+            switch Answer111 {
+            case 1 :
+                fmt.Println("Case 1")
+                Keys, Address := k.RBS2CRYPTOPLASM()
+                fmt.Println("Private Key is,",Keys.PrivateKey)
+                fmt.Println("Public  Key is,",Keys.PublicKey)
+                fmt.Println("Address Str is,",Address)
+            case 2 :
+                for {
+                    fmt.Println("Please enter a string of bits(0s and 1s)",k.S,"digits long:")
+                    _, _ = fmt.Scanln(&Answer1112)
+                    TT,T1,T2 := k.ValidateBitString(Answer1112)
+                    if TT == true {
+                        Condition1 = true
+                    }
+                    if Condition1 == true {
+                        break
+                    } else {
+                        if T1 == false && T2 == true {
+                            fmt.Println("Entered BitString didn't have the required length, try again!")
+                        } else if T1 == true && T2 == false {
+                            fmt.Println("Entered BitString wasn't composed entirely of 0s and 1s, try again!")
+                        } else if T1 == false && T2 == false {
+                            fmt.Println("Entered BitString neither did have the required length, nor was it composed entirely of 0s and 1s, try again!")
+                        }
+                    }
+                }
+                Keys, Address := BitString2CRYPTOPLASM(Answer1112)
+                fmt.Println("Private Key is,",Keys.PrivateKey)
+                fmt.Println("Public  Key is,",Keys.PublicKey)
+                fmt.Println("Address Str is,",Address)
+            }
+        case 2 :
+            fmt.Println("Case 2")
+        case 3 :
+            fmt.Println("Case 3")
+        case 4 :
+            fmt.Println("Case 4")
+        case 5 :
+            fmt.Println("Case 5")
+        }
+    } else if FirstAnswer == 2 {
+        fmt.Println(Print20)
+        fmt.Println(Print21)
+        _, _ = fmt.Scanln(&Answer21)
+        switch Answer21 {
+        case 1 :
+            fmt.Println("Case 1")
+        case 2 :
+            fmt.Println("Case 2")
+        case 3 :
+            fmt.Println("Case 3")
+        case 4 :
+            fmt.Println("Case 4")
+        case 5 :
+            fmt.Println("Case 5")
+        }
+    } else if FirstAnswer == 3 {
+        fmt.Println(Print30)
+        fmt.Println(Print31)
+        _, _ = fmt.Scanln(&Answer31)
+        switch Answer31 {
+        case 1 :
+            fmt.Println("Case 1")
+        case 2 :
+            fmt.Println("Case 2")
+        }
+    }
 }

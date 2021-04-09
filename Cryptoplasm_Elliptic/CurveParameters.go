@@ -637,6 +637,8 @@ func E521() *FiniteFieldEllipticCurve {
 //
 // Curve A Parameter		1
 // Curve D Parameter		446
+// Curve W1 Parameter           150
+// Curve W2 Parameter           178
 //
 // Base-Point X                 24
 //	Hexadecimal Form        ??

@@ -120,13 +120,17 @@ type FiniteFieldEllipticCurveMethods interface {
     PrecomputingMatrixPt(InputP ExtendedCoordinates) 			[7][7]ExtendedCoordinates	// V.3
 
     // VI - Key Generation Methods
-    GetRandomOnCurve 	() 						*big.Int			// VI.1
+    MakeCryptoplasmKeys ()										// VI.0
+    GetRandomBitsOnCurve() 						string				// VI.1a
+    ValidateBitString	(BitString string)				(bool, bool, bool)		// VI.1b
+    ClampBitString	(BitString string)				*big.Int			// VI.1c
     GetY		(X *big.Int)					*big.Int			// VI.2
     ScalarMultiplierG	(Scalar *big.Int)				(OutputP ExtendedCoordinates)	// VI.3
     ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)	// VI.4
-    GetKeys 		() 						(Keys CPKeyPair)		// VI.5
-    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)		// VI.6
-    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VI.7
+    RBS2CRYPTOPLASM	()						(Keys CPKeyPair, Address string)// VI.5
+    GetKeys 		() 						(Keys CPKeyPair)		// VI.6
+    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)		// VI.7
+    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VI.8
 
     // VII - Schnorr Signature Methods
     SchnorrHash 	(r *big.Int, PublicKey string, Message []byte) 	*big.Int			// VII.1
@@ -590,40 +594,77 @@ func (k *FiniteFieldEllipticCurve) PrecomputingMatrixPt (InputP ExtendedCoordina
 //
 // VI.1
 // Creates a clamped Scalar as big.int according to Curve Cofactor
-func (k *FiniteFieldEllipticCurve) GetRandomOnCurve () *big.Int {
-    var (
-	Scalar = new(big.Int)
-	BinaryString string
-	CoreSlice = make([]string, k.S)
-	//StringZero = "0"
-	StringOne = "1"
-	ScalarBitSliceHead = []string{StringOne}
-    )
 
-    //Generating the Random Private key, by generating k.S random bits.
+func (k *FiniteFieldEllipticCurve) GetRandomBitsOnCurve () string {
+    var (
+	CoreSlice = make([]string, k.S)
+	BinaryString string
+    )
+    //Generating k.S random bits.
     for i := uint64(0); i < k.S; i++ {
 	RandomNumber,_ := rand.Int(rand.Reader,Two)
 	String := RandomNumber.Text(2)
 	CoreSlice[i] = String
     }
+    //Converting the Slice of 0s and 1s to a String
+    for i := 0; i < len(CoreSlice); i++ {
+	BinaryString = BinaryString + CoreSlice[i]
+    }
+    return BinaryString
+}
 
-    ScalarBitSlice := append(ScalarBitSliceHead,CoreSlice...)
+func (k *FiniteFieldEllipticCurve) ValidateBitString (BitString string) (bool, bool, bool) {
+    var (
+	Count uint64
+	r = []rune(BitString)
+	T1,T2,TT bool
+    )
+    Length := uint64(len(r))
 
-    //Converting the Slice of Strings to a String
-    for i := 0; i < len(ScalarBitSlice); i++ {
-	BinaryString = BinaryString + ScalarBitSlice[i]
+    if Length == k.S {
+        T1 = true
+    } else {
+        T1 = false
     }
 
-    //Creating the final zeros of the string
-    BinaryCofactor := k.R.Text(2)
-    TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
+    for i:=0; i<len(r); i++{
+	if string(r[i]) == "0" || string(r[i]) == "1" {
+	    Count = Count + 1
+	} else {
+	    Count = Count + 0
+	}
+    }
+    if Count == Length {
+	T2 = true
+    } else {
+	T2 = false
+    }
 
-    //Adding the final zeroes to the BinaryString
-    BinaryString = BinaryString + TrimmedBinaryCofactor
+    if T1 == true && T2 == true {
+	TT = true
+    } else {
+	TT = false
+    }
 
+    return TT,T1,T2
+}
+
+func (k *FiniteFieldEllipticCurve) ClampBitString (BitString string) *big.Int {
+    var (
+    	BinaryString string
+	Scalar = new(big.Int)
+    )
+    Truth,_,_ := k.ValidateBitString(BitString)
+    if Truth == true {
+	//Creating the final zeros of the string
+	BinaryCofactor := k.R.Text(2)
+	TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
+	BinaryString = "1" + BitString + TrimmedBinaryCofactor
+    } else {
+        fmt.Println("The BitString is invalid with the ",k.Name,"Curve")
+    }
     //Converting the BinaryString to big.Int
     Scalar.SetString(BinaryString,2)
-
     return Scalar
 }
 // VI.2

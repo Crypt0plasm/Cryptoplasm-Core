@@ -148,7 +148,8 @@ func (k *FiniteFieldEllipticCurve) SchnorrSign (Keys CPKeyPair, Hash []byte) (Si
         s = new(big.Int)
     )
     //Step 1, choosing random number kappa within prime field interval
-    z = k.GetRandomOnCurve()
+    BitString := k.GetRandomBitsOnCurve()
+    z = k.ClampBitString(BitString)
 
     //Step 2, computing R (x,y) as z multiplied by Curve Generator Point
     RExt  := k.ScalarMultiplierG(z)
