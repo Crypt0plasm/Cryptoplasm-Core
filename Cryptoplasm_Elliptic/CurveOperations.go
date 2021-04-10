@@ -119,18 +119,29 @@ type FiniteFieldEllipticCurveMethods interface {
     PrecomputingMatrixG	() 						[7][7]ExtendedCoordinates	// V.2
     PrecomputingMatrixPt(InputP ExtendedCoordinates) 			[7][7]ExtendedCoordinates	// V.3
 
-    // VI - Key Generation Methods
-    MakeCryptoplasmKeys ()										// VI.0
-    GetRandomBitsOnCurve() 						string				// VI.1a
-    ValidateBitString	(BitString string)				(bool, bool, bool)		// VI.1b
-    ClampBitString	(BitString string)				*big.Int			// VI.1c
-    GetY		(X *big.Int)					*big.Int			// VI.2
-    ScalarMultiplierG	(Scalar *big.Int)				(OutputP ExtendedCoordinates)	// VI.3
-    ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)	// VI.4
-    RBS2CRYPTOPLASM	()						(Keys CPKeyPair, Address string)// VI.5
-    GetKeys 		() 						(Keys CPKeyPair)		// VI.6
-    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)		// VI.7
-    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VI.8
+    //==================================================================================================================
+    // VIa - Basic Key Generation Methods - Part I
+    GetRandomBitsOnCurve() 						string				// VIa.1
+    ClampBitString	(BitString string)				*big.Int			// VIa.2
+    ValidateBitString	(BitString string)				(bool, bool, bool)		// VIa.3
+    ValidateBigBitString(BitString string)				(bool, bool, bool)		// VIa.4
+    GetY		(X *big.Int)					*big.Int			// VIa.5
+    ScalarMultiplierG	(Scalar *big.Int)				(OutputP ExtendedCoordinates)	// VIa.6
+    ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)	// VIa.7
+
+    // VIb - Complex Key Generation Methods - Part II
+    RBS2CRYPTOPLASM	()						(Keys CPKeyPair, Address string)// VIb.1
+    GetKeys 		(BitString string)				(Keys CPKeyPair)		// VIb.2
+    GetKeysInt 		(Number *big.Int) 				(Keys CPKeyPair)		// VIb.3
+    PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)		// VIb.4
+    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VIb.5
+
+    // VIc - Complete Key Generation Methods - Part III
+    MakeCryptoplasmKeys ()										// VIc.0
+    CPFromRandomBits	()						(Keys CPKeyPair, Address string)// VIc.1
+    CPFromManualBits	()						(Keys CPKeyPair, Address string)// VIc.2
+    CPFromNumber	(Base int)					(Keys CPKeyPair, Address string)// VIc.3
+    //==================================================================================================================
 
     // VII - Schnorr Signature Methods
     SchnorrHash 	(r *big.Int, PublicKey string, Message []byte) 	*big.Int			// VII.1
@@ -138,9 +149,8 @@ type FiniteFieldEllipticCurveMethods interface {
     SchnorrVerify 	(Sigma Schnurr, PublicKey string, Hash []byte) 	bool				// VII.3
 
     // VIII - Generator Creating Methods (used for the novel TEC curves to create a Generator)
-    GetPointOrder 	(InputP AffineCoordinates) 			*big.Int
-    MakeGenMin		()						(OutputP AffineCoordinates)
-    MakeGen7		()						(OutputP AffineCoordinates)
+    GetPointOrder 	(InputP AffineCoordinates) 			*big.Int			// VIII.1
+    MakeGenMin		()						(OutputP AffineCoordinates)	// VIII.2
 }
 //
 // FiniteFieldEllipticCurve Methods
@@ -504,6 +514,7 @@ func (k *FiniteFieldEllipticCurve) AdditionV2 (P1, P2 ExtendedCoordinates) (Outp
 // V - Complex Point Operations Methods
 //
 // V.1
+// Adds a Point to itself 49 times
 func (k *FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     Point03 := k.Triple(InputP)
     Point06 := k.Double(Point03)
@@ -515,6 +526,7 @@ func (k *FiniteFieldEllipticCurve) FortyNiner (InputP ExtendedCoordinates) (Outp
     return Point49
 }
 // V.2
+// Creates a precomputing Matrix with the curve Generator as is Base Point
 func (k *FiniteFieldEllipticCurve) PrecomputingMatrixG () [7][7]ExtendedCoordinates {
     CurveGenerator 	:= AffineCoordinates{AX: &k.PBX, AY: &k.PBY}
     CurveGeneratorExt 	:= k.Affine2Extended(CurveGenerator)
@@ -522,6 +534,7 @@ func (k *FiniteFieldEllipticCurve) PrecomputingMatrixG () [7][7]ExtendedCoordina
     return Result
 }
 // V.3
+// Creates a precomputing Matrix with a given Point as is Base Point
 func (k *FiniteFieldEllipticCurve) PrecomputingMatrixPt (InputP ExtendedCoordinates) [7][7]ExtendedCoordinates {
     //start := time.Now()
     BasePointExt02 	:= k.Double(InputP)
@@ -590,11 +603,10 @@ func (k *FiniteFieldEllipticCurve) PrecomputingMatrixPt (InputP ExtendedCoordina
     return Matrix
 }
 //
-// VI - Key Generation Methods - Part I
+// VIa - Basic Key Generation Methods - Part I
 //
-// VI.1
-// Creates a clamped Scalar as big.int according to Curve Cofactor
-
+// VIa.1
+// Generates a Random BitString according to curve Safe-Scalar-Size
 func (k *FiniteFieldEllipticCurve) GetRandomBitsOnCurve () string {
     var (
 	CoreSlice = make([]string, k.S)
@@ -612,19 +624,42 @@ func (k *FiniteFieldEllipticCurve) GetRandomBitsOnCurve () string {
     }
     return BinaryString
 }
-
+//
+// VIa.2
+// Clamps a BitString according to Curve Cofactor. It is assumed the the BitString is of Safe-Scalar-Size size.
+func (k *FiniteFieldEllipticCurve) ClampBitString (BitString string) *big.Int {
+    var (
+	BinaryString string
+	Scalar = new(big.Int)
+    )
+    Truth,_,_ := k.ValidateBitString(BitString)
+    if Truth == true {
+	//Creating the final zeros of the string
+	BinaryCofactor := k.R.Text(2)
+	TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
+	BinaryString = "1" + BitString + TrimmedBinaryCofactor
+    } else {
+	fmt.Println("The BitString is invalid with the ",k.Name,"Curve")
+    }
+    //Converting the BinaryString to big.Int
+    Scalar.SetString(BinaryString,2)
+    return Scalar
+}
+//
+// VIa.3
+// Checks if a given String is composed of only 0 and 1, and if it's size is according to Safe-Scalar-Size size.
 func (k *FiniteFieldEllipticCurve) ValidateBitString (BitString string) (bool, bool, bool) {
     var (
 	Count uint64
 	r = []rune(BitString)
-	T1,T2,TT bool
+	LengthTruth,StructureTruth,TotalTruth bool
     )
     Length := uint64(len(r))
 
     if Length == k.S {
-        T1 = true
+	LengthTruth = true
     } else {
-        T1 = false
+	LengthTruth = false
     }
 
     for i:=0; i<len(r); i++{
@@ -635,39 +670,71 @@ func (k *FiniteFieldEllipticCurve) ValidateBitString (BitString string) (bool, b
 	}
     }
     if Count == Length {
+	StructureTruth = true
+    } else {
+	StructureTruth = false
+    }
+
+    if LengthTruth == true && StructureTruth == true {
+	TotalTruth = true
+    } else {
+	TotalTruth = false
+    }
+
+    return TotalTruth,LengthTruth,StructureTruth
+}
+//
+// VIa.4
+// Checks if a string of 0s and 1s has a proper form compatible with a clamped Scalar for the given Curve.
+func (k *FiniteFieldEllipticCurve) ValidateBigBitString (BitString string) (bool, bool, bool) {
+    var (
+        Count uint64
+	r = []rune(BitString)
+	T1,T2 bool
+	LengthTruth,StructureTruth,TotalTruth bool
+    )
+    //Getting the Cofactor Bits
+    BinaryCofactor := k.R.Text(2)
+    TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
+    r2 := []rune(TrimmedBinaryCofactor)
+
+    //Assessing Length Truth
+    if 1+k.S+uint64(len(r2)) == uint64(len(r)) {
+	LengthTruth = true
+    }
+
+    //Assessing if the first character is 1(T1), and if the last characters are 0s according to Curve Cofactor(T2)
+    if string(r[0]) == "1" {
+        T1 = true
+    }
+
+    for i:=1; i<=len(r2); i++{
+        if string(r[len(r)-i]) == "0" {
+            Count = Count + 1
+	} else {
+	    Count = Count + 0
+	}
+    }
+    if Count == uint64(len(r2)) {
 	T2 = true
     } else {
 	T2 = false
     }
-
     if T1 == true && T2 == true {
-	TT = true
-    } else {
-	TT = false
+	StructureTruth = true
     }
 
-    return TT,T1,T2
-}
-
-func (k *FiniteFieldEllipticCurve) ClampBitString (BitString string) *big.Int {
-    var (
-    	BinaryString string
-	Scalar = new(big.Int)
-    )
-    Truth,_,_ := k.ValidateBitString(BitString)
-    if Truth == true {
-	//Creating the final zeros of the string
-	BinaryCofactor := k.R.Text(2)
-	TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
-	BinaryString = "1" + BitString + TrimmedBinaryCofactor
+    //If both Condition are true, then the BitString is validated
+    if LengthTruth == true && StructureTruth == true {
+        TotalTruth = true
     } else {
-        fmt.Println("The BitString is invalid with the ",k.Name,"Curve")
+        TotalTruth = false
     }
-    //Converting the BinaryString to big.Int
-    Scalar.SetString(BinaryString,2)
-    return Scalar
+    return TotalTruth,LengthTruth,StructureTruth
 }
-// VI.2
+//
+// VIa.5
+// Computes the Y value of a Point given its X value. Works only for Twisted Edwards Curves and their specific formula.
 func (k *FiniteFieldEllipticCurve) GetY (X *big.Int) *big.Int {
     var (
     	XSq = new(big.Int)
@@ -683,14 +750,18 @@ func (k *FiniteFieldEllipticCurve) GetY (X *big.Int) *big.Int {
     Y.ModSqrt(YSq,&k.P)
     return Y
 }
-// VI.3
+//
+// VIa.6
+// Multiplies the Base Point of the Curve with a Scalar (which has been properly clamped previously)
 func (k *FiniteFieldEllipticCurve) ScalarMultiplierG (Scalar *big.Int) (OutputP ExtendedCoordinates) {
     CurveGenerator 	:= AffineCoordinates{AX: &k.PBX, AY: &k.PBY}
     CurveGeneratorExt 	:= k.Affine2Extended(CurveGenerator)
     Result 		:= k.ScalarMultiplierPt(Scalar, CurveGeneratorExt)
     return Result
 }
-// VI.4
+//
+// VIa.7
+// Multiplies a given Point on the Curve with a Scalar (which has been properly clamped previously)
 func (k *FiniteFieldEllipticCurve) ScalarMultiplierPt (Scalar *big.Int, InputP ExtendedCoordinates) (OutputP ExtendedCoordinates) {
     var (
 	//start = time.Now()
@@ -968,10 +1039,14 @@ func (k *FiniteFieldEllipticCurve) ScalarMultiplierPt (Scalar *big.Int, InputP E
     //fmt.Println("Computing PublicKey points took:", elapsed)
     return OutputP
 }
-
+//
+// VIII - Generator Creating Methods (used for the novel TEC curves to create a Generator)
+//
+// VIII.1
+// Creates a Generator Point for the given curve with a minimum X value, such as the Point resulted has order Q
 func (k *FiniteFieldEllipticCurve) MakeGenMin () (OutputP AffineCoordinates) {
     var(
-        ComputedP AffineCoordinates
+	ComputedP AffineCoordinates
 	Start 	= big.NewInt(1)
 	End 	= k.Q
 	X	= new(big.Int)
@@ -980,12 +1055,12 @@ func (k *FiniteFieldEllipticCurve) MakeGenMin () (OutputP AffineCoordinates) {
 
     // i must be a new big.Int so it does not overwrite Start
     for i:=new(big.Int).Set(Start); i.Cmp(&End) < 0; i.Add(i,One) {
-        Y = k.GetY(i)
-        if Y.Cmp(Zero) != 0 {
-            X = i
+	Y = k.GetY(i)
+	if Y.Cmp(Zero) != 0 {
+	    X = i
 	    ComputedP = AffineCoordinates{X,Y}
 	    if k.GetPointOrder(ComputedP) == "Q" {
-	        break
+		break
 	    }
 	}
 
@@ -996,25 +1071,27 @@ func (k *FiniteFieldEllipticCurve) MakeGenMin () (OutputP AffineCoordinates) {
     }
     return OutputP
 }
-
+//
+// VIII.2
+// Returns the order of a given Point for the given Curve
 func (k *FiniteFieldEllipticCurve) GetPointOrder (InputP AffineCoordinates) string {
     var (
 	PointOrderS 	string
-    	PointOrder 	= big.NewInt(-1)
-    	MinusOne	= big.NewInt(-1)
-    	QScalar		= new(big.Int)
+	PointOrder 	= big.NewInt(-1)
+	MinusOne	= big.NewInt(-1)
+	QScalar		= new(big.Int)
     )
     PointExt := k.Affine2Extended(InputP)
     CofactorDivisors := aux.ListDivisors(&k.R)
 
     fmt.Println("Cofactor Divisors are",CofactorDivisors)
     for i:=0; i<len(CofactorDivisors); i++ {
-        I := k.ScalarMultiplierPt(CofactorDivisors[i],PointExt)
+	I := k.ScalarMultiplierPt(CofactorDivisors[i],PointExt)
 	fmt.Println("i",i,"is mult by",CofactorDivisors[i],"and results is",I)
-        if k.IsInfinityPoint(I) == true {
-            PointOrder = CofactorDivisors[i]
+	if k.IsInfinityPoint(I) == true {
+	    PointOrder = CofactorDivisors[i]
 	    PointOrderS = PointOrder.Text(10)
-            break
+	    break
 	}
     }
 
@@ -1030,7 +1107,7 @@ func (k *FiniteFieldEllipticCurve) GetPointOrder (InputP AffineCoordinates) stri
 		    break
 		}
 	    } else {
-	        QScalar.Mul(&k.Q,CofactorDivisors[j])
+		QScalar.Mul(&k.Q,CofactorDivisors[j])
 		J := k.ScalarMultiplierPt(QScalar,PointExt)
 		js := CofactorDivisors[j].Text(10)
 		Ss := js+"Q"
