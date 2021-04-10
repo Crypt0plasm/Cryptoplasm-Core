@@ -1,6 +1,7 @@
 package Cryptoplasm_Elliptic
 
 import (
+    "encoding/hex"
     "fmt"
     blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
     "math/big"
@@ -13,8 +14,9 @@ import (
 //
 // PublicKey string has a special form.
 
-//var CryptoplasmCurve = TEC_S1600_Pr1605p2315_m26()
-var CryptoplasmCurve = LittleOne()
+var CryptoplasmCurve = TEC_S1600_Pr1605p2315_m26()
+//var CryptoplasmCurve = E521()
+//var CryptoplasmCurve = LittleOne()
 
 //A CPKeyPair (CryptoPlasm Key Pair) is a pair consisting of two strings both representing a number in base 49.
 type CPKeyPair struct {
@@ -755,6 +757,8 @@ func CharacterMatrix () [16][16]rune {
 }
 //======================================================================================================================
 //
+// VIc - Complete Key Generation Methods - Part III
+//
 // VIc.0
 // The main Function aggregating all Key Generation Methods together
 func (k *FiniteFieldEllipticCurve) MakeCryptoplasmKeys () {
@@ -812,9 +816,10 @@ What do you want to restore the Private-Key from?`
             Keys, Address := k.CPFromNumber(49)
             PrintKeysWithAddress(Keys,Address)
         case 4 :
-            fmt.Println("Case 4")
+            fmt.Println("Reading a Private Key from a Monochrome Bitmap is not implemented yet")
         case 5 :
-            fmt.Println("Case 5")
+            Keys, Address := k.CPFromSeed()
+            PrintKeysWithAddress(Keys,Address)
         }
     } else if FirstAnswer == 2 {
         fmt.Println(Print20)
@@ -844,12 +849,16 @@ What do you want to restore the Private-Key from?`
         }
     }
 }
-
+// VIc.1
+//
+// Creates a Key-Pair and Address from Random Bits
 func (k *FiniteFieldEllipticCurve) CPFromRandomBits () (Keys CPKeyPair, Address string) {
     Keys, Address = k.RBS2CRYPTOPLASM()
     return Keys, Address
 }
-
+// VIc.2
+//
+// Creates a Key-Pair and Address from manually inputted Bits
 func (k *FiniteFieldEllipticCurve) CPFromManualBits () (Keys CPKeyPair, Address string) {
     var (
         Answer string
@@ -878,7 +887,10 @@ func (k *FiniteFieldEllipticCurve) CPFromManualBits () (Keys CPKeyPair, Address 
     Keys, Address = BitString2CRYPTOPLASM(Answer)
     return Keys, Address
 }
-
+// VIc.3
+//
+// Creates a Key-Pair and Address from number in the given Base.
+// It is verified if the inputted number in the given base if of the proper clamped Scalar Form.
 func (k *FiniteFieldEllipticCurve) CPFromNumber (Base int) (Keys CPKeyPair, Address string) {
     var (
         Answer string
@@ -908,4 +920,113 @@ func (k *FiniteFieldEllipticCurve) CPFromNumber (Base int) (Keys CPKeyPair, Addr
     }
     Keys, Address = Number2CRYPTOPLASM(AnswerINT)
     return Keys, Address
+}
+// VIc.4
+//
+// Creates a Key-Pair and Address from a custom number of Seed Words.
+func (k *FiniteFieldEllipticCurve) CPFromSeed () (Keys CPKeyPair, Address string) {
+    var (
+    	SeedNumber uint32
+    	Condition1 bool
+    	ConcatenatedSeed string
+    )
+    for {
+        fmt.Println("How many Seed Words do you have? (Enter a number between 1 and 256)")
+        _, _ = fmt.Scanln(&SeedNumber)
+        if SeedNumber >= 1 && SeedNumber <=256 {
+            Condition1 = true
+        }
+        if Condition1 == true {
+            break
+        }
+    }
+
+    //Getting Seed Words from input.
+    var SeedSlice = make([]string,SeedNumber)
+    for i:=0; i<int(SeedNumber); i++{
+        fmt.Println("Enter Seed Word number",i+1,":")
+        _, _ = fmt.Scanln(&SeedSlice[i])
+    }
+
+    //Concatenating Seed Words
+    fmt.Println("Seed Slice is:",SeedSlice)
+    for i:=0; i<len(SeedSlice); i++{
+        ConcatenatedSeed = ConcatenatedSeed + SeedSlice[i]
+    }
+
+    BitString := k.StringToBitString(ConcatenatedSeed)
+    //fmt.Println("BS is",BitString)
+    Keys, Address = BitString2CRYPTOPLASM(BitString)
+    return Keys, Address
+}
+// VIc.5
+//
+// Creates a BitString of k.S length from another String using a blake3 Hash
+func (k *FiniteFieldEllipticCurve) StringToBitString (Word string) string {
+    var (
+        kS = new(big.Int)
+    	SByteArray []byte
+    	Number = new(big.Int)
+    	OutputSize int
+    	Type int
+    	IntermediaryResult2,Result,MissingString string
+    )
+    //Converting the String to a slice of bytes
+    WordToByteSlice := []byte(Word)
+
+    //Hashing the slice of bytes with k.S bits output Size
+    //Output size is in bytes, therefore k.S should be greater than 8 and a multiple of 8 for this to work properly.
+    //These conditions are in case k.S is smaller than 8 or isn't a multiple of 8.
+    //Type 1 is when the k.S is directly divisible by 8.
+    kS = big.NewInt(int64(k.S))
+    T,Rest := IsDivisibleByEight(kS)
+    if T == true {
+        OutputSize = int(k.S) / 8
+        Type = 1
+    } else if Rest.Cmp(Zero) != 0 && k.S > 8 {
+        OutputSize = int(k.S) / 8 + 1
+        Type = 2
+    } else {
+        OutputSize = 1
+        Type = 3
+    }
+
+    S := blake3.SumCustom(WordToByteSlice,OutputSize)
+
+    //Converting the resulting hash which is a slice of bytes, to hex (byte to hex)
+    for i := 0; i < len(S); i++ {
+        SByteArray = append(SByteArray, S[i])
+    }
+    Hex := hex.EncodeToString(SByteArray)
+    Number.SetString(Hex,16)
+    IntermediaryResult := ConvertBase10toBase2(Number)
+
+    //Check if IntermediaryResult is exactly of length OutputSize * 8, If not add zeroes in front of it.
+    IR := []rune(IntermediaryResult)
+    if len(IR) == OutputSize * 8 {
+        IntermediaryResult2 = IntermediaryResult
+    } else {
+        Missing := OutputSize * 8 - len(IR)
+        for i:=0; i<Missing; i++ {
+            MissingString = MissingString + "0"
+        }
+        IntermediaryResult2 = MissingString + IntermediaryResult
+    }
+
+    //This code makes sure the resulting BinaryString is equal to k.S in size.
+    //In case Safe-Scalar-Size is not divisible with 8, or is smaller than 8.
+    if Type == 1 {
+        Result = IntermediaryResult2
+    } else if Type == 2 || Type == 3 {
+        R := []rune(IntermediaryResult2)
+        //Amount := uint64(OutputSize) * 8 - k.S
+        //fmt.Println("Amount is",Amount)
+        R2 := R[:k.S]
+        //Converting the Slice of 0s and 1s to a String
+        for i := 0; i < len(R2); i++ {
+            Result = Result + string(R2[i])
+        }
+    }
+
+    return Result
 }

@@ -141,6 +141,9 @@ type FiniteFieldEllipticCurveMethods interface {
     CPFromRandomBits	()						(Keys CPKeyPair, Address string)// VIc.1
     CPFromManualBits	()						(Keys CPKeyPair, Address string)// VIc.2
     CPFromNumber	(Base int)					(Keys CPKeyPair, Address string)// VIc.3
+    CPFromSeed		()						(Keys CPKeyPair, Address string)// VIc.4
+    StringToBitString	(Word string)					string				// VIc.4
+
     //==================================================================================================================
 
     // VII - Schnorr Signature Methods
