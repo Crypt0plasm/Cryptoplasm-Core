@@ -1079,6 +1079,7 @@ func (k *FiniteFieldEllipticCurve) SaveBitString (BitString string) () {
         P1,P2,Password string
         Condition bool
     )
+    fmt.Println("")
     fmt.Println("The BitString representing the Private-Key is being saved !")
     fmt.Println("Enter an identifier for the File to be exported:")
     _, _ = fmt.Scanln(&Identifier)
