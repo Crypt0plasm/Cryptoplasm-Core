@@ -130,6 +130,7 @@ type FiniteFieldEllipticCurveMethods interface {
     ScalarMultiplierPt	(Scalar *big.Int, InputP ExtendedCoordinates)	(OutputP ExtendedCoordinates)	// VIa.7
 
     // VIb - Complex Key Generation Methods - Part II
+    BS2CRYPTOPLASM	(BitString string)				(Keys CPKeyPair, Address string)// VIb.0
     RBS2CRYPTOPLASM	()						(Keys CPKeyPair, Address string)// VIb.1
     GetKeys 		(BitString string)				(Keys CPKeyPair)		// VIb.2
     GetKeysInt 		(Number *big.Int) 				(Keys CPKeyPair)		// VIb.3
