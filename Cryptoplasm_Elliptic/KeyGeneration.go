@@ -1,10 +1,14 @@
 package Cryptoplasm_Elliptic
 
 import (
+    aux "Cryptoplasm-Core/Auxiliary"
     "encoding/hex"
     "fmt"
-    blake3 "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
+    "github.com/Crypt0plasm/Cryptographic-Hash-Functions/AES"
+    "github.com/Crypt0plasm/Cryptographic-Hash-Functions/Blake3"
+    "log"
     "math/big"
+    "os"
     "strings"
 )
 
@@ -24,6 +28,16 @@ type CPKeyPair struct {
     PublicKey string
 }
 //Generic Convert Functions:
+func ConvertBase2toBase10 (NumberBase2 string) *big.Int {
+    var Result = new(big.Int)
+    Result.SetString(NumberBase2,2)
+    return Result
+}
+func ConvertBase16toBase10 (NumberBase16 string) *big.Int {
+    var Result = new(big.Int)
+    Result.SetString(NumberBase16,16)
+    return Result
+}
 func ConvertBase49toBase10 (NumberBase49 string) *big.Int {
     var Result = new(big.Int)
     Result.SetString(NumberBase49,49)
@@ -34,9 +48,24 @@ func ConvertBase49toBase2 (NumberBase49 string) string {
     Result := ConvertBase10toBase2(Base10)
     return Result
 }
+func ConvertBase2toBase49 (NumberBase2 string) string {
+    Base10 := ConvertBase2toBase10(NumberBase2)
+    Result := ConvertBase10toBase49(Base10)
+    return Result
+}
+func ConvertBase2toBase16 (NumberBase2 string) string {
+    Base10 := ConvertBase2toBase10(NumberBase2)
+    Result := ConvertBase10toBase16(Base10)
+    return Result
+}
 func ConvertBase10toBase49 (NumberBase10 *big.Int) string {
     var Result string
     Result = NumberBase10.Text(49)
+    return Result
+}
+func ConvertBase10toBase16 (NumberBase10 *big.Int) string {
+    var Result string
+    Result = NumberBase10.Text(16)
     return Result
 }
 func ConvertBase10toBase2 (NumberBase10 *big.Int) string {
@@ -111,6 +140,18 @@ func (k *FiniteFieldEllipticCurve) PrivKey2PubKey (PrivateKey string) (PublicKey
     return PublicKey
 }
 // VIb.5
+// Extracts the BitString from a Private-Key
+func (k *FiniteFieldEllipticCurve) PrivKey2BitString (PrivateKey string) (BitString string) {
+
+    PrivateKeyBitString := ConvertBase49toBase2(PrivateKey)
+    R := []rune(PrivateKeyBitString)
+    R2 := R[:k.S+1]
+    for i := 1; i < len(R2); i++ {
+        BitString = BitString + string(R2[i])
+    }
+    return BitString
+}
+// VIb.6
 // Generates the PublicKey in its custom format from a Number representing the PrivateKey.
 func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (PublicKey string) {
     var (
@@ -140,6 +181,7 @@ func (k *FiniteFieldEllipticCurve) PrivKeyInt2PubKey (PrivateKeyInt *big.Int) (P
     PublicKey = PublicKeyPrefix + "." + PublicKey
     return PublicKey
 }
+
 //======================================================================================================================
 //
 // Functions required for the Second Main Function
@@ -168,13 +210,13 @@ func SevenFoldHash (PublicKeyInt *big.Int) []byte {
     PublicKeyIntAsString := PublicKeyInt.String()
     LongStringToByteSlice := []byte(PublicKeyIntAsString)
 
-    S1 := blake3.SumCustom(LongStringToByteSlice,160)
-    S2 := blake3.SumCustom(S1,160)
-    S3 := blake3.SumCustom(S2,160)
-    S4 := blake3.SumCustom(S3,160)
-    S5 := blake3.SumCustom(S4,160)
-    S6 := blake3.SumCustom(S5,160)
-    S7 := blake3.SumCustom(S6,160)
+    S1 := Blake3.SumCustom(LongStringToByteSlice,160)
+    S2 := Blake3.SumCustom(S1,160)
+    S3 := Blake3.SumCustom(S2,160)
+    S4 := Blake3.SumCustom(S3,160)
+    S5 := Blake3.SumCustom(S4,160)
+    S6 := Blake3.SumCustom(S5,160)
+    S7 := Blake3.SumCustom(S6,160)
     return S7
 }
 
@@ -764,12 +806,11 @@ func CharacterMatrix () [16][16]rune {
 func (k *FiniteFieldEllipticCurve) MakeCryptoplasmKeys () {
     var(
         FirstAnswer uint
-        Answer11, Answer21, Answer31 uint
+        Answer11, Answer31 uint
         Answer111 uint
 
         Print1 = `1.Create New Cryptoplasm Keys
-2.Restore Cryptoplasm Keys
-3.Open Existing Cryptoplasm Keys`
+2.Open Existing Cryptoplasm Keys`
         Print10 = `How do you want to create the Private Key ?`
         Print11 = `1.1.BitString         - create Cryptoplasm Private Key from a BitString
 1.2.Number in Base 10 - create Cryptoplasm Private-Key from a Base 10 Number
@@ -778,13 +819,6 @@ func (k *FiniteFieldEllipticCurve) MakeCryptoplasmKeys () {
 1.5.Custom Seed Words - create Cryptoplasm Private-Key from a custom List of Words`
         Print111 = `1.1.1 Random BitString - create a Cryptoplasm Private-Key from a random BitString
 1.1.2 Manual BitString - create a Cryptoplasm Private-Key from a manually inputted BitString`
-        Print20 = `Restoring assumes the following are password protected.
-What do you want to restore the Private-Key from?`
-        Print21 = `2.1.BitString         - create Cryptoplasm Private-Key from a BitString
-2.2.Number in Base 10 - create Cryptoplasm Private-Key from a Base 10 Number
-2.3.Number in Base 49 - create Cryptoplasm Private-Key from a Base 49 Number
-2.4.Monochrome Bitmap - create Cryptoplasm Private-Key from a Monochrome Bitmap. Whites are 0, Blacks are 1
-2.5.Custom Seed Words - create Cryptoplasm Private-Key from a custom List of Words`
         Print30 = `How do you have the Private Key saved ?`
         Print31 = `1.Key File          - open Cryptoplasm Private-Key from a Key-File
 2.Monochrome Bitmap - the Cryptoplasm Private-Key from a Monochrome-Bitmap`
@@ -805,47 +839,49 @@ What do you want to restore the Private-Key from?`
             case 1 :
                 Keys, Address := k.CPFromRandomBits()
                 PrintKeysWithAddress(Keys,Address)
+                //Saving Generated Keys
+                BitString := k.PrivKey2BitString(Keys.PrivateKey)
+                k.SaveBitString(BitString)
             case 2 :
                 Keys, Address := k.CPFromManualBits()
                 PrintKeysWithAddress(Keys,Address)
+                //Saving Generated Keys
+                BitString := k.PrivKey2BitString(Keys.PrivateKey)
+                k.SaveBitString(BitString)
             }
         case 2 :
             Keys, Address := k.CPFromNumber(10)
             PrintKeysWithAddress(Keys,Address)
+            //Saving Generated Keys
+            BitString := k.PrivKey2BitString(Keys.PrivateKey)
+            k.SaveBitString(BitString)
         case 3 :
             Keys, Address := k.CPFromNumber(49)
             PrintKeysWithAddress(Keys,Address)
+            //Saving Generated Keys
+            BitString := k.PrivKey2BitString(Keys.PrivateKey)
+            k.SaveBitString(BitString)
         case 4 :
             fmt.Println("Reading a Private Key from a Monochrome Bitmap is not implemented yet")
         case 5 :
             Keys, Address := k.CPFromSeed()
             PrintKeysWithAddress(Keys,Address)
+            //Saving Generated Keys
+            BitString := k.PrivKey2BitString(Keys.PrivateKey)
+            k.SaveBitString(BitString)
         }
     } else if FirstAnswer == 2 {
-        fmt.Println(Print20)
-        fmt.Println(Print21)
-        _, _ = fmt.Scanln(&Answer21)
-        switch Answer21 {
-        case 1 :
-            fmt.Println("Case 1")
-        case 2 :
-            fmt.Println("Case 2")
-        case 3 :
-            fmt.Println("Case 3")
-        case 4 :
-            fmt.Println("Case 4")
-        case 5 :
-            fmt.Println("Case 5")
-        }
-    } else if FirstAnswer == 3 {
         fmt.Println(Print30)
         fmt.Println(Print31)
         _, _ = fmt.Scanln(&Answer31)
         switch Answer31 {
         case 1 :
             fmt.Println("Case 1")
+            BitString,_ := k.OpenKeys()
+            Keys, Address := BitString2CRYPTOPLASM(BitString)
+            PrintKeysWithAddress(Keys,Address)
         case 2 :
-            fmt.Println("Case 2")
+            fmt.Println("Opening a Private Key from a Monochrome Bitmap is not implemented yet")
         }
     }
 }
@@ -955,7 +991,7 @@ func (k *FiniteFieldEllipticCurve) CPFromSeed () (Keys CPKeyPair, Address string
     }
 
     BitString := k.StringToBitString(ConcatenatedSeed)
-    //fmt.Println("BS is",BitString)
+    fmt.Println("BS is",BitString)
     Keys, Address = BitString2CRYPTOPLASM(BitString)
     return Keys, Address
 }
@@ -991,7 +1027,7 @@ func (k *FiniteFieldEllipticCurve) StringToBitString (Word string) string {
         Type = 3
     }
 
-    S := blake3.SumCustom(WordToByteSlice,OutputSize)
+    S := Blake3.SumCustom(WordToByteSlice,OutputSize)
 
     //Converting the resulting hash which is a slice of bytes, to hex (byte to hex)
     for i := 0; i < len(S); i++ {
@@ -1029,4 +1065,121 @@ func (k *FiniteFieldEllipticCurve) StringToBitString (Word string) string {
     }
 
     return Result
+}
+// VIc.6
+//
+// Saves a BitString representing a Private-Key to an external Cryptoplasm Key File
+func (k *FiniteFieldEllipticCurve) SaveBitString (BitString string) () {
+    var (
+        Identifier string
+        P1,P2,Password string
+        Condition bool
+    )
+    fmt.Println("The BitString representing the Private-Key is being saved !")
+    fmt.Println("Enter an identifier for the File to be exported:")
+    _, _ = fmt.Scanln(&Identifier)
+    for {
+        fmt.Println("Enter a password to encrypt the Private-Key:")
+        _, _ = fmt.Scanln(&P1)
+        fmt.Println("Confirm the entered Password by retyping it:")
+        _, _ = fmt.Scanln(&P2)
+        if P1 == P2 {
+            Condition = true
+        }
+        if Condition == true {
+            Password = P1
+            break
+        } else {
+            fmt.Println("Retyped Password doesn't match the previous entered Password!")
+        }
+    }
+    k.ExportPrivateKey(BitString,Identifier,Password)
+}
+// VIc.7
+//
+// Exports the BitString representing a Private-Key to a named files and encrypts it with a Password
+func (k *FiniteFieldEllipticCurve) ExportPrivateKey (BitString, KeyName, Password string) () {
+    Keys := k.GetKeys(BitString)
+
+    EncryptedPK := ConvertBase2toBase49(AES.EncryptBitString(BitString,Password))
+    PublicKey := Keys.PublicKey
+    Address := PublicKey2CRYPTOPLASMAddress(Keys.PublicKey)
+
+    String1 := "Cryptoplasm Private-Key in encrypted form:"
+    String2 := "Cryptoplasm Public-Key:"
+    String3 := "Cryptoplasm Address:"
+    String4 := "=========================================="
+
+    FileName := KeyName + "_Keys.Cryptoplasm"
+
+    OutputFile, err := os.Create(FileName)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer OutputFile.Close()
+
+    //Exporting Data
+    _, _ = fmt.Fprintln(OutputFile, String1)
+    _, _ = fmt.Fprintln(OutputFile, EncryptedPK)
+    _, _ = fmt.Fprintln(OutputFile, String4)
+    _, _ = fmt.Fprintln(OutputFile, String2)
+    _, _ = fmt.Fprintln(OutputFile, PublicKey)
+    _, _ = fmt.Fprintln(OutputFile, String4)
+    _, _ = fmt.Fprintln(OutputFile, String3)
+    _, _ = fmt.Fprintln(OutputFile, Address)
+}
+// VIc.7
+//
+// Opens a saved Key File and decrypts it.
+func (k *FiniteFieldEllipticCurve) OpenKeys () (string, error) {
+    var (
+        FileName,Password,MissingString,BitString,BitStringIntermediary string
+        E1 error
+    )
+    fmt.Println("Cryptoplasm Keys are being opened!")
+
+    fmt.Println("Enter the FileName containing the Keys:")
+    _, _ = fmt.Scanln(&FileName)
+
+    //Reading the Encrypted Private-Key. It is found on Line 2
+    EncryptedPK, _ := ImportPrivateKey(FileName)
+
+    for {
+        fmt.Println("Enter the Password to decrypt the Private-Key:")
+        _, _ = fmt.Scanln(&Password)
+
+        //Converting the Encrypted-PK to a BitString of 0s and 1s
+        EncryptedPKBitString := ConvertBase49toBase2(EncryptedPK)
+
+        //Decrypting the BitString using the given Password
+        BitStringIntermediary,E1 = AES.DecryptBitString(EncryptedPKBitString,Password)
+
+        //Loop Breaking Condition, the Condition is for the password to be correct
+        if E1 == nil {
+            fmt.Println("Entered Password is correct !")
+            break
+        } else {
+            fmt.Println("Entered Password is incorrect !")
+        }
+    }
+
+    //Checking if the Length of resulting BitString is correct
+    BitStringSlice := []rune(BitStringIntermediary)
+    if uint64(len(BitStringSlice)) == k.S {
+        BitString = BitStringIntermediary
+    } else {
+        Missing := k.S - uint64(len(BitStringSlice))
+        for i:=uint64(0); i<Missing; i++ {
+            MissingString = MissingString + "0"
+        }
+        BitString = MissingString + BitStringIntermediary
+    }
+
+    //fmt.Println("Correct Decrypted BitString is",BitString)
+    return BitString,nil
+}
+
+func ImportPrivateKey (FileName string) (string, error) {
+    PK,err := aux.ReadNthLine(FileName,2)
+    return PK,err
 }

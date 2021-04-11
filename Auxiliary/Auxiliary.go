@@ -2,9 +2,13 @@ package Auxiliary
 
 import (
     b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
+    "bufio"
+    "errors"
     "fmt"
     p "github.com/Crypt0plasm/Firefly-APD"
+    "io"
     "math/big"
+    "os"
     "unicode/utf8"
 )
 
@@ -106,4 +110,39 @@ func ChineseRemainderTheorem (ModuloResults, PrimesSet []*big.Int) (*big.Int, er
 func TrimFirstRune (s string) string {
     _, i := utf8.DecodeRuneInString(s)
     return s[i:]
+}
+
+//Reads the Nth line from a File who has the FileName name.
+func ReadNthLine (FileName string, LineNumberToRead int) (string, error) {
+    var ReadLine string
+
+    file, err := os.Open(FileName)
+    if err != nil {
+	return "", err
+    }
+    defer file.Close()
+
+    reader := bufio.NewReader(file)
+
+    for LineNumber := 0; LineNumber < LineNumberToRead; LineNumber++ {
+	ReadLine,err = reader.ReadString('\n')
+	if err == io.EOF {
+	    switch LineNumber {
+	    case 0:
+		return "", errors.New("no lines in file")
+	    case 1:
+		return "", errors.New("only 1 line")
+	    default:
+		return "", fmt.Errorf("only %d lines", LineNumber)
+	    }
+	}
+	if err != nil {
+	    return "", err
+	}
+    }
+    if ReadLine == "" {
+	return "", fmt.Errorf("line %d empty", LineNumberToRead)
+    }
+
+    return ReadLine, nil
 }

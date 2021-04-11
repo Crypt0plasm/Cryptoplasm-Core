@@ -134,7 +134,8 @@ type FiniteFieldEllipticCurveMethods interface {
     GetKeys 		(BitString string)				(Keys CPKeyPair)		// VIb.2
     GetKeysInt 		(Number *big.Int) 				(Keys CPKeyPair)		// VIb.3
     PrivKey2PubKey	(PrivateKey string) 				(PublicKey string)		// VIb.4
-    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VIb.5
+    PrivKey2BitString	(PrivateKey string)				(BitString string)		// VIb.5
+    PrivKeyInt2PubKey 	(PrivateKeyInt *big.Int) 			(PublicKey string)		// VIb.6
 
     // VIc - Complete Key Generation Methods - Part III
     MakeCryptoplasmKeys ()										// VIc.0
@@ -142,7 +143,10 @@ type FiniteFieldEllipticCurveMethods interface {
     CPFromManualBits	()						(Keys CPKeyPair, Address string)// VIc.2
     CPFromNumber	(Base int)					(Keys CPKeyPair, Address string)// VIc.3
     CPFromSeed		()						(Keys CPKeyPair, Address string)// VIc.4
-    StringToBitString	(Word string)					string				// VIc.4
+    StringToBitString	(Word string)					string				// VIc.5
+    SaveBitString	(BitString string)				()				// VIc.6
+    ExportPrivateKey	(BitString, KeyName, Password string)		()				// VIc.7
+    OpenKeys		()						(string, error)			// VIc.8
 
     //==================================================================================================================
 
