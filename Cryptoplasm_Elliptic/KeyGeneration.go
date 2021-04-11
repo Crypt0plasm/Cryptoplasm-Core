@@ -85,15 +85,19 @@ func PrintKeysWithAddress (Keys CPKeyPair, Address string) () {
 //CryptoPlasmKeys are generated using CryptoplasmCurve defined above.
 //
 //Generates a CryptoPlasm PublicKey and Address from a compatible BitString
-func BitString2CRYPTOPLASM (BitString string) (Keys CPKeyPair, Address string) {
+func (k *FiniteFieldEllipticCurve) BitString2CRYPTOPLASM (BitString string) (Keys CPKeyPair, Address string) {
 
     //First Main Function, Getting Keys
-    Keys = CryptoplasmCurve.GetKeys(BitString)
+    Keys = k.GetKeys(BitString)
 
     //Second Main Function, Getting the Address
     Address = PublicKey2CRYPTOPLASMAddress(Keys.PublicKey)
     return Keys, Address
 }
+//Generates a CryptoPlasm PublicKey and Address from a compatible Number in Base10.
+//It is assumed the number is compatible with the Curve in use, that is, is of a clamped form according to
+//used Curve Cofactor.Therefore attention must be used not to pass an incompatible number.
+//This function is used only after the number was validated previously.
 func Number2CRYPTOPLASM (Number *big.Int) (Keys CPKeyPair, Address string) {
 
     //First Main Function, Getting Keys
@@ -113,7 +117,7 @@ func (k *FiniteFieldEllipticCurve) RBS2CRYPTOPLASM () (Keys CPKeyPair, Address s
 
     //First Main Function, Getting Keys
     BitString := k.GetRandomBitsOnCurve()
-    Keys,Address = BitString2CRYPTOPLASM(BitString)
+    Keys,Address = k.BitString2CRYPTOPLASM(BitString)
     return Keys, Address
 }
 // VIb.2
@@ -878,7 +882,7 @@ func (k *FiniteFieldEllipticCurve) MakeCryptoplasmKeys () {
         case 1 :
             fmt.Println("Case 1")
             BitString,_ := k.OpenKeys()
-            Keys, Address := BitString2CRYPTOPLASM(BitString)
+            Keys, Address := k.BitString2CRYPTOPLASM(BitString)
             PrintKeysWithAddress(Keys,Address)
         case 2 :
             fmt.Println("Opening a Private Key from a Monochrome Bitmap is not implemented yet")
@@ -920,7 +924,7 @@ func (k *FiniteFieldEllipticCurve) CPFromManualBits () (Keys CPKeyPair, Address 
             }
         }
     }
-    Keys, Address = BitString2CRYPTOPLASM(Answer)
+    Keys, Address = k.BitString2CRYPTOPLASM(Answer)
     return Keys, Address
 }
 // VIc.3
@@ -992,7 +996,7 @@ func (k *FiniteFieldEllipticCurve) CPFromSeed () (Keys CPKeyPair, Address string
 
     BitString := k.StringToBitString(ConcatenatedSeed)
     fmt.Println("BS is",BitString)
-    Keys, Address = BitString2CRYPTOPLASM(BitString)
+    Keys, Address = k.BitString2CRYPTOPLASM(BitString)
     return Keys, Address
 }
 // VIc.5

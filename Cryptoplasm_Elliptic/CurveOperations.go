@@ -662,7 +662,6 @@ func (k *FiniteFieldEllipticCurve) ValidateBitString (BitString string) (bool, b
 	LengthTruth,StructureTruth,TotalTruth bool
     )
     Length := uint64(len(r))
-
     if Length == k.S {
 	LengthTruth = true
     } else {

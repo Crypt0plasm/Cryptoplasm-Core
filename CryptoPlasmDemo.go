@@ -308,7 +308,7 @@ They are only generated and displayed on screen.
 	//
 	//
     	if *FlagGenerateKeys == true {
-	    Keys, Address := el.GetCRYPTOPLASMKeysWithAddress()
+	    Keys, Address := el.CryptoplasmCurve.CPFromRandomBits()
 	    fmt.Println("Private Key is,",Keys.PrivateKey)
 	    fmt.Println("Public  Key is,",Keys.PublicKey)
 	    fmt.Println("Address Str is,",Address)
