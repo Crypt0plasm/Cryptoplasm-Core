@@ -495,7 +495,7 @@ func SUB(DecimalPrecision uint32, member1, member2 *p.Decimal) *p.Decimal {
 //
 // Function 03.03a - SUBxs
 //
-// ADDxs subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
+// SUBxs subtracts two decimals within custom Precision modified CryptoplasmPrecisionContext Context
 // The Precision has 70 decimal Precision plus elastic integer Precision.
 // The Precision scales with the number size, but is limited to 70 decimals.
 func SUBxs(member1, member2 *p.Decimal) *p.Decimal {
