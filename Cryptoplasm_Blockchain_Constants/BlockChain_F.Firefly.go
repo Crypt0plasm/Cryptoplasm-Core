@@ -764,7 +764,7 @@ func DIVx(TotalDecimalPrecision uint32, member1, member2 *p.Decimal) *p.Decimal 
 //
 // Function 05.02 - DIVs
 //
-// DIVs multiplies two decimals within CryptoplasmPrecisionContext Context
+// DIVs divides two decimals within CryptoplasmPrecisionContext Context
 func DIVs(member1, member2 *p.Decimal) *p.Decimal {
     var result = new(p.Decimal)
     _, _ = c.Quo(result, member1, member2)
