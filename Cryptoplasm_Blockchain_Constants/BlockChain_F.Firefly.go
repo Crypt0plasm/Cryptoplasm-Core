@@ -96,7 +96,7 @@ var (
 //		06b - PseudoFiftyFiftyOverSendShort	Computes the pseudoFFOverSend (OVerSend must be computed outside of function)
 //		06c - TrueFiftyFiftyOverSendLong	Computes the FFOverSend
 //		06d - TrueFiftyFiftyOverSendShort	Computes the FFOverSend (OVerSend must be computed outside of function)
-//      07  - TxTaxPrinter				Computes and Prints all related TxTax information
+//      	07  - TxTaxPrinter			Computes and Prints all related TxTax information
 //		07a - TxTaxDisplayOffset		Auxiliary TxTaxPrinter function
 //		07b - TxTaxDisplayOffset		Auxiliary TxTaxPrinter function
 //	11 Cryptoplasm Amount String Manipulation Function
@@ -620,15 +620,14 @@ func MULxc(member1, member2 *p.Decimal) *p.Decimal {
 		DecimalPrecision uint32
 	)
 
-	IntegerDigitsMember1 := Count4Coma(member1)			//int64
-	IntegerDigitsMember2 := Count4Coma(member2)			//int64
-	DecimalDigitsMember1 := 0 - member1.Exponent		//int32
-	DecimalDigitsMember2 := 0 - member2.Exponent		//int32
+	IntegerDigitsMember1 := Count4Coma(member1)				//int64
+	IntegerDigitsMember2 := Count4Coma(member2)				//int64
+	DecimalDigitsMember1 := 0 - member1.Exponent				//int32
+	DecimalDigitsMember2 := 0 - member2.Exponent				//int32
 	IntegerSumInt64 := IntegerDigitsMember1 + IntegerDigitsMember2		//int64 9.223.372.036.854.775.807
 	DecimalSumInt32 := DecimalDigitsMember1 + DecimalDigitsMember2		//int32 2.147.483.647
-
-	IntegerSumUint32 := uint32(IntegerSumInt64)			// from 9.223.372.036.854.775.807 to max 4.294.967.295
-	DecimalSumUint32 := uint32(DecimalSumInt32)			// from 2.147.483.647 to max 4.294.967.295
+	IntegerSumUint32 := uint32(IntegerSumInt64)				// from 9.223.372.036.854.775.807 to max 4.294.967.295
+	DecimalSumUint32 := uint32(DecimalSumInt32)				// from 2.147.483.647 to max 4.294.967.295
 
 	//Max IntegerSum can be 4.294.967.295
 	//Max DecimalSum is limited to 100.
