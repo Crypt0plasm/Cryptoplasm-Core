@@ -643,6 +643,8 @@ func MULxc(member1, member2 *p.Decimal) *p.Decimal {
 
 	cc := c.WithPrecision(MultiplicationPrecision)
 	_, _ = cc.Mul(result, member1, member2)
+	
+    	result = TruncateCustom(result,DecimalPrecision)
 	return result
 }
 //================================================
