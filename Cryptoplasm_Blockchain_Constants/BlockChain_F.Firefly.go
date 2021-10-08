@@ -103,6 +103,7 @@ var (
 //		01  - CPConvert2AU			Converts CP Amount to AtomicUnits (YoctoPlasms)
 //		02  - YoctoPlasm2String			Converts YoctoPlasms into a slice os strings
 //		03  - CPAmountConv2Print		Converts a CP Amount into a string that can be better used for display purposes
+//		04  - BHAmountConv2Print		Converts the BlockHeight decimal into a string to be used for printing purposes
 //
 //================================================================================================
 //************************************************************************************************
@@ -1716,7 +1717,7 @@ func CPAmountConv2Print (cpAmount *p.Decimal) string {
 }
 //================================================
 //
-// Function 11.03 - BHAmountConv2Print
+// Function 11.04 - BHAmountConv2Print
 //
 // BHAmountConv2Print converts the BlockHeight decimal into a string
 // to be used for printing purposes. A "." is inserted ever 1000.
