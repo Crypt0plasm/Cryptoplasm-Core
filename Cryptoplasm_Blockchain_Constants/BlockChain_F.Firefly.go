@@ -59,8 +59,8 @@ var (
 //		05  - PRDs				Multiplies multiple numbers within CryptoplasmPrecisionContext
 //		06  - PRDxc				Multiplies multiple numbers with elastic integer precision and 100 max decimal precision
 //		07  - POWx				Computes x ** y within a specific precision context
-//		08  - POWs				Computes x ** y within CryptoplasmPrecisionContext
-//		09  - POWxc				Computes x ** y with elastic integer precision and 100 max decimal precision
+//		09  - POWxcs				Computes x ** y with elastic integer precision and custom max decimal precision
+//		10  - POWxc				Computes x ** y with elastic integer precision and 100 max decimal precision
 //	05 Division Functions
 //		01  - DIVx				Divides 2 numbers within a specific precision context
 //		02  - DIVs				Divides 2 numbers within CryptoplasmPrecisionContext
@@ -731,28 +731,44 @@ func POWs(member1, member2 *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Function 04.06 - POWxc
+// Function 04.09 - POWxc
 //
-// POWxc computes x ** y within an elastically modified Precision CryptoplasmPrecisionContext Context
-// The elastic Precision's decimal limit is set to 100, while the integer precision scales without any "limits".
-// Any limits means only a theoretical hard limit of 4.294.967.195 digits, 100 units less than uint32.
+// POWxcs computes x ** y within an elastically custom modified Precision LOCPrecisionContext Context
+// The elastic Precision's decimal limit is chosen by the user, while the integer precision scales without
+// any "limits".
+// Any limits means only a theoretical hard limit of 4.294.967.295 - "chosen decimal precision" digits.
 // This is however expected never to happen.
-// // Number of digit of a^b is D=1+b*log(10,a)
+// Number of digit of a^b is D=1+b*log(10,a)
+
+func POWxcs(DecimalNumber uint32, member1, member2 *p.Decimal) *p.Decimal {
+    var result		= new(p.Decimal)
+    var Logarithm	= new(p.Decimal)
+
+    //Getting the number of Digits the power would have
+    _, _ = c.Log10(Logarithm, member1)
+    Digits := ADDxc(p.NFI(1),MULxc(member2,Logarithm))
+    DigitsR := TruncateCustom(Digits,0)
+    DigitsRI := uint32(p.INT64(DigitsR))
+
+    TotalPowerPrecision	:= DigitsRI + DecimalNumber
+
+    cc := c.WithPrecision(TotalPowerPrecision)
+    _, _ = cc.Pow(result, member1, member2)
+
+    return result
+}
+
+//================================================
+//
+// Function 04.10 - POWxc
+//
+// POWxc computes x ** y within an elastically modified Precision LOCPrecisionContext Context
+// Same as POWxcs, the custom Decimal limit is set to LOCMaxMathPrecision (150)
 func POWxc(member1, member2 *p.Decimal) *p.Decimal {
-	var result	= new(p.Decimal)
-    	var Logarithm	= new(p.Decimal)
+    var result		= new(p.Decimal)
+    result = POWxcs(CryptoplasmMaxMathPrecision,member1,member2)
 
-    	//Getting the number of Digits the power would have
-    	_, _ = c.Log10(Logarithm, member1)
-    	Digits 			:= ADDxc(p.NFI(1),MULxc(member2,Logarithm))
-    	DigitsR 		:= TruncateCustom(Digits,0)
-    	DigitsRI 		:= uint32(p.INT64(DigitsR))
-	TotalPowerPrecision	:= DigitsRI + CryptoplasmMaxMathPrecision
-
-	cc := c.WithPrecision(TotalPowerPrecision)
-	_, _ = cc.Pow(result, member1, member2)
-
-	return result
+    return result
 }
 //================================================
 //
