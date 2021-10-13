@@ -612,7 +612,8 @@ func MULs(member1, member2 *p.Decimal) *p.Decimal {
 // Function 04.03 - MULxc
 //
 // MULxc multiplies two decimals within an elastically modified Precision CryptoplasmPrecisionContext Context
-// The elastic Precision's decimal limit is set to 100, while the integer precision scales without any "limits".
+// The elastic Precision's decimal limit is set to CryptoplasmMaxMathPrecision (it grows up to this value),
+// while the integer precision scales without any "limits".
 // Any limits means only a theoretical hard limit of 4.294.967.195 digits, 100 units less than uint32.
 // This is however expected never to be achieved.
 func MULxc(member1, member2 *p.Decimal) *p.Decimal {
@@ -643,7 +644,7 @@ func MULxc(member1, member2 *p.Decimal) *p.Decimal {
 
 	cc := c.WithPrecision(MultiplicationPrecision)
 	_, _ = cc.Mul(result, member1, member2)
-	
+
     	result = TruncateCustom(result,DecimalPrecision)
 	return result
 }
@@ -736,15 +737,17 @@ func POWs(member1, member2 *p.Decimal) *p.Decimal {
 // The elastic Precision's decimal limit is set to 100, while the integer precision scales without any "limits".
 // Any limits means only a theoretical hard limit of 4.294.967.195 digits, 100 units less than uint32.
 // This is however expected never to happen.
+// // Number of digit of a^b is D=1+b*log(10,a)
 func POWxc(member1, member2 *p.Decimal) *p.Decimal {
-	var result     = new(p.Decimal)
+	var result	= new(p.Decimal)
+    	var Logarithm	= new(p.Decimal)
 
-	IntegerDigitsMember1 	:= Count4Coma(member1)							//int64
-	IntegerMember2 			:= p.INT64(RemoveDecimals(member2))		//int64
-	IntegerPrecision 		:= IntegerDigitsMember1 * (IntegerMember2 + 1)	//int64
-	//Observation, if above values are greater than uint32, the conversion below ov overflows.
-	//This is however expected never to happen.
-	TotalPowerPrecision		:= uint32(IntegerPrecision) + CryptoplasmMaxMathPrecision
+    	//Getting the number of Digits the power would have
+    	_, _ = c.Log10(Logarithm, member1)
+    	Digits 			:= ADDxc(p.NFI(1),MULxc(member2,Logarithm))
+    	DigitsR 		:= TruncateCustom(Digits,0)
+    	DigitsRI 		:= uint32(p.INT64(DigitsR))
+	TotalPowerPrecision	:= DigitsRI + CryptoplasmMaxMathPrecision
 
 	cc := c.WithPrecision(TotalPowerPrecision)
 	_, _ = cc.Pow(result, member1, member2)
