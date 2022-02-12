@@ -1394,10 +1394,13 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *p.Decimal) *p.Decima
 // TxTaxPrinter computes and prints all OverSend related information
 // for the given cpAmount
 func TxTaxPrinter(cpAmount *p.Decimal) {
+    if DecimalLessThan(cpAmount, p.NFI(10)) == true {
+        fmt.Println("Transaction Tax exists for amounts greater than or equal to 10")
+    } else {
 	start := time.Now()
 	var (
-		BarNumberOffset			int
-		Len00					string
+	    BarNumberOffset			int
+	    Len00					string
 	)
 	tcpAmount := TruncToCurrency(cpAmount)
 	//Computing Oversend and FiftyFiftyOverSend
@@ -1427,10 +1430,10 @@ func TxTaxPrinter(cpAmount *p.Decimal) {
 	TargetAmountLength 		:= len(CPAmountConv2Print(tcpAmount))
 
 	if OverSendAmountLength > TargetAmountLength {
-		BarNumberOffset = len(CPAmountConv2Print(OverSend))
-		Len00 = TxTaxDisplayOffset(OverSend,tcpAmount)
+	    BarNumberOffset = len(CPAmountConv2Print(OverSend))
+	    Len00 = TxTaxDisplayOffset(OverSend,tcpAmount)
 	} else if OverSendAmountLength == TargetAmountLength {
-		BarNumberOffset = len(CPAmountConv2Print(tcpAmount))
+	    BarNumberOffset = len(CPAmountConv2Print(tcpAmount))
 	}
 
 	BarLength 		:= 33 + 1 + BarNumberOffset + 3
@@ -1471,32 +1474,32 @@ happens when the Tx-Tax's last decimal is an uneven number.
 	fmt.Print("\t",OptionNumber3)
 	fmt.Println("")
 	if OverSendAmountLength > TargetAmountLength {
-		fmt.Println("       Target Cryptoplasm Amount:",Len00,CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("       Target Cryptoplasm Amount:",Len00,CPAmountConv2Print(tcpAmount),"CP")
 	} else if OverSendAmountLength == TargetAmountLength {
-		fmt.Println("       Target Cryptoplasm Amount:",CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("       Target Cryptoplasm Amount:",CPAmountConv2Print(tcpAmount),"CP")
 	}
 	fmt.Println(BarLengthString)
 	//==================================================================================================================
 	fmt.Println("=============Option1=============")				//TARGET AMOUNT
 	// First Line
 	if OverSendAmountLength > TargetAmountLength {
-		fmt.Println("     Sender sends[Target Amount]:",Len00,CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("     Sender sends[Target Amount]:",Len00,CPAmountConv2Print(tcpAmount),"CP")
 	} else if OverSendAmountLength == TargetAmountLength {
-		fmt.Println("     Sender sends[Target Amount]:",CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("     Sender sends[Target Amount]:",CPAmountConv2Print(tcpAmount),"CP")
 	}
 	//Second and third Line
 	fmt.Println("       the Tx-Tax[Target Amount]:",Len01,CPAmountConv2Print(TxTaxMin),"CP")
 	fmt.Println("                  and represents:",Len02,FeeProMilleMin,"promille")
 	//Fourth Line
 	if len(CPAmountConv2Print(tcpAmount)) == len(CPAmountConv2Print(RecipientMin)) {
-		if OverSendAmountLength > TargetAmountLength {
-			fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMin),"CP")
-		} else if OverSendAmountLength == TargetAmountLength {
-			fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMin),"CP")
-		}
+	    if OverSendAmountLength > TargetAmountLength {
+		fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMin),"CP")
+	    } else if OverSendAmountLength == TargetAmountLength {
+		fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMin),"CP")
+	    }
 	} else {
-		Len03 := TxTaxDisplayOffset(tcpAmount,RecipientMin)
-		fmt.Println("              Recipient receives:",Len03,CPAmountConv2Print(RecipientMin),"CP")
+	    Len03 := TxTaxDisplayOffset(tcpAmount,RecipientMin)
+	    fmt.Println("              Recipient receives:",Len03,CPAmountConv2Print(RecipientMin),"CP")
 	}
 	fmt.Println("=================================")
 	//Fifth and Sixth Line
@@ -1511,14 +1514,14 @@ happens when the Tx-Tax's last decimal is an uneven number.
 	fmt.Println("                  and represents:",Len02b,FeeProMilleMax,"promille")
 	//Fourth Line
 	if len(CPAmountConv2Print(OverSend)) == len(CPAmountConv2Print(RecipientMax)) {
-		if OverSendAmountLength > TargetAmountLength {
-			fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMax),"CP")
-		} else if OverSendAmountLength == TargetAmountLength {
-			fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMax),"CP")
-		}
+	    if OverSendAmountLength > TargetAmountLength {
+		fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMax),"CP")
+	    } else if OverSendAmountLength == TargetAmountLength {
+		fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMax),"CP")
+	    }
 	} else {
-		Len03b := TxTaxDisplayOffset(OverSend,RecipientMax)
-		fmt.Println("              Recipient receives:",Len03b,CPAmountConv2Print(RecipientMax),"CP")
+	    Len03b := TxTaxDisplayOffset(OverSend,RecipientMax)
+	    fmt.Println("              Recipient receives:",Len03b,CPAmountConv2Print(RecipientMax),"CP")
 	}
 	fmt.Println("=================================")
 	//Fifth and Sixth Line
@@ -1533,14 +1536,14 @@ happens when the Tx-Tax's last decimal is an uneven number.
 	fmt.Println("                  and represents:",Len02c,FeeProMilleFF,"promille")
 	//Fourth Line
 	if len(CPAmountConv2Print(FiftyFiftyOverSend)) == len(CPAmountConv2Print(RecipientFF)) {
-		if OverSendAmountLength > TargetAmountLength {
-			fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientFF),"CP")
-		} else if OverSendAmountLength == TargetAmountLength {
-			fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientFF),"CP")
-		}
+	    if OverSendAmountLength > TargetAmountLength {
+		fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientFF),"CP")
+	    } else if OverSendAmountLength == TargetAmountLength {
+		fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientFF),"CP")
+	    }
 	} else {
-		Len03c := TxTaxDisplayOffset(FiftyFiftyOverSend,RecipientFF)
-		fmt.Println("              Recipient receives:",Len03c,CPAmountConv2Print(RecipientFF),"CP")
+	    Len03c := TxTaxDisplayOffset(FiftyFiftyOverSend,RecipientFF)
+	    fmt.Println("              Recipient receives:",Len03c,CPAmountConv2Print(RecipientFF),"CP")
 	}
 	fmt.Println("=================================")
 	//Fifth and Sixth Line
@@ -1550,7 +1553,8 @@ happens when the Tx-Tax's last decimal is an uneven number.
 	elapsed := time.Since(start)
 	fmt.Println("Computing the TxTaxPrinter took", elapsed)
 	fmt.Println("")
-	}
+    	}
+    }
 
 //================================================
 //
