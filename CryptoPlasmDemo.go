@@ -5,6 +5,7 @@ import (
     "fmt"
     "log"
     "os"
+    "strings"
     "time"
 
     b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
@@ -35,6 +36,10 @@ Computes and Prints the Block-Reward for the given Block-Height. It represent a 
 	    	CmpSummedBrH = `--cmp-br-sum=<Block-Height>
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Sum of all the Block-Rewards emitted up to and including the given Block-Height.
+`
+	    	CmpDiffedBrH = `--cmp-br-diff=<Block-Height><-><Block-Height>
+Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
+Computes and Prints the Sum of all the Block-Rewards between the two given Block-Heights. Separated by "-"
 `
 	    	ExpTotalsBrH = `--exp-br-all		NO VALUE TO PASS
 Computes and Exports to an external file, all the Block-Rewards for whole White Interval.
@@ -83,6 +88,7 @@ They are only generated and displayed on screen.
 	    	CmpTxFee    	= "cmp-tx-fee"			// String - BH
 	    	CmpBr	    	= "cmp-br"			// String - BH
 	    	CmpSummedBr 	= "cmp-br-sum"			// String - BH
+	    	CmpDiffedBr	= "cmp-br-dif"			// String - BH
 	    	ExpTotalsBr 	= "exp-br-all"			// Bool
 	    	ExpSumBrCkp 	= "exp-br-sum-ckp"		// String - BH Interval
 	    	PrtBrSplit	= "prt-br-split"		// String - BH
@@ -98,6 +104,7 @@ They are only generated and displayed on screen.
 	FlagCmpTxFee 		:= flag.String	(CmpTxFee,	"0",	CmpTxFeeH)
 	FlagCmpBr		:= flag.String	(CmpBr,		"0",	CmpBrH)
 	FlagCmpSummedBr		:= flag.String	(CmpSummedBr,	"0",	CmpSummedBrH)
+	FlagCmpDiffedBr		:= flag.String	(CmpDiffedBr,	"0",	CmpDiffedBrH)
 	FlagExpTotalsBr 	:= flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
 	FlagExpSumBrCkp 	:= flag.String	(ExpSumBrCkp,	"0",	ExpSumBrCkpH)
 	FlagPrtBrSplit 		:= flag.String	(PrtBrSplit,	"0",	PrtBrSplitH)
@@ -161,7 +168,25 @@ They are only generated and displayed on screen.
 		fmt.Println("")
 	}
 	//
-	//06)ExpSumBrCkp	String - BH Interval
+	//06)CmpDiffedBr	String - BH Interval
+	//
+	if *FlagCmpDiffedBr != "0" {
+	    start := time.Now()
+	    fmt.Println("")
+	    BlockHeights := strings.SplitN(*FlagCmpDiffedBr,"-",2)
+	    S1 := b.DIFxs(p.NFS(BlockHeights[0]), p.NFS("1")).String()
+	    Sum1 := b.BHRewardSeqSumS(S1)
+	    Sum2 := b.BHRewardSeqSumS(BlockHeights[1])
+	    Sum := b.DIFxc(Sum2,Sum1)
+	    elapsed := time.Since(start)
+	    fmt.Println("")
+	    fmt.Println("Cryptoplasm Emission from Block-Height",BlockHeights[0],"to Block-Height",BlockHeights[1],"is:")
+	    fmt.Println(b.CPAmountConv2Print(Sum),"CP, computed in",elapsed)
+	    fmt.Println("")
+	}
+
+	//
+	//07)ExpSumBrCkp	String - BH Interval
 	//
 	if *FlagExpSumBrCkp != "0" {
 	    var answer, answer2, Name string
@@ -204,7 +229,7 @@ They are only generated and displayed on screen.
 	    }
 	}
 	//
-	//07)FlagPrtBrSplit	String - BH Interval
+	//08)FlagPrtBrSplit	String - BH Interval
 	//
 	if *FlagPrtBrSplit != "0" {
 		fmt.Println("")
@@ -213,7 +238,7 @@ They are only generated and displayed on screen.
 		fmt.Println("")
 	}
 	//
-	//08)ExpTotalsBr	Bool
+	//09)ExpTotalsBr	Bool
 	//
 	if *FlagExpTotalsBr == true {
 		var answer, filename string
@@ -229,7 +254,7 @@ They are only generated and displayed on screen.
 		}
 	}
 	//
-	//09)PrtDeciSeed	Bool
+	//10)PrtDeciSeed	Bool
 	//
 	if *FlagPrtDeciSeed == true {
 		fmt.Println("")
@@ -238,7 +263,7 @@ They are only generated and displayed on screen.
 		b.CryptoplasmDecimalSeedPrinter()
 	}
 	//
-	//10)PrtIntSeed		Bool
+	//11)PrtIntSeed		Bool
 	//
 	if *FlagPrtIntSeed == true {
 		fmt.Println("")
@@ -247,7 +272,7 @@ They are only generated and displayed on screen.
 		b.CryptoplasmIntegerSeedPrinter()
 	}
 	//
-	//11)PrtInterval	Bool
+	//12)PrtInterval	Bool
 	//
 	if *FlagPrtInterval == true {
 		fmt.Println("")
@@ -256,7 +281,7 @@ They are only generated and displayed on screen.
 		b.CryptoplasmIntervals()
 	}
 	//
-	//12)FlagSimulateFee
+	//13)FlagSimulateFee
 	//
 	if *FlagSimulateFee != "0" {
 		var txsize, outputno uint32
