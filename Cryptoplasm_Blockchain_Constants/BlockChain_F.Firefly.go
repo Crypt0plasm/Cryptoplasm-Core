@@ -1185,6 +1185,7 @@ func OVSLogarithm(base, number *p.Decimal) *p.Decimal {
 //
 // CPAmount2StringDecomposer creates a string of uint8 from the integer digits
 // of a cpAmount, to be used for calculating the TxTax
+// 123456789 results in [9 8 7 6 5 4 3 2 1]
 func CPAmount2StringDecomposer(cpAmount *p.Decimal) []uint8 {
 	var NumberSlice []uint8
 	tcpAmount := TruncToCurrency(cpAmount)
@@ -1598,9 +1599,9 @@ func CPConvert2AU(cpAmount *p.Decimal) *p.Decimal {
 //
 // Function 11.02 - YoctoPlasm2String
 //
-// YoctoPlasm2String converts a CryptoPlasm AUs (YoctoPlasms)
+// YoctoPlasm2String converts a CryptoPlasm AUs (AttoPlasms)
 // into a slice of strings
-func YoctoPlasm2String(Number *p.Decimal) []string {
+func AttoPlasm2String(Number *p.Decimal) []string {
     var SliceStr []string
     Ten := p.NFI(10)
     AuDigits := Number.NumDigits()
@@ -1636,105 +1637,79 @@ func YoctoPlasm2String(Number *p.Decimal) []string {
 func CPAmountConv2Print (cpAmount *p.Decimal) string {
     var (
     		StringResult 		string
-		ComaPosition 		int32
-		PointPosition 		int32
-		DigitTier		int32
-		NewSlicePositions 	int64
+		ComaPosition 		int64
+		PointPosition 		int64
+		DigitTier		int64
     )
+
+    //String Variable
+    DecimalSeparator := ","
+    ThousandSeparator := "."
+    InsertFront := "["
+    InsertMiddle := "|"
+    InsertEnd := "]"
+
+    Prec := int64(CryptoplasmCurrencyPrecision)
     AU := CPConvert2AU(cpAmount)
-    SliceStr := YoctoPlasm2String(AU)
+    SliceStr := AttoPlasm2String(AU)
     NumberDigits := Count4Coma(AU)
 
-    //Computing the Coma position
-    if NumberDigits <= 25 {
+    InsertString := func (a []string, index int64, value string) []string {
+    	if int64(len(a)) == index { // nil or empty slice or after last element
+    		return append(a, value)
+    	}
+		a = append(a[:index+1], a[index:]...) // index < len(a)
+		a[index] = value
+		return a
+	}
+	
+    //Computing the Decimal Separator position
+    if NumberDigits <= (Prec + 1) {
 	ComaPosition = 1
     } else {
-	ComaPosition = int32(NumberDigits) - 24
+	ComaPosition = NumberDigits - Prec
     }
-    //Adding the Coma aka Decimal Separator
-    SliceStr = append(SliceStr,"")
-    copy(SliceStr[ComaPosition+1:],SliceStr[ComaPosition:])
-    SliceStr[ComaPosition] = ","
+    //Inserting the Decimal Separator
+    SliceStr = InsertString(SliceStr,ComaPosition,DecimalSeparator)
 
-    if NumberDigits >= 28 {
-	//Computing the 1000 Separator positions
-	Difference := NumberDigits - 25
-	if Difference  % 3 == 0 {
-	    DigitTier = 1
-	} else if Difference  % 3 == 1 {
-	    DigitTier = 2
-	} else if Difference  % 3 == 2{
-	    DigitTier = 3
-	}
-	TSNumber := (NumberDigits - 25 ) / 3
 
-	//Adding the 1000 Separator as points
-	for i := 1; i<=int(TSNumber); i++ {
-	    PointPosition = (int32(i)-1) * 4 + DigitTier
-	    SliceStr = append(SliceStr,"")
-	    copy(SliceStr[PointPosition+1:],SliceStr[PointPosition:])
-	    SliceStr[PointPosition] = "."
-	}
-
-	NewSlicePositions = NumberDigits + TSNumber + 1
-    } else if NumberDigits < 28 && NumberDigits > 24 {
-	NewSlicePositions = NumberDigits + 1
-    } else {
-	NewSlicePositions = 26
+    //Computing the 1000 Separator positions
+    Difference := NumberDigits - (Prec + 1)
+    if Difference  % 3 == 0 {
+    	DigitTier = 1
+    } else if Difference  % 3 == 1 {
+    	DigitTier = 2
+    } else if Difference  % 3 == 2{
+    	DigitTier = 3
     }
+    TSNumber := (NumberDigits - (Prec + 1) ) / 3
 
-    for i:=0; i<=9; i++{
-        var x, y, z, s int
-        var Insert string
-        InsertFront := "["
-        InsertMiddle := "|"
-        InsertEnd := "]"
+    //Adding the 1000 Separator as points
+    for i := int64(1); i<=TSNumber; i++ {
+    	PointPosition = (i-1) * 4 + DigitTier
+    	SliceStr = InsertString(SliceStr,PointPosition,ThousandSeparator)
+    	}
 
-        s = 4
-        if i == 0 {
-            x = -1
-            y = 0
-            z = 0
-	    Insert = InsertEnd
-	} else if  i != 0 && i <= 3 {
-	    x = s * i
-	    y = x
-	    z = x + 1
-	    Insert = InsertMiddle
-	} else if i == 4 {
-	    x = s * i
-	    y = x
-	    z = x + 1
-	    Insert = InsertFront
-	} else if i == 5 {
-	    x = s * (i - 1) + 1
-	    y = x
-	    z = x + 1
-	    Insert = InsertEnd
-	} else if i > 5 && i <= 8 {
-	    x = s * (i - 1) + 1
-	    y = x
-	    z = x + 1
-	    Insert = InsertMiddle
-	} else {
-	    x = s * (i - 1) + 1
-	    y = x
-	    z = x + 1
-	    Insert = InsertFront
-	}
-	//fmt.Println("SliceStr este inainte",SliceStr,i)
-	SliceStr = append(SliceStr,"")
-	//fmt.Println("SliceStr este dupa",SliceStr,i)
-	copy(SliceStr[int(NewSlicePositions)-x:],SliceStr[int(NewSlicePositions)-z:])
-	SliceStr[int(NewSlicePositions)-y] = Insert
-	NewSlicePositions = NewSlicePositions + 1
+    //fmt.Println("new slice is", SliceStr)
+    //fmt.Println("Slice Str cu virgula si 1000 separator este", len(SliceStr))
+
+    //Adding Decimal Separators
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)),InsertEnd)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-4),InsertMiddle)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-8),InsertMiddle)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-12),InsertFront)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-13),InsertEnd)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-17),InsertMiddle)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-21),InsertMiddle)
+    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-25),InsertFront)
+
+    //Removing "0," from the SliceString, displaying only Decimals, in case os subunitary values.
+    if len(SliceStr) == 28 && SliceStr[0] == "0" {
+    	SliceStr = SliceStr[2:]
     }
+    fmt.Println("new slice is", SliceStr)
 
-    //Removing "0," from the SliceString, displaying only Decimals
-    if len(SliceStr) == 36 && SliceStr[0] == "0" {
-	SliceStr = SliceStr[2:]
-    }
-
+    //Converting Slice to string
     for i := 0; i < len(SliceStr); i++ {
         StringResult = StringResult + SliceStr[i]
     }
@@ -1758,7 +1733,7 @@ func BHAmountConv2Print (BlockHeight *p.Decimal) string {
     )
 
     NumberDigits := Count4Coma(BlockHeight)
-    SliceStr := YoctoPlasm2String(BlockHeight)
+    SliceStr := AttoPlasm2String(BlockHeight)
     TSNumber := NumberDigits / 3
 
     //Computing the 1000 Separator positions

@@ -27,10 +27,10 @@ const (
     // (how much remains in the Conqueror Pool from the Premine after Founders-Amount is spent)
     // added together give the PreMine Amount
     //=============================================================================================
-    TheoreticalEraEmission 	    = "100000000000000.000000000000000000000000" //Total Theoretical Emission without Bonuses for One Era
-    PreMinedAmount 		    = 	    "500000000.000000000000000000000000" //Premine Amount
-    TheoreticalStartBlockReward     = 	          "100.000000000000000000000000" //Base Block-Reward used as starting point for BR calculations
-    AuPerUnit 			    =                "1000000000000000000000000" // Atomic Units per Cryptoplasm
+    TheoreticalEraEmission 	    = "100000000000000.000000000000000000" //Total Theoretical Emission without Bonuses for One Era
+    PreMinedAmount 		    = 	    "500000000.000000000000000000" //Premine Amount
+    TheoreticalStartBlockReward     = 	          "100.000000000000000000" //Base Block-Reward used as starting point for BR calculations
+    AuPerUnit 			    =                "1000000000000000000" // Atomic Units per Cryptoplasm
     //===============================
     //
     // Decimal Seed Precision
@@ -38,15 +38,15 @@ const (
     CryptoplasmMaxMathPrecision     = uint32(100)                               //Decimal Precision
     CryptoplasmStdMathPrecision     = uint32(70)                                //Total and Decimal Precision
     CryptoplasmSeedPrecision        = uint32(40)                                //Decimal Precision
-    CryptoplasmCurrencyPrecision    = uint32(24)                                //Decimal Precision
+    CryptoplasmCurrencyPrecision    = uint32(18)                                //Decimal Precision
     CryptoplasmPercentPrecision     = uint32(4)                                 //Decimal Precision
     //===============================
     //
     // Fee per Byte
     //=============================================================================================
-    MaxFeePerByte                   = 		"0.000010000000000000000000" 	//10**19 AU aka 10 MicroPlasm aka 10000 NanoPlasm
-    FeePerByteDecrement   	    = 		"0.000000000000020000000000" 	//2*10**10 AU aka 20 FemtoPlasm per Block
-    MinFeePerByte         	    = 		"0.000000001000000000000000" 	//10**15 AU aka 1 NanoPlasm
+    MaxFeePerByte                   = 		"0.000010000000000000" 	//10**19 AU aka 10 MicroPlasm aka 10000 NanoPlasm
+    FeePerByteDecrement   	    = 		"0.000000000000020000" 	//2*10**10 AU aka 20 FemtoPlasm per Block
+    MinFeePerByte         	    = 		"0.000000001000000000" 	//10**15 AU aka 1 NanoPlasm
     FeePerByteBHThreshold 	    = 	"499950000"
     //===============================
     //
@@ -159,7 +159,8 @@ var (
     TotalEmission 		    = p.NFS(TheoreticalEraEmission)
     PreMine       		    = p.NFS(PreMinedAmount)
     StartBRd     		    = p.NFS(TheoreticalStartBlockReward)
-    AUs          		    = p.NFS(AuPerUnit)
+    //AUs          		    = p.NFS(AuPerUnit)
+    AUs                             = POWxc(p.NFS("10"),p.NFI(int64(CryptoplasmCurrencyPrecision)))
     CamelSupportReward  	    = MULs(White, StartBRd)                            		//Sum of Reward equivalent to the Camel-Support-Area
     CamelReward         	    = DIFs(TotalEmission, PreMine, CamelSupportReward) 		//Sum of Reward equivalent to the Camel Emission only (without its Support)
     //===============================
