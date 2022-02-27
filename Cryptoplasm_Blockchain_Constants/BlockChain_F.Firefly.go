@@ -1662,7 +1662,7 @@ func CPAmountConv2Print (cpAmount *p.Decimal) string {
 		a[index] = value
 		return a
 	}
-	
+
     //Computing the Decimal Separator position
     if NumberDigits <= (Prec + 1) {
 	ComaPosition = 1
@@ -1707,7 +1707,6 @@ func CPAmountConv2Print (cpAmount *p.Decimal) string {
     if len(SliceStr) == 28 && SliceStr[0] == "0" {
     	SliceStr = SliceStr[2:]
     }
-    fmt.Println("new slice is", SliceStr)
 
     //Converting Slice to string
     for i := 0; i < len(SliceStr); i++ {
