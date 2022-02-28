@@ -1332,7 +1332,9 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *p.Decimal) *p.Decima
 	var (
 		TrueFiftyFifty 			= new(p.Decimal)
 		MinimumDifference 		= new(p.Decimal)
-		YoctoPlasm				= p.NFS("0.000000000000000000000001")
+		//YoctoPlasm			= p.NFS("0.000000000000000000000001")
+		Precision			= int64(CryptoplasmCurrencyPrecision)
+		AtomicUnit			= POWxc(p.NFI(10), SUBxc(p.NFI(0),p.NFI(Precision)))
 		Iteration       		int                     	//OverSpend Loop Iteration number
 	)
 
@@ -1355,7 +1357,7 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *p.Decimal) *p.Decima
 		} else {
 			MinimumDifference = SUBx(IP,TxTaxR,TxTaxS)
 		}
-		if DecimalEqual(TxTaxS,TxTaxR) == true || DecimalEqual(MinimumDifference,YoctoPlasm) == true{
+		if DecimalEqual(TxTaxS,TxTaxR) == true || DecimalEqual(MinimumDifference,AtomicUnit) == true{
 			break
 		}
 		if DecimalGreaterThan(TxTaxS,TxTaxR) == true {
@@ -1365,7 +1367,7 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *p.Decimal) *p.Decima
 			TxTaxS = TruncToCurrency(SUBx(IP,FluctuatingOverSend,tcpAmount))
 			TxTaxR = TruncToCurrency(SUBx(IP,tcpAmount,RFiftyFifty))
 			FluctuatingOverSend = SUMx(IP,TxTaxR,DIVx(IP,SUBx(IP,TxTaxS,TxTaxR),p.NFI(2)),tcpAmount)
-			//fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
+			fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
 
 		} else if DecimalLessThan(TxTaxS,TxTaxR) == true {
 			//Loop Up
@@ -1375,7 +1377,7 @@ func TrueFiftyFiftyOverSendShort(cpAmount, PerfectOverSend *p.Decimal) *p.Decima
 			TxTaxS = TruncToCurrency(SUBx(IP,FluctuatingOverSend,tcpAmount))
 			TxTaxR = TruncToCurrency(SUBx(IP,tcpAmount,RFiftyFifty))
 			FluctuatingOverSend = SUMx(IP,TxTaxR,DIVx(IP,SUBx(IP,TxTaxS,TxTaxR),p.NFI(2)),tcpAmount)
-			//fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
+			fmt.Println("FlucOvs is",FluctuatingOverSend,"TxTaxS is",TxTaxS,"TxTaxSR is",TxTaxR)
 		}
 	}
 	TrueFiftyFifty = FluctuatingOverSend
@@ -1405,7 +1407,7 @@ func TxTaxPrinter(cpAmount *p.Decimal) {
 	)
 	tcpAmount := TruncToCurrency(cpAmount)
 	//Computing Oversend and FiftyFiftyOverSend
-	Zero := "0,[000|000|000|000][000|000|000|000]"
+	Zero := "0,[000|000|000][000|000|000]"
 
 	fmt.Println("\tPART 1 START - tcpAmount known, computing TxTax based on tcpAmount:")
 	FeeProMilleMin, TxTaxMin, 	RecipientMin 	:= CPTxTaxV2(tcpAmount)
@@ -1437,7 +1439,7 @@ func TxTaxPrinter(cpAmount *p.Decimal) {
 	    BarNumberOffset = len(CPAmountConv2Print(tcpAmount))
 	}
 
-	BarLength 		:= 33 + 1 + BarNumberOffset + 3
+	BarLength 		:= 27 + 1 + BarNumberOffset + 3
 	BarLengthString := strings.Repeat("=",BarLength)
 	Len01 			:= TxTaxDisplayOffset(OverSend,TxTaxMin)
 	Len02 			:= TxTaxDisplayOffset(OverSend,FeeProMilleMin)
