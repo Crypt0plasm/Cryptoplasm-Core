@@ -23,6 +23,7 @@ var (
 //		00  - SummedMaxLengthPlusOne		SummedMaxLength returns the sum of the maximums length of digits (b4 and after coma)
 //		00a - MaxInt32				Returns the maximum between two int32 numbers
 //		00b - MaxInt64				Returns the maximum between two int64 numbers
+//		00c - MaxDecimal			Returns the maximum between two decimals
 //		01  - DecimalEqual			x == y
 //		02  - DecimalNotEqual			x != y
 //		03  - DecimalLessThan			x < y
@@ -100,9 +101,9 @@ var (
 //		07a - TxTaxDisplayOffset		Auxiliary TxTaxPrinter function
 //		07b - TxTaxDisplayOffset		Auxiliary TxTaxPrinter function
 //	11 Cryptoplasm Amount String Manipulation Function
-//		01  - CPConvert2AU			Converts CP Amount to AtomicUnits (YoctoPlasms)
-//		02  - YoctoPlasm2String			Converts YoctoPlasms into a slice os strings
-//		03  - CPAmountConv2Print		Converts a CP Amount into a string that can be better used for display purposes
+//		01  - Convert2AU			Converts § Amount to AtomicUnits (AttoPlasms)
+//		02  - AttoPlasm2String			Converts AttoPlasms into a slice of strings
+//		03  - KosonicDecimalConversion		Converts a § Amount into a string that can be better used for display purposes
 //		04  - BHAmountConv2Print		Converts the BlockHeight decimal into a string to be used for printing purposes
 //
 //================================================================================================
@@ -153,7 +154,7 @@ func MaxInt32(x, y int32) int32 {
 	digdiff := x - y
 	if digdiff <= 0 {
 		max = y
-	} else if digdiff >= 0{
+	} else if digdiff > 0{
 		max = x
 	}
 	return max
@@ -168,10 +169,24 @@ func MaxInt64(x, y int64) int64 {
 	digdiff := x - y
 	if digdiff <= 0 {
 		max = y
-	} else if digdiff >= 0{
+	} else if digdiff > 0{
 		max = x
 	}
 	return max
+}
+//================================================
+//
+// Function 01.00c - MaxDecimal
+//
+// MaxDecimal returns the maximum between two Decimals
+func MaxDecimal(x, y *p.Decimal) (max *p.Decimal) {
+    Difference := SUBxc(x, y)
+    if DecimalLessThanOrEqual(Difference, p.NFI(0)) == true {
+	max = y
+    } else if DecimalGreaterThan(Difference, p.NFI(0)) == true {
+	max = x
+    }
+    return max
 }
 //================================================================================================
 //	01 Comparison Functions between decimals:
@@ -1429,14 +1444,14 @@ func TxTaxPrinter(cpAmount *p.Decimal) {
 	SenderTxTax := SUBxs(FiftyFiftyOverSend,tcpAmount)
 	RecipientTxTax := SUBxs(tcpAmount,RecipientFF)
 
-	OverSendAmountLength 	:= len(CPAmountConv2Print(OverSend))
-	TargetAmountLength 		:= len(CPAmountConv2Print(tcpAmount))
+	OverSendAmountLength 	:= len(KosonicDecimalConversion(OverSend))
+	TargetAmountLength 		:= len(KosonicDecimalConversion(tcpAmount))
 
 	if OverSendAmountLength > TargetAmountLength {
-	    BarNumberOffset = len(CPAmountConv2Print(OverSend))
+	    BarNumberOffset = len(KosonicDecimalConversion(OverSend))
 	    Len00 = TxTaxDisplayOffset(OverSend,tcpAmount)
 	} else if OverSendAmountLength == TargetAmountLength {
-	    BarNumberOffset = len(CPAmountConv2Print(tcpAmount))
+	    BarNumberOffset = len(KosonicDecimalConversion(tcpAmount))
 	}
 
 	BarLength 		:= 27 + 1 + BarNumberOffset + 3
@@ -1477,81 +1492,81 @@ happens when the Tx-Tax's last decimal is an uneven number.
 	fmt.Print("\t",OptionNumber3)
 	fmt.Println("")
 	if OverSendAmountLength > TargetAmountLength {
-	    fmt.Println("       Target Cryptoplasm Amount:",Len00,CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("       Target Cryptoplasm Amount:",Len00,KosonicDecimalConversion(tcpAmount),"CP")
 	} else if OverSendAmountLength == TargetAmountLength {
-	    fmt.Println("       Target Cryptoplasm Amount:",CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("       Target Cryptoplasm Amount:",KosonicDecimalConversion(tcpAmount),"CP")
 	}
 	fmt.Println(BarLengthString)
 	//==================================================================================================================
 	fmt.Println("=============Option1=============")				//TARGET AMOUNT
 	// First Line
 	if OverSendAmountLength > TargetAmountLength {
-	    fmt.Println("     Sender sends[Target Amount]:",Len00,CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("     Sender sends[Target Amount]:",Len00,KosonicDecimalConversion(tcpAmount),"CP")
 	} else if OverSendAmountLength == TargetAmountLength {
-	    fmt.Println("     Sender sends[Target Amount]:",CPAmountConv2Print(tcpAmount),"CP")
+	    fmt.Println("     Sender sends[Target Amount]:",KosonicDecimalConversion(tcpAmount),"CP")
 	}
 	//Second and third Line
-	fmt.Println("       the Tx-Tax[Target Amount]:",Len01,CPAmountConv2Print(TxTaxMin),"CP")
+	fmt.Println("       the Tx-Tax[Target Amount]:",Len01,KosonicDecimalConversion(TxTaxMin),"CP")
 	fmt.Println("                  and represents:",Len02,FeeProMilleMin,"promille")
 	//Fourth Line
-	if len(CPAmountConv2Print(tcpAmount)) == len(CPAmountConv2Print(RecipientMin)) {
+	if len(KosonicDecimalConversion(tcpAmount)) == len(KosonicDecimalConversion(RecipientMin)) {
 	    if OverSendAmountLength > TargetAmountLength {
-		fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMin),"CP")
+		fmt.Println("              Recipient receives:",Len00,KosonicDecimalConversion(RecipientMin),"CP")
 	    } else if OverSendAmountLength == TargetAmountLength {
-		fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMin),"CP")
+		fmt.Println("              Recipient receives:",KosonicDecimalConversion(RecipientMin),"CP")
 	    }
 	} else {
 	    Len03 := TxTaxDisplayOffset(tcpAmount,RecipientMin)
-	    fmt.Println("              Recipient receives:",Len03,CPAmountConv2Print(RecipientMin),"CP")
+	    fmt.Println("              Recipient receives:",Len03,KosonicDecimalConversion(RecipientMin),"CP")
 	}
 	fmt.Println("=================================")
 	//Fifth and Sixth Line
 	fmt.Println("    Sender has payed a Tx-Tax of:",Len04,Zero,"CP")
-	fmt.Println(" Recipient has payed a Tx-Tax of:",Len01,CPAmountConv2Print(TxTaxMin),"CP")
+	fmt.Println(" Recipient has payed a Tx-Tax of:",Len01,KosonicDecimalConversion(TxTaxMin),"CP")
 	fmt.Println(BarLengthString)
 	//==================================================================================================================
 	fmt.Println("=============Option2=============")				//OVERSEND
 	//First, Second and Third Line
-	fmt.Println("          Sender sends[OverSend]:",CPAmountConv2Print(OverSend),"CP")
-	fmt.Println("            the Tx-Tax[OverSend]:",Len01b,CPAmountConv2Print(TxTaxMax),"CP")
+	fmt.Println("          Sender sends[OverSend]:",KosonicDecimalConversion(OverSend),"CP")
+	fmt.Println("            the Tx-Tax[OverSend]:",Len01b,KosonicDecimalConversion(TxTaxMax),"CP")
 	fmt.Println("                  and represents:",Len02b,FeeProMilleMax,"promille")
 	//Fourth Line
-	if len(CPAmountConv2Print(OverSend)) == len(CPAmountConv2Print(RecipientMax)) {
+	if len(KosonicDecimalConversion(OverSend)) == len(KosonicDecimalConversion(RecipientMax)) {
 	    if OverSendAmountLength > TargetAmountLength {
-		fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientMax),"CP")
+		fmt.Println("              Recipient receives:",Len00,KosonicDecimalConversion(RecipientMax),"CP")
 	    } else if OverSendAmountLength == TargetAmountLength {
-		fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientMax),"CP")
+		fmt.Println("              Recipient receives:",KosonicDecimalConversion(RecipientMax),"CP")
 	    }
 	} else {
 	    Len03b := TxTaxDisplayOffset(OverSend,RecipientMax)
-	    fmt.Println("              Recipient receives:",Len03b,CPAmountConv2Print(RecipientMax),"CP")
+	    fmt.Println("              Recipient receives:",Len03b,KosonicDecimalConversion(RecipientMax),"CP")
 	}
 	fmt.Println("=================================")
 	//Fifth and Sixth Line
-	fmt.Println("    Sender has payed a Tx-Tax of:",Len01b,CPAmountConv2Print(TxTaxMax),"CP")
+	fmt.Println("    Sender has payed a Tx-Tax of:",Len01b,KosonicDecimalConversion(TxTaxMax),"CP")
 	fmt.Println(" Recipient has payed a Tx-Tax of:",Len04,Zero,"CP")
 	fmt.Println(BarLengthString)
 	//==================================================================================================================
 	fmt.Println("=============Option3=============")				//FIFTYFIFTYOVERSEND
 	//First, Second and Third Line
-	fmt.Println("Sender sends[FiftyFiftyOverSend]:",CPAmountConv2Print(FiftyFiftyOverSend),"CP")
-	fmt.Println("  the Tx-Tax[FiftyFiftyOverSend]:",Len01c,CPAmountConv2Print(TxTaxFF),"CP")
+	fmt.Println("Sender sends[FiftyFiftyOverSend]:",KosonicDecimalConversion(FiftyFiftyOverSend),"CP")
+	fmt.Println("  the Tx-Tax[FiftyFiftyOverSend]:",Len01c,KosonicDecimalConversion(TxTaxFF),"CP")
 	fmt.Println("                  and represents:",Len02c,FeeProMilleFF,"promille")
 	//Fourth Line
-	if len(CPAmountConv2Print(FiftyFiftyOverSend)) == len(CPAmountConv2Print(RecipientFF)) {
+	if len(KosonicDecimalConversion(FiftyFiftyOverSend)) == len(KosonicDecimalConversion(RecipientFF)) {
 	    if OverSendAmountLength > TargetAmountLength {
-		fmt.Println("              Recipient receives:",Len00,CPAmountConv2Print(RecipientFF),"CP")
+		fmt.Println("              Recipient receives:",Len00,KosonicDecimalConversion(RecipientFF),"CP")
 	    } else if OverSendAmountLength == TargetAmountLength {
-		fmt.Println("              Recipient receives:",CPAmountConv2Print(RecipientFF),"CP")
+		fmt.Println("              Recipient receives:",KosonicDecimalConversion(RecipientFF),"CP")
 	    }
 	} else {
 	    Len03c := TxTaxDisplayOffset(FiftyFiftyOverSend,RecipientFF)
-	    fmt.Println("              Recipient receives:",Len03c,CPAmountConv2Print(RecipientFF),"CP")
+	    fmt.Println("              Recipient receives:",Len03c,KosonicDecimalConversion(RecipientFF),"CP")
 	}
 	fmt.Println("=================================")
 	//Fifth and Sixth Line
-	fmt.Println("    Sender has payed a Tx-Tax of:",Len04c,CPAmountConv2Print(SenderTxTax),"CP")
-	fmt.Println(" Recipient has payed a Tx-Tax of:",Len04d,CPAmountConv2Print(RecipientTxTax),"CP")
+	fmt.Println("    Sender has payed a Tx-Tax of:",Len04c,KosonicDecimalConversion(SenderTxTax),"CP")
+	fmt.Println(" Recipient has payed a Tx-Tax of:",Len04d,KosonicDecimalConversion(RecipientTxTax),"CP")
 	fmt.Println(BarLengthString)
 	elapsed := time.Since(start)
 	fmt.Println("Computing the TxTaxPrinter took", elapsed)
@@ -1566,7 +1581,7 @@ happens when the Tx-Tax's last decimal is an uneven number.
 // TxTaxDisplayOffset in an auxiliary TxTaxPrinter function
 func TxTaxDisplayOffset (cpAmount1, cpAmount2 *p.Decimal) string {
 	var Result string
-	Length := len(CPAmountConv2Print(cpAmount1)) - len(CPAmountConv2Print(cpAmount2))
+	Length := len(KosonicDecimalConversion(cpAmount1)) - len(KosonicDecimalConversion(cpAmount2))
 	Result = strings.Repeat(" ",Length-1)
 	return Result
 }
@@ -1576,7 +1591,7 @@ func TxTaxDisplayOffset (cpAmount1, cpAmount2 *p.Decimal) string {
 // TxTaxDisplayOffsetS in an auxiliary TxTaxPrinter function
 func TxTaxDisplayOffsetS (cpAmount1 *p.Decimal, AmountAsString string) string {
 	var Result string
-	Length := len(CPAmountConv2Print(cpAmount1)) - len(AmountAsString)
+	Length := len(KosonicDecimalConversion(cpAmount1)) - len(AmountAsString)
 	Result = strings.Repeat(" ",Length-1)
 	return Result
 }
@@ -1589,7 +1604,7 @@ func TxTaxDisplayOffsetS (cpAmount1 *p.Decimal, AmountAsString string) string {
 // Function 11.01 - CPConvert2AU
 //
 // CPConvert2AU converts a CryptoPlasm amount into Atomic Units
-func CPConvert2AU(cpAmount *p.Decimal) *p.Decimal {
+func Convert2AU(cpAmount *p.Decimal) *p.Decimal {
     tcpAmount := TruncToCurrency(cpAmount)
     NumberDigits := Count4Coma(cpAmount)
     IP := uint32(NumberDigits) + CryptoplasmCurrencyPrecision
@@ -1601,7 +1616,7 @@ func CPConvert2AU(cpAmount *p.Decimal) *p.Decimal {
 //
 // Function 11.02 - YoctoPlasm2String
 //
-// YoctoPlasm2String converts a CryptoPlasm AUs (AttoPlasms)
+// AttoPlasm2String converts a CryptoPlasm AUs (AttoPlasms)
 // into a slice of strings
 func AttoPlasm2String(Number *p.Decimal) []string {
     var SliceStr []string
@@ -1628,15 +1643,16 @@ func AttoPlasm2String(Number *p.Decimal) []string {
 }
 //================================================
 //
-// Function 11.03 - CPAmountConv2Print
+// Function 11.03 - KosonicDecimalConversion
 //
-// CPAmountConv2Print converts CryptoPlasm amount into a string
+// KosonicDecimalConversion converts CryptoPlasm amount into a string
 // to be used for printing purposes.
 // For now only a "." as decimal character is implemented.
 // Different Schemas can be added (for instance using coma<,> as decimal separator
 // instead of point<.>; Or using points for thousand separator,
 // or even separating at 2 position for Lakhs and Crores.
-func CPAmountConv2Print (cpAmount *p.Decimal) string {
+// Input is a Decimal in the form of 313.315435
+func KosonicDecimalConversion (cpAmount *p.Decimal) string {
     var (
     		StringResult 		string
 		ComaPosition 		int64
@@ -1652,7 +1668,7 @@ func CPAmountConv2Print (cpAmount *p.Decimal) string {
     InsertEnd := "]"
 
     Prec := int64(CryptoplasmCurrencyPrecision)
-    AU := CPConvert2AU(cpAmount)
+    AU := Convert2AU(cpAmount)
     SliceStr := AttoPlasm2String(AU)
     NumberDigits := Count4Coma(AU)
 
