@@ -1418,7 +1418,7 @@ func TxTaxPrinter(cpAmount *p.Decimal) {
 	start := time.Now()
 	var (
 	    BarNumberOffset			int
-	    Len00					string
+	    Len00				string
 	)
 	tcpAmount := TruncToCurrency(cpAmount)
 	//Computing Oversend and FiftyFiftyOverSend
@@ -1667,69 +1667,72 @@ func KosonicDecimalConversion (cpAmount *p.Decimal) string {
     InsertMiddle := "|"
     InsertEnd := "]"
 
-    Prec := int64(CryptoplasmCurrencyPrecision)
-    AU := Convert2AU(cpAmount)
-    SliceStr := AttoPlasm2String(AU)
-    NumberDigits := Count4Coma(AU)
+    if DecimalEqual(cpAmount,p.NFI(0)) == true {
+	StringResult = InsertFront + "ZERO" + InsertEnd
+    } else {
+	Prec := int64(CryptoplasmCurrencyPrecision)
+	AU := Convert2AU(cpAmount)
+	SliceStr := AttoPlasm2String(AU)
+	NumberDigits := Count4Coma(AU)
 
-    InsertString := func (a []string, index int64, value string) []string {
-    	if int64(len(a)) == index { // nil or empty slice or after last element
-    		return append(a, value)
-    	}
-		a = append(a[:index+1], a[index:]...) // index < len(a)
-		a[index] = value
-		return a
+	InsertString := func (a []string, index int64, value string) []string {
+	    if int64(len(a)) == index { // nil or empty slice or after last element
+		return append(a, value)
+	    }
+	    a = append(a[:index+1], a[index:]...) // index < len(a)
+	    a[index] = value
+	    return a
 	}
 
-    //Computing the Decimal Separator position
-    if NumberDigits <= (Prec + 1) {
-	ComaPosition = 1
-    } else {
-	ComaPosition = NumberDigits - Prec
+	//Computing the Decimal Separator position
+	if NumberDigits <= (Prec + 1) {
+	    ComaPosition = 1
+	} else {
+	    ComaPosition = NumberDigits - Prec
+	}
+	//Inserting the Decimal Separator
+	SliceStr = InsertString(SliceStr,ComaPosition,DecimalSeparator)
+
+
+	//Computing the 1000 Separator positions
+	Difference := NumberDigits - (Prec + 1)
+	if Difference  % 3 == 0 {
+	    DigitTier = 1
+	} else if Difference  % 3 == 1 {
+	    DigitTier = 2
+	} else if Difference  % 3 == 2{
+	    DigitTier = 3
+	}
+	TSNumber := (NumberDigits - (Prec + 1) ) / 3
+
+	//Adding the 1000 Separator as points
+	for i := int64(1); i<=TSNumber; i++ {
+	    PointPosition = (i-1) * 4 + DigitTier
+	    SliceStr = InsertString(SliceStr,PointPosition,ThousandSeparator)
+	}
+
+	//Adding Decimal Separators
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)),InsertEnd)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-4),InsertMiddle)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-8),InsertMiddle)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-12),InsertFront)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-13),InsertEnd)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-17),InsertMiddle)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-21),InsertMiddle)
+	SliceStr = InsertString(SliceStr,int64(len(SliceStr)-25),InsertFront)
+
+	//Removing "0," from the SliceString, displaying only Decimals, in case os subunitary values.
+	if len(SliceStr) == 28 && SliceStr[0] == "0" {
+	    SliceStr = SliceStr[2:]
+	}
+
+	//Converting Slice to string
+	for i := 0; i < len(SliceStr); i++ {
+	    StringResult = StringResult + SliceStr[i]
+	}
     }
-    //Inserting the Decimal Separator
-    SliceStr = InsertString(SliceStr,ComaPosition,DecimalSeparator)
 
 
-    //Computing the 1000 Separator positions
-    Difference := NumberDigits - (Prec + 1)
-    if Difference  % 3 == 0 {
-    	DigitTier = 1
-    } else if Difference  % 3 == 1 {
-    	DigitTier = 2
-    } else if Difference  % 3 == 2{
-    	DigitTier = 3
-    }
-    TSNumber := (NumberDigits - (Prec + 1) ) / 3
-
-    //Adding the 1000 Separator as points
-    for i := int64(1); i<=TSNumber; i++ {
-    	PointPosition = (i-1) * 4 + DigitTier
-    	SliceStr = InsertString(SliceStr,PointPosition,ThousandSeparator)
-    	}
-
-    //fmt.Println("new slice is", SliceStr)
-    //fmt.Println("Slice Str cu virgula si 1000 separator este", len(SliceStr))
-
-    //Adding Decimal Separators
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)),InsertEnd)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-4),InsertMiddle)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-8),InsertMiddle)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-12),InsertFront)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-13),InsertEnd)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-17),InsertMiddle)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-21),InsertMiddle)
-    SliceStr = InsertString(SliceStr,int64(len(SliceStr)-25),InsertFront)
-
-    //Removing "0," from the SliceString, displaying only Decimals, in case os subunitary values.
-    if len(SliceStr) == 28 && SliceStr[0] == "0" {
-    	SliceStr = SliceStr[2:]
-    }
-
-    //Converting Slice to string
-    for i := 0; i < len(SliceStr); i++ {
-        StringResult = StringResult + SliceStr[i]
-    }
     return StringResult
 }
 //================================================

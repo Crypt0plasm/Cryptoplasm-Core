@@ -102,7 +102,7 @@ They are only generated and displayed on screen.
 	FlagCmpDeciSeed 	:= flag.Bool	(CmpDeciSeed,	false,	CmpDeciSeedH)
 	FlagCmpTxTax 		:= flag.String	(CmpTxTax,	"0", 	CmpTxTaxH)
 	FlagCmpTxFee 		:= flag.String	(CmpTxFee,	"0",	CmpTxFeeH)
-	FlagCmpBr			:= flag.String	(CmpBr,		"0",	CmpBrH)
+	FlagCmpBr		:= flag.String	(CmpBr,		"0",	CmpBrH)
 	FlagCmpSummedBr		:= flag.String	(CmpSummedBr,	"0",	CmpSummedBrH)
 	FlagCmpDiffedBr		:= flag.String	(CmpDiffedBr,	"0",	CmpDiffedBrH)
 	FlagExpTotalsBr 	:= flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
