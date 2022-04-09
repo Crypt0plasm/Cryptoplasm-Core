@@ -1614,7 +1614,7 @@ func Convert2AU(cpAmount *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Function 11.02 - YoctoPlasm2String
+// Function 11.02 - AttoPlasm2String
 //
 // AttoPlasm2String converts a CryptoPlasm AUs (AttoPlasms)
 // into a slice of strings
