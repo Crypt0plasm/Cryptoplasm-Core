@@ -193,7 +193,7 @@ var (
     }
 )
 
-//LatinSmallLetterMuster
+//PlusSign
 var (
     PlusSignRawCoordinates = [] RawCoordinates{
         {p.NFS("2"), p.NFS("62"), "M", "", "", ""},
@@ -240,6 +240,55 @@ var (
         {p.NFS("0"), p.NFS("160"), "l", "", "", ""},
         {p.NFS("0"), p.NFS("140"), "l", "", "", ""},
         {p.NFS("0"), p.NFS("20"), "a", "1275", "1275", "0 0 0"},
+    }
+)
+
+//LeftDoubleAngleBracket and RightDoubleAngleBracket
+var (
+    LeftDoubleAngleBracketOneRawCoordinates = [] RawCoordinates{
+        {p.NFS("4"), p.NFS("80"), "M", "", "", ""},
+        {p.NFS("60"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("74.1421"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("74.1421"), p.NFS("38.1421"), "l", "", "", ""},
+        {p.NFS("32.2843"), p.NFS("80"), "l", "", "", ""},
+        {p.NFS("74.1421"), p.NFS("121.8579"), "l", "", "", ""},
+        {p.NFS("74.1421"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("60"), p.NFS("136"), "l", "", "", ""},
+
+    }
+
+    LeftDoubleAngleBracketTwoRawCoordinates = [] RawCoordinates{
+        {p.NFS("46.4264"), p.NFS("80"), "M", "", "", ""},
+        {p.NFS("102.4264"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("116"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("116"), p.NFS("38.7107"), "l", "", "", ""},
+        {p.NFS("74.7107"), p.NFS("80"), "l", "", "", ""},
+        {p.NFS("116"), p.NFS("121.2893"), "l", "", "", ""},
+        {p.NFS("116"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("102.4264"), p.NFS("136"), "l", "", "", ""},
+
+    }
+
+    RightDoubleAngleBracketOneRawCoordinates = [] RawCoordinates{
+        {p.NFS("73.5736"), p.NFS("80"), "M", "", "", ""},
+        {p.NFS("17.5736"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("4"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("4"), p.NFS("121.2893"), "l", "", "", ""},
+        {p.NFS("45.2893"), p.NFS("80"), "l", "", "", ""},
+        {p.NFS("4"), p.NFS("38.7107"), "l", "", "", ""},
+        {p.NFS("4"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("17.5736"), p.NFS("24"), "l", "", "", ""},
+    }
+
+    RightDoubleAngleBracketTwoRawCoordinates = [] RawCoordinates{
+        {p.NFS("116"), p.NFS("80"), "M", "", "", ""},
+        {p.NFS("60"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("45.8579"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("45.8579"), p.NFS("121.8579"), "l", "", "", ""},
+        {p.NFS("87.7157"), p.NFS("80"), "l", "", "", ""},
+        {p.NFS("45.8579"), p.NFS("38.1421"), "l", "", "", ""},
+        {p.NFS("45.8579"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("60"), p.NFS("24"), "l", "", "", ""},
     }
 )
 

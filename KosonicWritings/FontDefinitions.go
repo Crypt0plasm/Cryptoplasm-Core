@@ -94,27 +94,32 @@ var (
 
 
     //Tier 4
-    LatinSmallLetterB           = GlyphGraphic{800,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterBRawCoordinates))}         //  U+0062
-    LatinSmallLetterSharpS      = GlyphGraphic{800,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterSharpSRawCoordinates))}    //  U+00DF
-    LatinSmallLetterE           = GlyphGraphic{800,p.NFS("100"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterERawCoordinates))}         //  U+0065
-    LatinSmallLetterF           = GlyphGraphic{800,p.NFS("100"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterFRawCoordinates))}         //  U+0066
-    LatinSmallLetterL           = GlyphGraphic{800,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterLRawCoordinates))}        //  U+006C
-    LatinSmallLetterP           = GlyphGraphic{800,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterPRawCoordinates))}        //  U+0070
-    LatinSmallLetterR           = GlyphGraphic{800,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterRRawCoordinates))}        //  U+0072
-    LatinSmallLetterS           = GlyphGraphic{800,p.NFS("730"),        p.NFS("160"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterSRawCoordinates))}        // U+0073
+    LatinSmallLetterB           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterBRawCoordinates))}         //  U+0062
+    LatinSmallLetterSharpS      = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterSharpSRawCoordinates))}    //  U+00DF
+    LatinSmallLetterE           = GlyphGraphic{800, p.NFS("100"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterERawCoordinates))}         //  U+0065
+    LatinSmallLetterF           = GlyphGraphic{800, p.NFS("100"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterFRawCoordinates))}         //  U+0066
+    LatinSmallLetterL           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterLRawCoordinates))}        //  U+006C
+    LatinSmallLetterP           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterPRawCoordinates))}        //  U+0070
+    LatinSmallLetterR           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterRRawCoordinates))}        //  U+0072
+    LatinSmallLetterS           = GlyphGraphic{800, p.NFS("730"),       p.NFS("160"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterSRawCoordinates))}        // U+0073
 
     //Tier 2
-    LatinSmallLetterI           = GlyphGraphic{400,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterIRawCoordinates))}         //  U+0069
-    LatinSmallLetterJ           = GlyphGraphic{400,p.NFS("20"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterJRawCoordinates))}         //  U+006A
+    LatinSmallLetterI           = GlyphGraphic{400, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterIRawCoordinates))}         //  U+0069
+    LatinSmallLetterJ           = GlyphGraphic{400, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterJRawCoordinates))}         //  U+006A
 
     //Tier 0 - Diacritics and Orthography
-    DieresisLeft                = GlyphGraphic{-1, p.NFS("-230"),       p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisLeftRawCoordinates))}
-    DieresisRight               = GlyphGraphic{-1, p.NFS("230"),        p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisRightRawCoordinates))}
-    Comma                       = GlyphGraphic{400,p.NFS("200"),        p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(CommaRawCoordinates))}
-    PointDown                   = GlyphGraphic{400,p.NFS("200"),        p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(PointDownRawCoordinates))}
-    PointUp                     = GlyphGraphic{400,p.NFS("200"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PointUpRawCoordinates))}
-    LeftParenthesis             = GlyphGraphic{600,p.NFS("600"),        p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(LeftParenthesisRawCoordinates))}
-    RightParenthesis            = GlyphGraphic{600,p.NFS("0"),          p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(RightParenthesisRawCoordinates))}
+    DieresisLeft                = GlyphGraphic{-1,  p.NFS("-230"),      p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisLeftRawCoordinates))}
+    DieresisRight               = GlyphGraphic{-1,  p.NFS("230"),       p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisRightRawCoordinates))}
+    Comma                       = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(CommaRawCoordinates))}
+    PointDown                   = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(PointDownRawCoordinates))}
+    PointUp                     = GlyphGraphic{400, p.NFS("200"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PointUpRawCoordinates))}
+    LeftParenthesis             = GlyphGraphic{600, p.NFS("600"),       p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(LeftParenthesisRawCoordinates))}
+    RightParenthesis            = GlyphGraphic{600, p.NFS("0"),         p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(RightParenthesisRawCoordinates))}
+    LeftDoubleAngleBracketOne   = GlyphGraphic{1200,p.NFS("40"),        p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(LeftDoubleAngleBracketOneRawCoordinates))}
+    LeftDoubleAngleBracketTwo   = GlyphGraphic{1200,p.NFS("464.264"),   p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(LeftDoubleAngleBracketTwoRawCoordinates))}
+    RightDoubleAngleBracketOne  = GlyphGraphic{1200,p.NFS("735.736"),   p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(RightDoubleAngleBracketOneRawCoordinates))}
+    RightDoubleAngleBracketTwo  = GlyphGraphic{1200,p.NFS("1160"),      p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(RightDoubleAngleBracketTwoRawCoordinates))}
+
 
     //Omfalon Murado
     OmPoint                     = GlyphGraphic{1600,p.NFS("1066.038"),          p.NFS("140.095"),             CreateSVGCode(ConvertRawToRelative(OMPointRC))}
@@ -272,6 +277,14 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Dec
         case Letter == ")":
             Canvas.Path(ComputeGlyphCode(RightParenthesis, X, Y, false), S1, S2, S3)
             MovementDistance = p.NFI(RightParenthesis.Width)
+        case Letter == "《" || Letter == "«":
+            Canvas.Path(ComputeGlyphCode(LeftDoubleAngleBracketOne, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LeftDoubleAngleBracketTwo, X, Y, false), S1, S2, S3)
+            MovementDistance = p.NFI(LeftDoubleAngleBracketOne.Width)
+        case Letter == "》" || Letter == "»":
+            Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketOne, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketTwo, X, Y, false), S1, S2, S3)
+            MovementDistance = p.NFI(RightDoubleAngleBracketOne.Width)
         case Letter == "0":
             Canvas.Path(ComputeGlyphCode(DigitZero, X, Y, false), S1, S2, S3)
             Canvas.Path(ComputeGlyphCode(DigitZeroInner, X, Y, false), S1, S2, S3)

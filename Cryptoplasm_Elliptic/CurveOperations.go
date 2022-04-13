@@ -693,6 +693,9 @@ func (k *FiniteFieldEllipticCurve) ValidateBitString (BitString string) (bool, b
 //
 // VIa.4
 // Checks if a string of 0s and 1s has a proper form compatible with a clamped Scalar for the given Curve.
+// The proper form for the "TEC_S1600_Pr1605p2315_m26" is "1(1600 zeros and ones)00"
+// First digit must be 1 to account for initial digits as zeros, and last digits mut be 00, because the curve cofactor is 4
+//	4 in binary is 100, and taking the 1 out we have "00"
 func (k *FiniteFieldEllipticCurve) ValidateBigBitString (BitString string) (bool, bool, bool) {
     var (
         Count uint64
@@ -702,8 +705,11 @@ func (k *FiniteFieldEllipticCurve) ValidateBigBitString (BitString string) (bool
     )
     //Getting the Cofactor Bits
     BinaryCofactor := k.R.Text(2)
+
     TrimmedBinaryCofactor := aux.TrimFirstRune(BinaryCofactor)
     r2 := []rune(TrimmedBinaryCofactor)
+
+    fmt.Println("Safe Scalar is", k.S)
 
     //Assessing Length Truth
     if 1+k.S+uint64(len(r2)) == uint64(len(r)) {
