@@ -10,8 +10,8 @@ import (
 var (
     WTier8 = []string{"A","Ä","B","C","D","E","F","G","H","I","J","K","L","M","N","O","Ö","P","Q","R","S","T","U","Ü","V","W","X","Y","Z"," "}
     WTier7 = []string{"a","ä","q","o","ö","u","ü","v"}
-    WTier6 = []string{"c","d","g","w","m","z","t","x","y","¤"}
-    WTier5 = []string{"0","1","2","3","4","5","6","7","8","9","h","n","k","£"}
+    WTier6 = []string{"c","d","g","w","m","z","t","x","y","¤","«","»"}
+    WTier5 = []string{"0","1","2","3","4","5","6","7","8","9","h","n","k","£","?"}
     WTier4 = []string{"b","ß","e","f","p","r","s","$","l"}
     WTier3 = []string{"(",")","[","]","{","}"}
     WTier2 = []string{"i","j",".",",",":",";","!"}
@@ -110,11 +110,13 @@ var (
     //Tier 0 - Diacritics and Orthography
     DieresisLeft                = GlyphGraphic{-1,  p.NFS("-230"),      p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisLeftRawCoordinates))}
     DieresisRight               = GlyphGraphic{-1,  p.NFS("230"),       p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisRightRawCoordinates))}
+    Exclamation                 = GlyphGraphic{400, p.NFS("200"),       p.NFS("10"),           CreateSVGCode(ConvertRawToRelative(ExclamationRawCoordinates))}
     Comma                       = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(CommaRawCoordinates))}
     PointDown                   = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(PointDownRawCoordinates))}
     PointUp                     = GlyphGraphic{400, p.NFS("200"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PointUpRawCoordinates))}
     LeftParenthesis             = GlyphGraphic{600, p.NFS("600"),       p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(LeftParenthesisRawCoordinates))}
     RightParenthesis            = GlyphGraphic{600, p.NFS("0"),         p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(RightParenthesisRawCoordinates))}
+    Question                    = GlyphGraphic{800, p.NFS("20"),        p.NFS("390"),           CreateSVGCode(ConvertRawToRelative(QuestionRawCoordinates))}
     LeftDoubleAngleBracketOne   = GlyphGraphic{1200,p.NFS("40"),        p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(LeftDoubleAngleBracketOneRawCoordinates))}
     LeftDoubleAngleBracketTwo   = GlyphGraphic{1200,p.NFS("464.264"),   p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(LeftDoubleAngleBracketTwoRawCoordinates))}
     RightDoubleAngleBracketOne  = GlyphGraphic{1200,p.NFS("735.736"),   p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(RightDoubleAngleBracketOneRawCoordinates))}
@@ -285,6 +287,7 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Dec
             Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketOne, X, Y, false), S1, S2, S3)
             Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketTwo, X, Y, false), S1, S2, S3)
             MovementDistance = p.NFI(RightDoubleAngleBracketOne.Width)
+
         case Letter == "0":
             Canvas.Path(ComputeGlyphCode(DigitZero, X, Y, false), S1, S2, S3)
             Canvas.Path(ComputeGlyphCode(DigitZeroInner, X, Y, false), S1, S2, S3)
@@ -432,6 +435,14 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Dec
             Canvas.Path(ComputeGlyphCode(Comma, X, Y, false), S1, S2, S3)
             Canvas.Path(ComputeGlyphCode(PointUp, X, Y, false), S1, S2, S3)
             MovementDistance = p.NFI(PointDown.Width)
+        case Letter == "!":
+            Canvas.Path(ComputeGlyphCode(Exclamation, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), S1, S2, S3)
+            MovementDistance = p.NFI(PointDown.Width)
+        case Letter == "?":
+            Canvas.Path(ComputeGlyphCode(Question, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(PointDown, b.ADDxc(X,p.NFS("200")), Y, false), S1, S2, S3)
+            MovementDistance = p.NFI(Question.Width)
         }
     }
 
@@ -560,7 +571,6 @@ func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, 
                 _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
             }
         }
-
         DrawingPointX = b.ADDxc(DrawingPointX,MovementDistance)
     }
     //TotalWord.End()

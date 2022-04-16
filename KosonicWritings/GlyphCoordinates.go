@@ -125,6 +125,36 @@ var (
 
 
 //Diacritics and Orthography
+//LatinSmallLetterMuster
+var (
+    QuestionRawCoordinates = [] RawCoordinates{
+        {p.NFS("2"), p.NFS("39"), "M", "", "", ""},
+        {p.NFS("40"), p.NFS("1"), "l", "", "", ""},
+        {p.NFS("78"), p.NFS("39"), "l", "", "", ""},
+        {p.NFS("78"), p.NFS("52"), "l", "", "", ""},
+        {p.NFS("62.25"), p.NFS("67.75"), "l", "", "", ""},
+        {p.NFS("48.2481"), p.NFS("75.8660"), "a", "314.663", "314.663", "0 0 1"},
+        {p.NFS("47.5"), p.NFS("82.5"), "l", "", "", ""},
+        {p.NFS("40"), p.NFS("90"), "l", "", "", ""},
+        {p.NFS("32.5"), p.NFS("82.5"), "l", "", "", ""},
+        {p.NFS("30.2304"), p.NFS("62.3762"), "l", "", "", ""},
+        {p.NFS("20.5"), p.NFS("45.5"), "a", "195", "195", "0 1 0"},
+        {p.NFS("2"), p.NFS("45.5"), "l", "", "", ""},
+
+    }
+)
+
+//LatinSmallLetterMuster
+var (
+    ExclamationRawCoordinates = [] RawCoordinates{
+        {p.NFS("20"), p.NFS("1"), "M", "", "", ""},
+        {p.NFS("35"), p.NFS("16"), "l", "", "", ""},
+        {p.NFS("27.5"), p.NFS("82.5"), "l", "", "", ""},
+        {p.NFS("20"), p.NFS("90"), "l", "", "", ""},
+        {p.NFS("12.5"), p.NFS("82.5"), "l", "", "", ""},
+        {p.NFS("5"), p.NFS("16"), "l", "", "", ""},
+    }
+)
 
 //Dieresis
 var (

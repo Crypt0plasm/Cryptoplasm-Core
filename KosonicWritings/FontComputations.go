@@ -108,10 +108,16 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     defer OutputVariable.Close()
     KosonStar := svg.New(OutputVariable)
 
+    DecimalToInt := func (Number *p.Decimal) int {
+        NumberInt64, _ := Number.Int64()
+        NumberInt := int(NumberInt64)
+        return NumberInt
+    }
 
 
     //Get Tablet Size and XY for the OM Sign
     CorrectTabletSize := GetCorrectBoardSize(Unit.Value)
+    fmt.Println("Correct Tablet Size is",CorrectTabletSize.Name)
     TextLines := SplitString(CorrectTabletSize, Unit.Value)
     //Offset := ComputeStartingOffset(CorrectTabletSize,TextLines)
 
@@ -119,15 +125,13 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     OMScalingFactor := b.MULxc(p.NFI(FreeLines),CorrectTabletSize.ScalingFactor)
     OMHeight := b.MULxc(OMScalingFactor,p.NFI(1600))
     OMY := b.ADDxc(b.PRDxc(p.NFI(int64(len(TextLines))),CorrectTabletSize.ScalingFactor,p.NFI(1600)),p.NFI(10450))
-    OMYY, _ := OMY.Int64()
-    OMYYY := int(OMYY)
+    OMYint := DecimalToInt(OMY)
 
     TextLength := b.PRDxc(CorrectTabletSize.ScalingFactor,p.NFI(200),p.NFI(CorrectTabletSize.Lines[0]))
     V1 := b.SUBxc(TextLength,OMHeight)
     V2 := b.DIVxc(V1,p.NFI(2))
-    OMX := b.ADDxc(p.NFI(int64(CorrectTabletSize.AnchorX)),V2)
-    OMXX, _ := OMX.Int64()
-    OMXXX := int(OMXX)
+    OMX := b.ADDxc(CorrectTabletSize.AnchorX,V2)
+    OMXint := DecimalToInt(OMX)
 
 
     fmt.Println("FreeLines are", FreeLines, "HeightLeft is", OMHeight)
@@ -148,7 +152,10 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     KosonStar.Circle(9050,9050,8800, S1, S2, S3)
 
     //Kanon Text
-    KosonStar.Translate(CorrectTabletSize.AnchorX,CorrectTabletSize.AnchorY)
+
+    vartoprint := DecimalToInt(CorrectTabletSize.AnchorX)
+    fmt.Println("AnchorX for Text is",vartoprint)
+    KosonStar.Translate(DecimalToInt(CorrectTabletSize.AnchorX),DecimalToInt(CorrectTabletSize.AnchorY))
     ScalingFactor,_ :=  CorrectTabletSize.ScalingFactor.Float64()
     KosonStar.Scale(ScalingFactor)
     DrawKosonStarText(Unit.Value,CorrectTabletSize.ScalingFactor,OutputVariable)
@@ -165,7 +172,7 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
 
     //OM Sign
     if FreeLines > 0 {
-	KosonStar.Translate(OMXXX,OMYYY)
+	KosonStar.Translate(OMXint,OMYint)
 	ScalingFactorOM,_ := OMScalingFactor.Float64()
 	KosonStar.Scale(ScalingFactorOM)
 	DrawOM(Zero,Zero,OMScalingFactor,OutputVariable)
@@ -346,7 +353,19 @@ func GetRequiredBoardSize (Text string) (Result Board) {
 	Result = Tablet320
     case TextSize >= Tablet320.Size && TextSize < Tablet300.Size:
 	Result = Tablet300
-    case TextSize >= Tablet300.Size && TextSize < Tablet100.Size:
+    case TextSize >= Tablet300.Size && TextSize < Tablet240.Size:
+	Result = Tablet240
+    case TextSize >= Tablet240.Size && TextSize < Tablet200.Size:
+	Result = Tablet200
+    case TextSize >= Tablet200.Size && TextSize < Tablet192.Size:
+	Result = Tablet192
+    case TextSize >= Tablet192.Size && TextSize < Tablet160.Size:
+	Result = Tablet160
+    case TextSize >= Tablet160.Size && TextSize < Tablet150.Size:
+	Result = Tablet150
+    case TextSize >= Tablet150.Size && TextSize < Tablet120.Size:
+	Result = Tablet120
+    case TextSize >= Tablet120.Size && TextSize < Tablet100.Size:
 	Result = Tablet100
 }
     return Result
@@ -456,7 +475,7 @@ func PrintStar (Star Kanon) {
     } else {
 	UsedTabletSize = TabletSize
     }
-
+    fmt.Println("UsedTabletSize is", UsedTabletSize.Name)
     Offset = ComputeStartingOffset(UsedTabletSize,Lines)
 
     if Check == true {
