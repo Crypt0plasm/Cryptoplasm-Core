@@ -503,3 +503,76 @@ func PrintStar (Star Kanon) {
 
     DrawKosonStar(Star)
 }
+
+func MakeKanonString (KanonNumber *p.Decimal, KanonSize *p.Decimal, StartingPosition *p.Decimal)  []string {
+    DecimalToInt := func (Number *p.Decimal) int {
+	NumberInt64, _ := Number.Int64()
+	NumberInt := int(NumberInt64)
+	return NumberInt
+    }
+
+
+    KanonSizeInt := DecimalToInt(KanonSize)
+    KosonicChain := make([]string, KanonSizeInt)
+
+    var (
+        //KosonicChain []string
+        String01 string
+	String02 string
+	String03 string
+	String04 string
+	String05 string
+	String06 string
+    )
+    String01 = "KossonCOPPER"
+    String03 = " = Kanon {\"Kanon "
+    String04 = KanonNumber.String() + "."
+    String06 = "\", \"\"}"
+
+    for i:=0; i<len(KosonicChain); i++ {
+
+
+	//CopperCoinNumber
+	CoinNumber := b.ADDxc(StartingPosition,p.NFI(int64(i)))
+	if b.Count4Coma(CoinNumber) == 1 {
+	    String02 = "000" + CoinNumber.String()
+	} else if b.Count4Coma(CoinNumber) == 2 {
+	    String02 = "00" + CoinNumber.String()
+	} else if b.Count4Coma(CoinNumber) == 3 {
+	    String02 = "0" + CoinNumber.String()
+	} else if b.Count4Coma(CoinNumber) == 4 {
+	    String02 = CoinNumber.String()
+	}
+
+	//KanonNumber
+	Verse := b.ADDxc(p.NFI(int64(i)),p.NFI(1))
+	if b.Count4Coma(Verse) == 1 {
+	    String05 = "   " + Verse.String()
+	} else if b.Count4Coma(Verse) == 2 {
+	    String05 = "  " + Verse.String()
+	} else if b.Count4Coma(Verse) == 3 {
+	    String05 = " " + Verse.String()
+	} else if b.Count4Coma(Verse) == 4 {
+	    String05 = Verse.String()
+	}
+
+	KosonicChain[i] = String01 + String02 + String03 + String04 + String05 + String06
+
+    }
+
+    return KosonicChain
+}
+
+func PrintKosonicString (KosonicChain []string) {
+    OutputName := "KosonicStrings.txt"
+    fmt.Println("Printing String to", OutputName)
+    OutputFile, err := os.Create(OutputName)
+    if err != nil {
+	log.Fatal(err)
+    }
+    defer OutputFile.Close()
+
+    for i:=0; i<len(KosonicChain); i++ {
+	_, _ = fmt.Fprintln(OutputFile, KosonicChain[i])
+    }
+}
