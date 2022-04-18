@@ -504,6 +504,7 @@ func PrintStar (Star Kanon) {
     DrawKosonStar(Star)
 }
 
+//Generates the Empty Kanon String
 func MakeKanonString (KanonNumber *p.Decimal, KanonSize *p.Decimal, StartingPosition *p.Decimal)  []string {
     DecimalToInt := func (Number *p.Decimal) int {
 	NumberInt64, _ := Number.Int64()
@@ -561,6 +562,52 @@ func MakeKanonString (KanonNumber *p.Decimal, KanonSize *p.Decimal, StartingPosi
     }
 
     return KosonicChain
+}
+
+func MakeKanonString2 () []string {
+    KosonicChain := make([]string, 9100)
+    KosonicChainBig := make([]string, 910)
+    var (
+        WordBase string
+        NumberS string
+        Word,WordB,K string
+        W0,W1,W2,W3,W4,W5,W6,W7,W8,W9 string
+    )
+    WordBase = "KossonCOPPER"
+    K = ","
+
+    for i:=0; i<len(KosonicChain); i++ {
+	Number := b.ADDxc(p.NFI(int64(i)),p.NFI(1))
+	if b.Count4Coma(Number) == 1 {
+	    NumberS = "000" + Number.String()
+	} else if b.Count4Coma(Number) == 2 {
+	    NumberS = "00" + Number.String()
+	} else if b.Count4Coma(Number) == 3 {
+	    NumberS = "0" + Number.String()
+	} else if b.Count4Coma(Number) == 4 {
+	    NumberS = Number.String()
+	}
+	Word = WordBase + NumberS
+	KosonicChain[i] = Word
+    }
+
+    for i:=0; i<len(KosonicChainBig); i++ {
+        W0 = KosonicChain[i*10]
+	W1 = KosonicChain[i*10+1]
+	W2 = KosonicChain[i*10+2]
+	W3 = KosonicChain[i*10+3]
+	W4 = KosonicChain[i*10+4]
+	W5 = KosonicChain[i*10+5]
+	W6 = KosonicChain[i*10+6]
+	W7 = KosonicChain[i*10+7]
+	W8 = KosonicChain[i*10+8]
+	W9 = KosonicChain[i*10+9]
+	WordB = W0+K+W1+K+W2+K+W3+K+W4+K+W5+K+W6+K+W7+K+W8+K+W9+K
+	KosonicChainBig[i] = WordB
+    }
+
+    return KosonicChainBig
+
 }
 
 func PrintKosonicString (KosonicChain []string) {
