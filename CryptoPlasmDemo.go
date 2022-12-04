@@ -41,6 +41,11 @@ Computes and Prints the Sum of all the Block-Rewards emitted up to and including
 Block-Height is a String of Numbers that must be a valid Block-Height. It must have a pos. integer form.
 Computes and Prints the Sum of all the Block-Rewards between the two given Block-Heights. Separated by "-"
 `
+	    	CmpDay = `--cmp-br-day=<Day>
+Day is a String of Numbers that must be a valid Day-Number. It must have a pos. integer form.
+Computes and Prints the Sum of all the Block-Rewards fora given Day Number
+`
+
 	    	ExpTotalsBrH = `--exp-br-all		NO VALUE TO PASS
 Computes and Exports to an external file, all the Block-Rewards for whole White Interval.
 The White Interval is composed of 524.596.891 Blocks. Therefore a text file with 524.596.891 lines will
@@ -89,6 +94,7 @@ They are only generated and displayed on screen.
 	    	CmpBr	    	= "cmp-br"			// String - BH
 	    	CmpSummedBr 	= "cmp-br-sum"			// String - BH
 	    	CmpDiffedBr	= "cmp-br-dif"			// String - BH
+	    	CmpDayBr        = "cmp-br-day"			// String - Day
 	    	ExpTotalsBr 	= "exp-br-all"			// Bool
 	    	ExpSumBrCkp 	= "exp-br-sum-ckp"		// String - BH Interval
 	    	PrtBrSplit	= "prt-br-split"		// String - BH
@@ -105,6 +111,7 @@ They are only generated and displayed on screen.
 	FlagCmpBr		:= flag.String	(CmpBr,		"0",	CmpBrH)
 	FlagCmpSummedBr		:= flag.String	(CmpSummedBr,	"0",	CmpSummedBrH)
 	FlagCmpDiffedBr		:= flag.String	(CmpDiffedBr,	"0",	CmpDiffedBrH)
+	FlagCmpDay		:= flag.String  (CmpDayBr,	"0",	CmpDay)
 	FlagExpTotalsBr 	:= flag.Bool	(ExpTotalsBr,	false,	ExpTotalsBrH)
 	FlagExpSumBrCkp 	:= flag.String	(ExpSumBrCkp,	"0",	ExpSumBrCkpH)
 	FlagPrtBrSplit 		:= flag.String	(PrtBrSplit,	"0",	PrtBrSplitH)
@@ -182,6 +189,20 @@ They are only generated and displayed on screen.
 	    fmt.Println("")
 	    fmt.Println("Cryptoplasm Emission from Block-Height",BlockHeights[0],"to Block-Height",BlockHeights[1],"is:")
 	    fmt.Println(b.KosonicDecimalConversion(Sum),"CP, computed in",elapsed)
+	    fmt.Println("")
+	}
+
+	//
+	//06b)CmpDay	String - Day Number
+	//
+	if *FlagCmpDay != "0" {
+	    start := time.Now()
+	    DaySum := b.BHRewardDay(*FlagCmpDay)
+	    elapsed := time.Since(start)
+
+	    fmt.Println("")
+	    fmt.Println("Cryptoplasm Emission for day",*FlagCmpDay,"is:")
+	    fmt.Println(b.KosonicDecimalConversion(DaySum),"CP, computed in",elapsed)
 	    fmt.Println("")
 	}
 

@@ -20,29 +20,159 @@ type KerningPair struct {
 //KerningPairs Definitions
 //Kerning Pairs
 var (
+    //Kerning Pairs that decrease the length by 1
+    KP1U = [] KerningPair{
+        //a Pair
+	{"a","c"},
+	{"a","g"},
+	{"a","o"},
+		{"o","a"},
+	{"a","ö"},
+		{"ö","a"},
+	{"a","q"},
+		{"q","a"},
+	{"a","u"},
+		{"u","a"},
+
+		//ä Pair
+	{"ä","c"},
+	{"ä","g"},
+	{"ä","o"},
+		{"o","ä"},
+	{"ä","ö"},
+		{"ö","ä"},
+	{"ä","q"},
+		{"q","ä"},
+	{"ä","u"},
+		{"u","ä"},
+
+	//b No B Pairs
+
+	//c Pairs
+	{"c","o"},
+	{"c","ö"},
+	{"c","q"},
+
+	//d Pairs
+	{"d","a"},
+	{"d","ä"},
+	{"d","v"},
+
+	//e No e Pairs
+
+	//f Pairs
+	{"f","a"},
+	{"f","ä"},
+
+	//g No g Pairs
+	//h No g Pairs
+	//i No g Pairs
+	//j No g Pairs
+
+	//k Pairs
+	{"k","o"},
+	{"k","ö"},
+	{"k","q"},
+
+	//l Pairs - see kerning 4
+	{"l","o"},
+	{"l","ö"},
+	{"l","q"},
+
+	//m No g Pairs
+	//m No g Pairs
+
+	//o Pairs
+	{"o","t"},
+		{"t","o"},
+	{"o","v"},
+		{"v","o"},
+	{"o","x"},
+		{"x","o"},
+	{"o","y"},
+		{"y","o"},
+
+	//ö Pairs
+	{"ö","t"},
+		{"t","ö"},
+	{"ö","v"},
+		{"v","ö"},
+	{"ö","x"},
+		{"x","ö"},
+	{"ö","y"},
+		{"y","ö"},
+
+
+	//q Pairs
+	{"q","t"},
+		{"t","q"},
+	{"q","v"},
+		{"v","q"},
+	{"q","x"},
+		{"x","q"},
+	{"q","y"},
+		{"y","q"},
+
+	//r No p Pairs
+	//s No p Pairs
+	//u no u Pairs
+	//w No w Pairs
+	//x Pairs already entered
+	//z no z Pairs
+    }
+
     //Kerning Pairs that decrease the length by 2
     KP2U = [] KerningPair{
+        //a Pair
+	{"a","t"},
+		{"t","a"},
 	{"a","v"},
+		{"v","a"},
+	{"a","y"},
+		{"y","a"},
+
+		//ä Pair
+	{"ä","t"},
+		{"t","ä"},
 	{"ä","v"},
-	{"v","a"},
-	{"v","ä"},
-	{"t","."},
-	{".","t"},
-	{"t",","},
-	{",","t"},
-	{"v","."},
-	{".","v"},
-	{"v",","},
-	{",","v"},
-	{"p","."},
-	{"p",","},
+		{"v","ä"},
+	{"ä","y"},
+		{"y","ä"},
+
+	//f Pairs
 	{"f","."},
 	{"f",","},
-	{"y","."},
-	{".","y"},
-	{"y",","},
-	{",","y"},
+
+		//l Pairs
 	{"l","t"},
+	{"l","v"},
+	{"l","y"},
+
+	//p Pair
+	{"p","a"},
+	{"p","ä"},
+
+	//t pairs
+	{"t","."},
+		{".","t"},
+	{"t",","},
+		{",","t"},
+
+	//v Pairs
+	{"v","."},
+		{".","v"},
+	{"v",","},
+		{",","v"},
+
+	//p Pairs
+	{"p","."},
+	{"p",","},
+
+	//y Pairs
+	{"y","."},
+		{".","y"},
+	{"y",","},
+		{",","y"},
     }
 )
 
@@ -118,7 +248,20 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     //Get Tablet Size and XY for the OM Sign
     CorrectTabletSize := GetCorrectBoardSize(Unit.Value)
     fmt.Println("Correct Tablet Size is",CorrectTabletSize.Name)
+    fmt.Println("Board Size is",CorrectTabletSize.Size)
     TextLines := SplitString(CorrectTabletSize, Unit.Value)
+
+    	//Print Info about Text Lines
+    	fmt.Println("Line Number is",len(TextLines))
+    		//Printing Lines
+    		for i:=0; i<len(TextLines); i++ {
+			if i < 10 {
+	    			fmt.Println("LINE ",i,":: ",TextLines[i])
+			}else {
+	    			fmt.Println("LINE",i,":: ",TextLines[i])
+			}
+    		}
+
     //Offset := ComputeStartingOffset(CorrectTabletSize,TextLines)
 
     FreeLines := int64(len(CorrectTabletSize.Lines) - len(TextLines))
@@ -152,7 +295,6 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     KosonStar.Circle(9050,9050,8800, S1, S2, S3)
 
     //Kanon Text
-
     vartoprint := DecimalToInt(CorrectTabletSize.AnchorX)
     fmt.Println("AnchorX for Text is",vartoprint)
     KosonStar.Translate(DecimalToInt(CorrectTabletSize.AnchorX),DecimalToInt(CorrectTabletSize.AnchorY))
@@ -200,7 +342,7 @@ func DrawKosonStarText (Text string, StrokeWidthScalingFactor *p.Decimal, Output
     CorrectTabletSize := GetCorrectBoardSize(Text)
     TextLines := SplitString(CorrectTabletSize, Text)
     Offset := ComputeStartingOffset(CorrectTabletSize,TextLines)
-
+    fmt.Println("Offset calculat in DrawKosonStarText este",Offset)
 
 
 
@@ -322,14 +464,21 @@ func ComputeKerning (FirstGlyph, SecondGlyph string) (KerningValue int64) {
     var (
     	Pair = KerningPair {FirstGlyph,SecondGlyph}
     )
-    for i:=0; i<len(KP2U); i++ {
-        if Pair == KP2U[i] {
-            KerningValue = 2
-            break
-	}
-	// Else if for Other Kerning Pairs with value different from 2
-    }
 
+    for i:=0; i<len(KP1U); i++ {
+        if Pair == KP1U[i] {
+            KerningValue = 1
+            break
+	} else if KerningValue == 0 {
+	    for j:=0; j<len(KP2U); j++ {
+		if Pair == KP2U[j] {
+		    KerningValue = 2
+		    break
+		    }
+		}
+	}
+    }
+    //fmt.Println("For Pair",FirstGlyph,"and ",SecondGlyph,"Kerning is",KerningValue)
     return KerningValue
 }
 
@@ -458,48 +607,48 @@ func ComputeStartingOffset (Tablet Board, TextLines []string) []int64 {
 //Its called by calling :
 // 	om.PrintStar(om.KossonSILVER660)
 func PrintStar (Star Kanon) {
-    var(
-	UsedTabletSize Board
-	Check bool
-    )
-    TabletSize := GetRequiredBoardSize(Star.Value)
-    SmallerTabletSize := GetNextSmallerTablet(TabletSize)
-
-    Lines := SplitString(TabletSize,Star.Value)
-    Lines2 := SplitString(SmallerTabletSize,Star.Value)
-
-    Offset := ComputeStartingOffset(TabletSize,Lines)
-    if Offset[len(Offset)-1] < 0 || Lines[len(Lines)-1] != Lines2[len(Lines2)-1] {
-	UsedTabletSize = SmallerTabletSize
-	Check = true
-    } else {
-	UsedTabletSize = TabletSize
-    }
-    fmt.Println("UsedTabletSize is", UsedTabletSize.Name)
-    Offset = ComputeStartingOffset(UsedTabletSize,Lines)
-
-    if Check == true {
-	for i:=0; i<len(Lines2); i++ {
-	    if i < 10 {
-		fmt.Println("LINE ",i,":: ",Lines2[i])
-	    }else {
-		fmt.Println("LINE",i,":: ",Lines2[i])
-	    }
-	}
-    } else {
-	for i:=0; i<len(Lines); i++ {
-	    if i < 10 {
-		fmt.Println("LINE ",i,":: ",Lines[i])
-	    }else {
-		fmt.Println("LINE",i,":: ",Lines[i])
-	    }
-	}
-    }
-
-    fmt.Println("Offset is",Offset)
-    fmt.Println("Line Number", len(Lines))
-    fmt.Println("====================")
-    fmt.Println("")
+    //var(
+    //	UsedTabletSize Board
+    //Check bool
+    //)
+    //TabletSize := GetRequiredBoardSize(Star.Value)
+    //SmallerTabletSize := GetNextSmallerTablet(TabletSize)
+    //
+    //Lines := SplitString(TabletSize,Star.Value)
+    //Lines2 := SplitString(SmallerTabletSize,Star.Value)
+    //
+    //Offset := ComputeStartingOffset(TabletSize,Lines)
+    //if Offset[len(Offset)-1] < 0 || Lines[len(Lines)-1] != Lines2[len(Lines2)-1] {
+    //	UsedTabletSize = SmallerTabletSize
+    //	Check = true
+    //} else {
+    //	UsedTabletSize = TabletSize
+    //}
+    //fmt.Println("UsedTabletSize is", UsedTabletSize.Name)
+    //Offset = ComputeStartingOffset(UsedTabletSize,Lines)
+    //
+    //if Check == true {
+    //for i:=0; i<len(Lines2); i++ {
+    //    if i < 10 {
+    //		fmt.Println("LINE ",i,":: ",Lines2[i])
+    //    }else {
+    //	fmt.Println("LINE",i,":: ",Lines2[i])
+    //	    }
+    //	}
+    //} else {
+    //	for i:=0; i<len(Lines); i++ {
+    //	    if i < 10 {
+    //	fmt.Println("LINE ",i,":: ",Lines[i])
+    //	    }else {
+    //		fmt.Println("LINE",i,":: ",Lines[i])
+    //	    }
+    //	}
+    //}
+    //
+    //fmt.Println("Offset is",Offset)
+    //fmt.Println("Line Number", len(Lines))
+    //fmt.Println("====================")
+    //fmt.Println("")
 
     DrawKosonStar(Star)
 }

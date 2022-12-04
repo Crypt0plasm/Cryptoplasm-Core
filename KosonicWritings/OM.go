@@ -6,7 +6,7 @@ type Kanon struct {
 }
 
 var (
-    KossonTest = Kanon {"Kanon-00_Title2","2838689"}
+    KossonTest = Kanon {"Kanon  9. 999","acagaq atavay"}
 
     GOLDEN = []Kanon {
 	KossonGOLDEN001,KossonGOLDEN002,KossonGOLDEN003,KossonGOLDEN004,KossonGOLDEN005,KossonGOLDEN006,KossonGOLDEN007,KossonGOLDEN008,KossonGOLDEN009,KossonGOLDEN010,
@@ -1205,7 +1205,7 @@ var (
     KossonSILVER0049 = Kanon {"Kanon  7.  14", "Also bleibet der JHWH dem noch zu belehrenden Menschen unsichtbar und ungreifbar, und so auch alle seine ihm Angeordneten, die Helfer und Wächter, so die noch zu Belehrenden nicht zur Verehrung und Anbetung neigend werden und so der Mensch allein durch Verstand und Vernunft und durch Wissen, Wahrheit, Liebe und Weisheit um seine Existenz wissend werde, gleichermassen er auch zu tun hat im Wissen um die Existenz der Schöpfung."}
 
     //Kanon 8
-    KossonSILVER0050 = Kanon {"Kanon  8.   1", "Im Namen der Schöpfung,die da kreieret hat die Heere allen Lebens."}
+    KossonSILVER0050 = Kanon {"Kanon  8.   1", "Im Namen der Schöpfung, die da kreieret hat die Heere allen Lebens."}
     KossonSILVER0051 = Kanon {"Kanon  8.   2", "Preis (Ehre) sei der Schöpfung, die da ist die Schöpfung."}
     KossonSILVER0052 = Kanon {"Kanon  8.   3", "Und es sprichet der JHWH und der Prophet, die da wissen um den Anfang und um die Gesetze und Gebote:"}
     KossonSILVER0053 = Kanon {"Kanon  8.   4", "«Am Anfang war die Eiform der Schöpfungsspirale, hervorgebracht durch die ldee der Urschöpfung."}
@@ -4276,7 +4276,7 @@ var (
     KossonCOPPER2070 = Kanon {"Kanon 31.1335", ""}
     KossonCOPPER2071 = Kanon {"Kanon 31.1336", ""}
     KossonCOPPER2072 = Kanon {"Kanon 31.1337", ""}
-    KossonCOPPER2073 = Kanon {"Kanon 31.1338", ""}
+    KossonCOPPER2073 = Kanon {"Kanon 31.1338", "Kjrkentolopon"}
     KossonCOPPER2074 = Kanon {"Kanon 31.1339", ""}
     KossonCOPPER2075 = Kanon {"Kanon 31.1340", ""}
     KossonCOPPER2076 = Kanon {"Kanon 31.1341", ""}

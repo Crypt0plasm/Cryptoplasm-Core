@@ -34,6 +34,7 @@ import (
 //		03  - BHRewardAdder				The Sequential BR sum computer
 //		04a - BHRewardIntSumS				Computes BR Sum from string BH intermittently. Slow !!!
 //		04b - BHRewardIntSumD				Computes BR Sum from decimal BH intermittently. Slow !!!
+//		05  - BHRewardDay				Computes the BR for a given Day Number
 //
 //================================================
 //
@@ -1371,4 +1372,55 @@ func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
     elapsed := time.Since(start)
     fmt.Println("Computing Sum intermittently for BH",BHAmountConv2Print(BlockHeightD),"took", elapsed, "and is ",BrSum)
     return BrSum
+}
+//================================================
+//
+// Func 05.05 - BHRewardDay
+//
+// BHRewardDay computes the Block Reward for a certain Day.
+// It assumes one day is 24*60=1440 Block (1 Block per minute)
+// Day 1 is Sum of blocks 1 until 1440, Day 2 is Sum of blocks 1441 until 2880 etc
+// Until Day 3286 the computation is done Sequential, because it is faster
+//	After day 3286 computation is done by computing each block individually and adding them together
+
+func BHRewardDay (Day string) *p.Decimal {
+    var Sum = new(p.Decimal)
+    DD:= p.NFS(Day)
+    if DecimalLessThanOrEqual(DD,p.NFS("3286")) == true {
+        Sum = BHRewardDaySequential(Day)
+    } else {
+	Sum = BHRewardDayIntermitent(Day)
+    }
+    return Sum
+}
+
+func BHRewardDayIntermitent (Day string) *p.Decimal {
+    var Sum = new(p.Decimal)
+
+    Lower, _ := Day2BlockNumber(Day)
+
+    for i:=0; i<1440; i++ {
+        fmt.Println("Iteration",i,"/1440")
+        BH := ADDxc(p.NFI(int64(i)),Lower)
+        BR := BlockRewardD(BH)
+        Sum = ADDxc(Sum,BR)
+    }
+    return Sum
+}
+
+func BHRewardDaySequential (Day string) *p.Decimal {
+    var Sum = new(p.Decimal)
+
+    Lower, Upper := Day2BlockNumber(Day)
+    Sum1 := BHRewardSeqSumD(Lower)
+    Sum2 := BHRewardSeqSumD(Upper)
+    Sum = SUBxc(Sum2,Sum1)
+    return Sum
+}
+
+func Day2BlockNumber (Day string) (Lower,Upper *p.Decimal) {
+    DD := p.NFS(Day)
+    Upper = MULxc(DD,p.NFS("1440"))
+    Lower = ADDxc(SUBxc(Upper,p.NFS("1440")),p.NFS("1"))
+    return
 }
