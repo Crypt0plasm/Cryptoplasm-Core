@@ -142,6 +142,10 @@ const (
 
 var (
     //
+    UnityIdentifier = "SPROTEO-c2dffe"
+    //
+    //=============================================================================================
+    //
     // Cryptoplasm p Decimal Context Definition
     //=============================================================================================
     CryptoplasmPrecisionContext 	= p.Context{

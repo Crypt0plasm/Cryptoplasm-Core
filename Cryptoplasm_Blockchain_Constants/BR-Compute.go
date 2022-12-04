@@ -1,24 +1,53 @@
 package Cryptoplasm_Blockchain_Constants
 
 import (
+    "encoding/json"
     "fmt"
+    "io/ioutil"
     "log"
+    "net/http"
     "os"
     "time"
 
     p "github.com/Crypt0plasm/Firefly-APD"
 )
+type ElrondAddress string
+
+type ESDT []struct {
+    Type           string `json:"type"`
+    Identifier     string `json:"identifier"`
+    Name           string `json:"name"`
+    Ticker         string `json:"ticker"`
+    Owner          string `json:"owner"`
+    Decimals       int    `json:"decimals"`
+    IsPaused       bool   `json:"isPaused"`
+    Transactions   int    `json:"transactions"`
+    Accounts       int    `json:"accounts"`
+    CanUpgrade     bool   `json:"canUpgrade"`
+    CanMint        bool   `json:"canMint"`
+    CanBurn        bool   `json:"canBurn"`
+    CanChangeOwner bool   `json:"canChangeOwner"`
+    CanPause       bool   `json:"canPause"`
+    CanFreeze      bool   `json:"canFreeze"`
+    CanWipe        bool   `json:"canWipe"`
+    Balance        string `json:"balance"`
+}
+
 //
 //	BR_Compute.go						Block Reward Compute Functions
 //
 //================================================
 // 	Function List:
 //
+//
+//      00 Auxiliary Functions
+//		01  - OnPage					Link Scanning Function
+//		02  - PercentMultiplier				Multiplies Decimal percentually
 //	01 Listing Functions used to compute the Geometric Heights
-//		01 - CryptoplasmPrimaryGeometricListing		Creates list if geometric heights
-//		02 - CryptoplasmSecondaryGeometricListing	Creates list if geometric heights
+//		01  - CryptoplasmPrimaryGeometricListing	Creates list if geometric heights
+//		02  - CryptoplasmSecondaryGeometricListing	Creates list if geometric heights
 //	02 Cryptoplasm DNA Function that is used to compute the Block-Rewards
-//		01 - CryptoplasmGeometricKamelSequence		Creates the Kamel DNA
+//		01  - CryptoplasmGeometricKamelSequence		Creates the Kamel DNA
 //	03 Block-Reward computing Functions
 //		01a - BlockRewardS				Computes BR from BH as string
 //		01b - BlockRewardD				Computes BR from BH as decimal
@@ -34,9 +63,45 @@ import (
 //		03  - BHRewardAdder				The Sequential BR sum computer
 //		04a - BHRewardIntSumS				Computes BR Sum from string BH intermittently. Slow !!!
 //		04b - BHRewardIntSumD				Computes BR Sum from decimal BH intermittently. Slow !!!
-//		05  - BHRewardDay				Computes the BR for a given Day Number
+//      06 Finalizing Daily Block Rewards
+//		01  - BHRewardDay				Computes the BR for a given Day Number
+//		02  - ReadTokenValue				Get specific token amount from a specific address
+//		03  - ComputeNNB				Computes the Network Node Bonus.
+//		04  - BRSplitter				Computes Block Rewards
 //
 //================================================
+//
+// Function 00.01 - OnPage
+//
+// Scanning Link Function
+//
+func OnPage(Link string) string {
+    res, err := http.Get(Link)
+    if err != nil {
+	log.Fatal(err)
+    }
+    content, err := ioutil.ReadAll(res.Body)
+    _ = res.Body.Close()
+    if err != nil {
+	log.Fatal(err)
+    }
+    return string(content)
+}
+//================================================
+//
+// Function 00.01 - OnPage
+//
+// Multiplies Base with the Percent Value
+//
+func PercentMultiplier(Base, Percent *p.Decimal) *p.Decimal {
+    P1 := DIVxc(Percent,p.NFS("100"))
+    P2 := ADDxc(p.NFS("1"),P1)
+    P3 := MULxc(Base,P2)
+    return P3
+}
+//================================================================================================
+//************************************************************************************************
+//================================================================================================
 //
 // Slices/Lists Functions
 // These Functions are used to compute the BlockReward
@@ -1375,7 +1440,7 @@ func BHRewardIntSumD(BlockHeightD *p.Decimal) *p.Decimal {
 }
 //================================================
 //
-// Func 05.05 - BHRewardDay
+// Func 06.01 - BHRewardDay
 //
 // BHRewardDay computes the Block Reward for a certain Day.
 // It assumes one day is 24*60=1440 Block (1 Block per minute)
@@ -1422,5 +1487,109 @@ func Day2BlockNumber (Day string) (Lower,Upper *p.Decimal) {
     DD := p.NFS(Day)
     Upper = MULxc(DD,p.NFS("1440"))
     Lower = ADDxc(SUBxc(Upper,p.NFS("1440")),p.NFS("1"))
+    return
+}
+//================================================
+//
+// Func 06.02 - ComputeNNB
+//
+// Computes the Network-Node-Bonus, or the NNB
+// NNB = Log in base 7 from (Validators * 4 + Observer * 3)
+
+func ComputeNNB () *p.Decimal {
+    var (
+	Validator	= "https://api.elrond.com/nodes/count?type=validator"
+	Observer	= "https://api.elrond.com/nodes/count?type=observer"
+	VN, ON 		string
+    )
+
+    VN = OnPage(Validator)
+    ON = OnPage(Observer)
+    fmt.Println("There are",VN,"validators")
+    fmt.Println("There are",ON,"observers")
+
+    TNP1 := MULxc(p.NFS(VN),p.NFS("4"))
+    TNP2 := MULxc(p.NFS(ON),p.NFS("3"))
+    TNP  := ADDxc(TNP1,TNP2)
+
+    fmt.Println("Total-Node-Power is", TNP)
+
+    NNB := TruncateCustom(OVSLogarithm(p.NFS("7"),TNP),18)
+    fmt.Println("NNB is", NNB, " percent")
+    fmt.Println("")
+    return NNB
+
+}
+//================================================
+//
+// Func 06.03 - ReadTokenValue
+//
+// Reads the Amounts of a token (via its TokenIdentifier) from a given Address
+// Output is in *p.Decimal with the required decimals
+//
+func ReadTokenValue(Address ElrondAddress, TokenIdentifier string) *p.Decimal {
+    var (
+	//Address = "erd1h0ymqdgl6vf0pud0klz5nstwra3sxj06afaj86x0pg7p52dvve9qqtg7x4"
+	//TokenIdentifier = "WEGLD-5f1f8d"
+
+	String1 = "https://api.elrond.com/accounts/"
+	String2 = "/tokens?identifier="
+	ScannedJSON	ESDT
+	//Balance string
+    )
+
+
+
+    ScanURL := String1 + string(Address) + String2 + TokenIdentifier
+    Snapshot := OnPage(ScanURL)
+    _ = json.Unmarshal([]byte(Snapshot), &ScannedJSON)
+
+    Balance := ScannedJSON[0].Balance
+    Decimals := ScannedJSON[0].Decimals
+
+    Divider := POWxc(p.NFS("10"),p.NFI(int64(Decimals)))
+    Amount := TruncateCustom(DIVxc(p.NFS(Balance),Divider),uint32(Decimals))
+
+    //AmountString := strconv.Itoa(int(p.INT64(Amount)))
+
+    return Amount
+
+}
+
+//================================================
+//
+// Func 06.04 - BRSplitter
+//
+// Given the following Inputs
+// 1) Day Number since UNITY started (gives the Daily Block Reward Amount)
+// 2) Address Holding the accumulated UNITY Volume Fees
+//
+// computes as Outputs:
+// 1)Unity1 = UNITY Amount to be burned (equals the "snapshotted" UNITY Amount held by the Address holding the volume Fees)
+//	from the Address holding the accumulated UNITY Volume Fees
+// 2)Unity2 = UNITY Amount that can be minted for the Treasury (equal 1% of previous day accumulated UNITY Volume Fees)
+// 3)Unity3 = Total UNITY Amount to be minted for the day (Excluding the extra UNITY Amount reserved for Elite Auryn holders)
+// 4)Unity4 = UNITY Amount to be minted for the Elite Auryn Holders.
+//
+func BRSplitter (Day string, Address ElrondAddress) (Unity1, Unity2, Unity3, Unity4 *p.Decimal) {
+    DailyBlockRewardAmount := BHRewardDay(Day)
+
+    //Unity1 = The UNITY Volume Fee Ammount accumulated on the given Elrond Address
+    Unity1 = ReadTokenValue(Address, UnityIdentifier)
+
+    //Unity2 = The Unity Amount that is to be minted to the Treasury
+    Unity2 = TruncateCustom(DIVxc(Unity1,p.NFS("100")),18)
+
+    //Unity3 = The TOTAL Unity Amount to be minted for the Day
+    NNB := ComputeNNB()		//Network-Node-Bonus
+    TOT := ADDxc(DailyBlockRewardAmount,Unity1)
+    Unity3 = TruncateCustom(PercentMultiplier(TOT,NNB),18)
+
+    fmt.Println("NNBonus is", SUBxc(Unity3,TOT))
+    fmt.Println("")
+
+    //Unity4 = The TOTAL Extra Unity that will be minted for Elite-Auryn holders
+    Unity4 = TruncateCustom(DIVxc(Unity3,p.NFS("1000")),18)
+
     return
 }
