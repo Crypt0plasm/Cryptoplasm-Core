@@ -3,15 +3,46 @@ package KosonicWritings
 import (
     b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
     "fmt"
-    "log"
-
-    //b "Cryptoplasm-Core/Cryptoplasm_Blockchain_Constants"
     p "github.com/Crypt0plasm/Firefly-APD"
     svg "github.com/ajstarks/svgo"
+    "log"
     "os"
     "strings"
 )
 
+//================================================
+//
+// 	CONTENT LIST:
+//
+//      Structure Definitions
+//              01  - KerningPair
+//
+//      Variable Definitions
+//              01  - KP1U                                      Kerning Pairs that decrease length by 1
+//              02  - KP2U                                      Kerning Pairs that decrease length by 2
+//
+//      Functions:
+//
+//      01 Drawing Functions
+//              01  - PrintStar                                 Main calling Function that prints the Koson/Unity Star
+//              02  - DrawKosonStar                             The function that is being called by PrintStar Func.
+//              02a - DrawKosonKanonText                        1st SubDrawing Function used by the DrawKosonStar Func.
+//              02b - DrawKosonStarText                         2nd SubDrawing Function used by the DrawKosonStar Func.
+//
+//      02 Kerning Computation Functions
+//              01  - ComputeKerning                            Kerning Computation Function
+//              02  - GetRuneWidth                              Line length computations based on Kerning Values
+//              03  - CheckTierWidth                            Computes rune width based on its tier
+//
+//      03 Kanon Text generating Functions			One Time only used functions
+//              01  - MakeKanonString                           Generates and empty Kanon string
+//              02  - MakeKanonString2                          Generates and empty Kanon string, another variant
+//              03  - PrintKosonicString                        Function used to print the generated string
+//
+//      04 Testing Function					Functions created to understand svg mechanics
+//		01  - ScaleTester				Created to understand svg scaling mechanics
+//
+//================================================
 //KerningPairs
 type KerningPair struct {
     Pair1 string
@@ -175,49 +206,31 @@ var (
 		{",","y"},
     }
 )
-
-func ScaleTester () *svg.SVG {
-    var (
-	Width = 1000
-	Height = 1000
-
-
-
-	S1 = "fill=\"none\""
-	S2 = "stroke=\"black\""
-	S3 = "stroke-width=\"7\""
-	//Zero = p.NFS("0")
-    )
-
-    OutputVariable, err := os.Create("data.txt")
-
-    if err != nil {
-	log.Fatal(err)
-    }
-
-    defer OutputVariable.Close()
-    KosonStar := svg.New(OutputVariable)
-
-    KosonStar.Start(Width,Height)
-    KosonStar.Square(0,0,1000,S1,S2,S3)
-
-    SquareUpperCornerX := 0
-    SquareUpperCornerY := 0
-    //Tx := 300
-    //Ty := 700
-
-    KosonStar.Translate(0,600)
-    KosonStar.Scale(0.5)
-    KosonStar.Square(SquareUpperCornerX,SquareUpperCornerY,500,S1,S2,S3)
-    KosonStar.Gend()
-    KosonStar.Gend()
-    KosonStar.End()
-
-
-
-    return KosonStar
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// Drawing Functions
+//
+//      01.01
+//      PrintStar Function
+//
+//	The 1st Function that prints the Star; Its called by calling:
+// 	om.PrintStar(om.KossonSILVER660)
+//
+func PrintStar (Star Kanon) {
+    DrawKosonStar(Star)
 }
-
+//
+//======================================================================================================================
+//
+//
+//      01.02
+//      DrawKosonStar Function
+//
+//	The Actual Function that prints the Star
+//	It is being called by the PrintStar Function
+//
 func DrawKosonStar (Unit Kanon) *svg.SVG {
     var (
         Width = 18100
@@ -244,25 +257,23 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
         return NumberInt
     }
 
-
     //Get Tablet Size and XY for the OM Sign
     CorrectTabletSize := GetCorrectBoardSize(Unit.Value)
     fmt.Println("Correct Tablet Size is",CorrectTabletSize.Name)
     fmt.Println("Board Size is",CorrectTabletSize.Size)
     TextLines := SplitString(CorrectTabletSize, Unit.Value)
 
-    	//Print Info about Text Lines
-    	fmt.Println("Line Number is",len(TextLines))
-    		//Printing Lines
-    		for i:=0; i<len(TextLines); i++ {
-			if i < 10 {
-	    			fmt.Println("LINE ",i,":: ",TextLines[i])
-			}else {
-	    			fmt.Println("LINE",i,":: ",TextLines[i])
-			}
-    		}
+    //Print Info about Text Lines
+    fmt.Println("Line Number is",len(TextLines))
+    //Printing Lines
+    for i:=0; i<len(TextLines); i++ {
+        if i < 10 {
+            fmt.Println("LINE ",i,":: ",TextLines[i])
+            }else {
+                fmt.Println("LINE",i,":: ",TextLines[i])
+                }
+    }
 
-    //Offset := ComputeStartingOffset(CorrectTabletSize,TextLines)
 
     FreeLines := int64(len(CorrectTabletSize.Lines) - len(TextLines))
     OMScalingFactor := b.MULxc(p.NFI(FreeLines),CorrectTabletSize.ScalingFactor)
@@ -276,10 +287,9 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     OMX := b.ADDxc(CorrectTabletSize.AnchorX,V2)
     OMXint := DecimalToInt(OMX)
 
-
     fmt.Println("FreeLines are", FreeLines, "HeightLeft is", OMHeight)
 
-
+    //Starts creating the Star and its interior basorelief geometries
 
     KosonStar.Start(Width,Height)
     KosonStar.Path(ComputeGlyphCode(CenterBasorelief,Zero,Zero,false), S1, S2, S3)
@@ -294,7 +304,15 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     KosonStar.Circle(9050,9050,7400, S1, S2, S3)
     KosonStar.Circle(9050,9050,8800, S1, S2, S3)
 
-    //Kanon Text
+    //Kanon Name - Name is Kanon.Name (its title)
+    KosonStar.Translate(KanonNamePlateX,KanonNamePlateY)
+    ScalingFactorKanon,_ := Tablet400.ScalingFactor.Float64()
+    KosonStar.Scale(ScalingFactorKanon)
+    DrawKosonKanonText(Unit.Name,Tablet400.ScalingFactor,OutputVariable)
+    KosonStar.Gend()
+    KosonStar.Gend()
+
+    //Kanon Value(Text) - Text is Kanon.Value (its content)
     vartoprint := DecimalToInt(CorrectTabletSize.AnchorX)
     fmt.Println("AnchorX for Text is",vartoprint)
     KosonStar.Translate(DecimalToInt(CorrectTabletSize.AnchorX),DecimalToInt(CorrectTabletSize.AnchorY))
@@ -304,15 +322,7 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     KosonStar.Gend()
     KosonStar.Gend()
 
-    //Kanon Name
-    KosonStar.Translate(KanonNamePlateX,KanonNamePlateY)
-    ScalingFactorKanon,_ := Tablet400.ScalingFactor.Float64()
-    KosonStar.Scale(ScalingFactorKanon)
-    DrawKosonKanonText(Unit.Name,Tablet400.ScalingFactor,OutputVariable)
-    KosonStar.Gend()
-    KosonStar.Gend()
-
-    //OM Sign
+    //Draws the OM Sign, using a scaling factor, at given coordonates.
     if FreeLines > 0 {
 	KosonStar.Translate(OMXint,OMYint)
 	ScalingFactorOM,_ := OMScalingFactor.Float64()
@@ -322,21 +332,33 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
 	KosonStar.Gend()
     }
 
-
     KosonStar.End()
-
-
     return KosonStar
 }
-
+//
+//======================================================================================================================
+//
+//
+//      01.02a
+//      DrawKosonKanonText Function
+//
+//	Function that draws a "text" of characters, such as for example "Kanon  9. 999"
+//	It is used for short texts, that are taken as a "single word" (spaces included)
+//
 func DrawKosonKanonText(Text string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
     V1 := p.NFI(0)
-
     DrawWord(V1, p.NFI(0), Text, StrokeWidthScalingFactor, OutputVariable)
-
-
 }
-
+//
+//======================================================================================================================
+//
+//
+//      01.02b
+//      DrawKosonStarText Function
+//
+//	Function that draws a "text" of characters, that is extra long
+//	It has logic that splits it in lines, and centers the resulting words based on their length.
+//
 func DrawKosonStarText (Text string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
 
     CorrectTabletSize := GetCorrectBoardSize(Text)
@@ -344,24 +366,8 @@ func DrawKosonStarText (Text string, StrokeWidthScalingFactor *p.Decimal, Output
     Offset := ComputeStartingOffset(CorrectTabletSize,TextLines)
     fmt.Println("Offset calculat in DrawKosonStarText este",Offset)
 
-
-
-
-    //Width := int(TabletSize.Lines[0]) * 200
-    //Height := len(TabletSize.Lines) * 1600
     WLO := new(p.Decimal)
     WLOS := new(p.Decimal)
-    //KosonText := svg.New(os.Stdout)
-
-    //S1:="fill=\"none\""
-    //S2:="stroke=\"black\""
-    //S3:="stroke-width=\"7\""
-    //S4:="stroke-width=\"20\""
-
-
-    //KosonText.Start(Width,Height)
-
-    //KosonText.Rect(0,0,Width,Height,S1,S2,S4)
 
     for i:=0; i<len(TextLines); i++ {
         var (
@@ -389,26 +395,48 @@ func DrawKosonStarText (Text string, StrokeWidthScalingFactor *p.Decimal, Output
 	    }
 	}
     }
-    //KosonText.End()
     return
 }
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// KERNING Computation Functions
+//
+// 	02.01
+//	ComputeKerning Function; Main Kerning Computation Function
+//
+// 	Computes Kerning Value between 2 glyphs, based on the Kerning Pairs defined at the beginning of the code
+//
+func ComputeKerning (FirstGlyph, SecondGlyph string) (KerningValue int64) {
+    var (
+	Pair = KerningPair {FirstGlyph,SecondGlyph}
+    )
 
-func MakeRuneChain (Text string) []rune {
-    Result := []rune(Text)
-    return Result
-}
-
-func CheckTierWidth (Glyph rune, Tier []string) bool {
-    var Result bool
-    for i:=0; i<len(Tier); i++ {
-	if string(Glyph) == Tier[i] {
-	    Result = true
+    for i:=0; i<len(KP1U); i++ {
+	if Pair == KP1U[i] {
+	    KerningValue = 1
 	    break
+	} else if KerningValue == 0 {
+	    for j:=0; j<len(KP2U); j++ {
+		if Pair == KP2U[j] {
+		    KerningValue = 2
+		    break
+		}
+	    }
 	}
     }
-    return Result
+    //fmt.Println("For Pair",FirstGlyph,"and ",SecondGlyph,"Kerning is",KerningValue)
+    return KerningValue
 }
-
+//
+//======================================================================================================================
+//
+// 	02.02
+//	GetRuneWidth Function; computes rune width
+//
+// 	Used in the Line length computations based on Kerning Values
+//
 func GetRuneWidth (Glyph rune) int64 {
     var Result int64
     if CheckTierWidth(Glyph, WTier2) == true {
@@ -428,239 +456,41 @@ func GetRuneWidth (Glyph rune) int64 {
     }
     return Result
 }
-
-//Doesnt Use Kerning
-func GetTextLengthNoKerning (Text string) int64 {
-    var Sum int64
-    RuneChain := MakeRuneChain(Text)
-    for i:=0; i<len(RuneChain); i++ {
-	Length := GetRuneWidth(RuneChain[i])
-	Sum = Sum + Length
-    }
-    return Sum
-}
-
-//Uses Kerning
-func GetTextLengthWithKerning (Word string) int64 {
-    var (
-    	Sum int64
-    	Length int64
-    )
-    RuneChain := MakeRuneChain(Word)
-    for i:=0; i<len(RuneChain); i++ {
-        if i == 0 {
-	    Length = GetRuneWidth(RuneChain[i])
-	    Sum = Sum + Length
-	}else if i > 0 {
-	    KerningValue := ComputeKerning(string(RuneChain[i-1]),string(RuneChain[i]))
-	    Length = GetRuneWidth(RuneChain[i])
-	    Sum = Sum + Length - KerningValue
+//
+//======================================================================================================================
+//
+// 	02.03
+//	CheckTierWidth Function; computes rune width
+//
+// 	Used in the GetRuneWidth function.
+//
+func CheckTierWidth (Glyph rune, Tier []string) bool {
+    var Result bool
+    for i:=0; i<len(Tier); i++ {
+	if string(Glyph) == Tier[i] {
+	    Result = true
+	    break
 	}
     }
-    return Sum
-}
-
-func ComputeKerning (FirstGlyph, SecondGlyph string) (KerningValue int64) {
-    var (
-    	Pair = KerningPair {FirstGlyph,SecondGlyph}
-    )
-
-    for i:=0; i<len(KP1U); i++ {
-        if Pair == KP1U[i] {
-            KerningValue = 1
-            break
-	} else if KerningValue == 0 {
-	    for j:=0; j<len(KP2U); j++ {
-		if Pair == KP2U[j] {
-		    KerningValue = 2
-		    break
-		    }
-		}
-	}
-    }
-    //fmt.Println("For Pair",FirstGlyph,"and ",SecondGlyph,"Kerning is",KerningValue)
-    return KerningValue
-}
-
-func GetRequiredBoardSize (Text string) (Result Board) {
-    switch TextSize := GetTextLengthWithKerning(Text);{
-    case TextSize < Tablet1600.Size:
-    	Result = Tablet1600
-    case TextSize >= Tablet1600.Size && TextSize < Tablet1200.Size:
-    	Result = Tablet1200
-    case TextSize >= Tablet1200.Size && TextSize < Tablet960.Size:
-	Result = Tablet960
-    case TextSize >= Tablet960.Size && TextSize < Tablet800.Size:
-	Result = Tablet800
-    case TextSize >= Tablet800.Size && TextSize < Tablet600.Size:
-	Result = Tablet600
-    case TextSize >= Tablet600.Size && TextSize < Tablet480.Size:
-	Result = Tablet480
-    case TextSize >= Tablet480.Size && TextSize < Tablet400.Size:
-	Result = Tablet400
-    case TextSize >= Tablet400.Size && TextSize < Tablet320.Size:
-	Result = Tablet320
-    case TextSize >= Tablet320.Size && TextSize < Tablet300.Size:
-	Result = Tablet300
-    case TextSize >= Tablet300.Size && TextSize < Tablet240.Size:
-	Result = Tablet240
-    case TextSize >= Tablet240.Size && TextSize < Tablet200.Size:
-	Result = Tablet200
-    case TextSize >= Tablet200.Size && TextSize < Tablet192.Size:
-	Result = Tablet192
-    case TextSize >= Tablet192.Size && TextSize < Tablet160.Size:
-	Result = Tablet160
-    case TextSize >= Tablet160.Size && TextSize < Tablet150.Size:
-	Result = Tablet150
-    case TextSize >= Tablet150.Size && TextSize < Tablet120.Size:
-	Result = Tablet120
-    case TextSize >= Tablet120.Size && TextSize < Tablet100.Size:
-	Result = Tablet100
-}
     return Result
 }
-
-func SplitString(Tablet Board, TextToSplit string) []string {
-    var (
-	Line string
-	LineNumber int64
-	StringList = make([]string, len(Tablet.Lines))
-	StopSignal bool
-	LengthToAdd int64
-	LineLength int64
-	CurrentBoardLine = int64(0)
-	Stop int
-    )
-    WordsChain := strings.Split(TextToSplit," ")
-
-    DeleteEmpty := func (s []string) []string {
-	var r []string
-	for _, str := range s {
-		if str != "" {
-		r = append(r, str)
-		}
-	}
-	return r
-    }
-
-    for j:=0; j<len(Tablet.Lines); j++ {
-        if StopSignal == true {
-            break
-	}
-	Line = ""
-	LineLength = 0
-	for i:=Stop; i<len(WordsChain); i++ {
-	    if i == Stop {
-		if i == len(WordsChain)-1 {
-		    StopSignal = true
-		}
-		LengthToAdd = GetTextLengthWithKerning(WordsChain[i])
-		LineLength = LineLength + LengthToAdd
-		Line = Line + WordsChain[i]
-		StringList[LineNumber] = Line
-
-
-	    } else if i > Stop {
-		LengthToAdd = GetTextLengthWithKerning(WordsChain[i])
-		LineLength = LineLength + LengthToAdd + 8
-
-		if LineLength > Tablet.Lines[CurrentBoardLine] {
-		    Stop = i
-		    StringList[LineNumber] = Line
-		    LineNumber = LineNumber + 1
-		    CurrentBoardLine = CurrentBoardLine + 1
-		    break
-
-		} else {
-		    Line = Line + " " + WordsChain[i]
-		    StringList[LineNumber] = Line
-
-		}
-		if i == len(WordsChain)-1 {
-		    StopSignal = true
-		}
-	    }
-	}
-    }
-    TrimmedList := DeleteEmpty(StringList)
-    return TrimmedList
-}
-
-func ComputeStartingOffset (Tablet Board, TextLines []string) []int64 {
-    var(
-	OffsetList = make([]int64, len(TextLines))
-	LineLength,TotalOffset int64
-    )
-    for i:=0; i<len(TextLines); i++ {
-        LineLength = GetTextLengthWithKerning(TextLines[i])
-        TotalOffset = Tablet.Lines[i] - LineLength
-
-        if TotalOffset == Tablet.Lines[i] {
-	    TotalOffset = -1
-	}
-        OffsetList[i] = TotalOffset
-    }
-    return OffsetList
-}
-
-//The Last Function that prints the Star
-//Its called by calling :
-// 	om.PrintStar(om.KossonSILVER660)
-func PrintStar (Star Kanon) {
-    //var(
-    //	UsedTabletSize Board
-    //Check bool
-    //)
-    //TabletSize := GetRequiredBoardSize(Star.Value)
-    //SmallerTabletSize := GetNextSmallerTablet(TabletSize)
-    //
-    //Lines := SplitString(TabletSize,Star.Value)
-    //Lines2 := SplitString(SmallerTabletSize,Star.Value)
-    //
-    //Offset := ComputeStartingOffset(TabletSize,Lines)
-    //if Offset[len(Offset)-1] < 0 || Lines[len(Lines)-1] != Lines2[len(Lines2)-1] {
-    //	UsedTabletSize = SmallerTabletSize
-    //	Check = true
-    //} else {
-    //	UsedTabletSize = TabletSize
-    //}
-    //fmt.Println("UsedTabletSize is", UsedTabletSize.Name)
-    //Offset = ComputeStartingOffset(UsedTabletSize,Lines)
-    //
-    //if Check == true {
-    //for i:=0; i<len(Lines2); i++ {
-    //    if i < 10 {
-    //		fmt.Println("LINE ",i,":: ",Lines2[i])
-    //    }else {
-    //	fmt.Println("LINE",i,":: ",Lines2[i])
-    //	    }
-    //	}
-    //} else {
-    //	for i:=0; i<len(Lines); i++ {
-    //	    if i < 10 {
-    //	fmt.Println("LINE ",i,":: ",Lines[i])
-    //	    }else {
-    //		fmt.Println("LINE",i,":: ",Lines[i])
-    //	    }
-    //	}
-    //}
-    //
-    //fmt.Println("Offset is",Offset)
-    //fmt.Println("Line Number", len(Lines))
-    //fmt.Println("====================")
-    //fmt.Println("")
-
-    DrawKosonStar(Star)
-}
-
-//Generates the Empty Kanon String
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// Kanon Text generating Functions			One Time only used functions
+//
+//	03.01
+//	MakeKanonString Function
+//
+// 	Generates the Empty Kanon String that was used to populate Om.go Kanon List
+//
 func MakeKanonString (KanonNumber *p.Decimal, KanonSize *p.Decimal, StartingPosition *p.Decimal)  []string {
     DecimalToInt := func (Number *p.Decimal) int {
 	NumberInt64, _ := Number.Int64()
 	NumberInt := int(NumberInt64)
 	return NumberInt
     }
-
 
     KanonSizeInt := DecimalToInt(KanonSize)
     KosonicChain := make([]string, KanonSizeInt)
@@ -712,7 +542,14 @@ func MakeKanonString (KanonNumber *p.Decimal, KanonSize *p.Decimal, StartingPosi
 
     return KosonicChain
 }
-
+//
+//======================================================================================================================
+//
+//	03.02
+//	MakeKanonString2 Function
+//
+// 	Generates the Empty Kanon String that was used to populate Om.go Kanon List, second variant
+//
 func MakeKanonString2 () []string {
     KosonicChain := make([]string, 9100)
     KosonicChainBig := make([]string, 910)
@@ -758,7 +595,14 @@ func MakeKanonString2 () []string {
     return KosonicChainBig
 
 }
-
+//
+//======================================================================================================================
+//
+//	03.03
+//	PrintKosonicString Function
+//
+// 	Used to print the generated Kosonic String
+//
 func PrintKosonicString (KosonicChain []string) {
     OutputName := "KosonicStrings.txt"
     fmt.Println("Printing String to", OutputName)
@@ -772,3 +616,56 @@ func PrintKosonicString (KosonicChain []string) {
 	_, _ = fmt.Fprintln(OutputFile, KosonicChain[i])
     }
 }
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// Testing Functions
+//
+//	04.01
+// 	ScaleTester Function
+//
+//	A scale testing function;
+//	Tests how scaling works in a svg function to better understand scaling implementation in future functions
+//
+func ScaleTester () *svg.SVG {
+    var (
+	Width = 1000
+	Height = 1000
+
+
+
+	S1 = "fill=\"none\""
+	S2 = "stroke=\"black\""
+	S3 = "stroke-width=\"7\""
+	//Zero = p.NFS("0")
+    )
+
+    OutputVariable, err := os.Create("data.txt")
+
+    if err != nil {
+	log.Fatal(err)
+    }
+
+    defer OutputVariable.Close()
+    KosonStar := svg.New(OutputVariable)
+
+    KosonStar.Start(Width,Height)
+    KosonStar.Square(0,0,1000,S1,S2,S3)
+
+    SquareUpperCornerX := 0
+    SquareUpperCornerY := 0
+    //Tx := 300
+    //Ty := 700
+
+    KosonStar.Translate(0,600)
+    KosonStar.Scale(0.5)
+    KosonStar.Square(SquareUpperCornerX,SquareUpperCornerY,500,S1,S2,S3)
+    KosonStar.Gend()
+    KosonStar.Gend()
+    KosonStar.End()
+
+    return KosonStar
+}
+//
+//======================================================================================================================

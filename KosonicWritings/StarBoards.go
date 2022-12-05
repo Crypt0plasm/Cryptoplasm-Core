@@ -4,7 +4,32 @@ import (
     p "github.com/Crypt0plasm/Firefly-APD"
     "strings"
 )
-
+//================================================
+//
+// 	CONTENT LIST:
+//
+//      Structure Definitions
+//              01  - Board
+//
+//      Variable Definitions
+//              01  - Board Definitions                         The Board numeric definition
+//              02  - Tablet-Size Definitions                   All Tablet definitions from small to large
+//              02a - GetBoardSize Function                     Function used in the Tablet-Size Definition
+//
+//      Functions:
+//
+//      01 MAIN Board-Size Computing Function
+//              01  - GetCorrectBoardSize                       Function that computes correct board size
+//
+//      02 Secondary Board-Size Computing Functions
+//              01  - GetRequiredBoardSize                      Function 1/4 used in the Main Function
+//              01a - GetTextLengthWithKerning                  Text Length computer based on Kerning
+//              012 - GetTextLengthNoKerning                    Text Length computer without Kerning
+//              02  - GetNextSmallerTablet                      Function 2/4 used in the Main Function
+//              03  - SplitString                               Function 3/4 used in the Main Function
+//              04  - ComputeStartingOffset                     Function 4/4 used in the Main Function
+//
+//================================================
 type Board struct {
     Name string
     Lines []int64
@@ -55,27 +80,26 @@ var (
     KanonNamePlateY = 15650
     KanonNamePlatePositions = int64(66)
 )
-
-func GetNextSmallerTablet (Tablet Board) Board {
-    var OutputBoard Board
-    for i:=0; i<len(TabletChain); i++ {
-        if TabletChain[i].Name == "Board100" {
-            OutputBoard = Tablet100
-            break
-        } else if TabletChain[i].Name == Tablet.Name {
-            OutputBoard = TabletChain[i+1]
-            break
-        }
-    }
-    return OutputBoard
-}
-
+// Function used in the Board Definition variables
+//
 func GetBoardSize (Board []int64) (TotalSize int64) {
     for i:=0; i<len(Board); i++ {
         TotalSize = TotalSize + Board[i]
     }
     return TotalSize
 }
+
+
+// Board Size Computing Functions
+//
+// MAIN Board Size Function:
+// Function GetCorrectBoardSize
+// Computes the correct Board size based on text size
+// Uses 4 Secondary Sub-functions
+//      S1)Function GetRequiredBoardSize
+//      S2)Function GetNextSmallerTablet
+//      S3)SplitString
+//      S4)ComputeStartingOffset
 
 func GetCorrectBoardSize(Text string) Board {
     var(
@@ -110,4 +134,200 @@ func GetCorrectBoardSize(Text string) Board {
         //fmt.Println("Fits")
     }
     return UsedTabletSize
+}
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// SECONDARY Board Size Functions:
+//      S1)Function GetRequiredBoardSize
+//      First Secondary Function used in the Main Function
+//      Uses Function GetTextLengthWithKerning
+//
+func GetRequiredBoardSize (Text string) (Result Board) {
+    switch TextSize := GetTextLengthWithKerning(Text);{
+    case TextSize < Tablet1600.Size:
+        Result = Tablet1600
+    case TextSize >= Tablet1600.Size && TextSize < Tablet1200.Size:
+        Result = Tablet1200
+    case TextSize >= Tablet1200.Size && TextSize < Tablet960.Size:
+        Result = Tablet960
+    case TextSize >= Tablet960.Size && TextSize < Tablet800.Size:
+        Result = Tablet800
+    case TextSize >= Tablet800.Size && TextSize < Tablet600.Size:
+        Result = Tablet600
+    case TextSize >= Tablet600.Size && TextSize < Tablet480.Size:
+        Result = Tablet480
+    case TextSize >= Tablet480.Size && TextSize < Tablet400.Size:
+        Result = Tablet400
+    case TextSize >= Tablet400.Size && TextSize < Tablet320.Size:
+        Result = Tablet320
+    case TextSize >= Tablet320.Size && TextSize < Tablet300.Size:
+        Result = Tablet300
+    case TextSize >= Tablet300.Size && TextSize < Tablet240.Size:
+        Result = Tablet240
+    case TextSize >= Tablet240.Size && TextSize < Tablet200.Size:
+        Result = Tablet200
+    case TextSize >= Tablet200.Size && TextSize < Tablet192.Size:
+        Result = Tablet192
+    case TextSize >= Tablet192.Size && TextSize < Tablet160.Size:
+        Result = Tablet160
+    case TextSize >= Tablet160.Size && TextSize < Tablet150.Size:
+        Result = Tablet150
+    case TextSize >= Tablet150.Size && TextSize < Tablet120.Size:
+        Result = Tablet120
+    case TextSize >= Tablet120.Size && TextSize < Tablet100.Size:
+        Result = Tablet100
+    }
+    return Result
+}
+//
+//======================================================================================================================
+//
+//      S1.1)Function GetTextLengthWithKerning Function
+//
+func GetTextLengthWithKerning (Word string) int64 {
+    var (
+        Sum int64
+        Length int64
+    )
+    RuneChain := MakeRuneChain(Word)
+    for i:=0; i<len(RuneChain); i++ {
+        if i == 0 {
+            Length = GetRuneWidth(RuneChain[i])
+            Sum = Sum + Length
+        }else if i > 0 {
+            KerningValue := ComputeKerning(string(RuneChain[i-1]),string(RuneChain[i]))
+            Length = GetRuneWidth(RuneChain[i])
+            Sum = Sum + Length - KerningValue
+        }
+    }
+    return Sum
+}
+//
+//======================================================================================================================
+//
+//      S1.2)Function GetTextLengthNoKerning Function
+//      Obsolete Function, computes text length with no Kerning
+//
+func GetTextLengthNoKerning (Text string) int64 {
+    var Sum int64
+    RuneChain := MakeRuneChain(Text)
+    for i:=0; i<len(RuneChain); i++ {
+        Length := GetRuneWidth(RuneChain[i])
+        Sum = Sum + Length
+    }
+    return Sum
+}
+//
+//======================================================================================================================
+//
+//      S2)Function GetNextSmallerTablet
+//      Second Secondary Function used in the Main Function
+//
+func GetNextSmallerTablet (Tablet Board) Board {
+    var OutputBoard Board
+    for i:=0; i<len(TabletChain); i++ {
+        if TabletChain[i].Name == "Board100" {
+            OutputBoard = Tablet100
+            break
+        } else if TabletChain[i].Name == Tablet.Name {
+            OutputBoard = TabletChain[i+1]
+            break
+        }
+    }
+    return OutputBoard
+}
+//
+//======================================================================================================================
+//
+//      S3)Function SplitString
+//      Third Secondary Function used in the Main Function
+//
+func SplitString(Tablet Board, TextToSplit string) []string {
+    var (
+        Line string
+        LineNumber int64
+        StringList = make([]string, len(Tablet.Lines))
+        StopSignal bool
+        LengthToAdd int64
+        LineLength int64
+        CurrentBoardLine = int64(0)
+        Stop int
+    )
+    WordsChain := strings.Split(TextToSplit," ")
+
+    DeleteEmpty := func (s []string) []string {
+        var r []string
+        for _, str := range s {
+            if str != "" {
+                r = append(r, str)
+            }
+        }
+        return r
+    }
+
+    for j:=0; j<len(Tablet.Lines); j++ {
+        if StopSignal == true {
+            break
+        }
+        Line = ""
+        LineLength = 0
+        for i:=Stop; i<len(WordsChain); i++ {
+            if i == Stop {
+                if i == len(WordsChain)-1 {
+                    StopSignal = true
+                }
+                LengthToAdd = GetTextLengthWithKerning(WordsChain[i])
+                LineLength = LineLength + LengthToAdd
+                Line = Line + WordsChain[i]
+                StringList[LineNumber] = Line
+
+
+            } else if i > Stop {
+                LengthToAdd = GetTextLengthWithKerning(WordsChain[i])
+                LineLength = LineLength + LengthToAdd + 8
+
+                if LineLength > Tablet.Lines[CurrentBoardLine] {
+                    Stop = i
+                    StringList[LineNumber] = Line
+                    LineNumber = LineNumber + 1
+                    CurrentBoardLine = CurrentBoardLine + 1
+                    break
+
+                } else {
+                    Line = Line + " " + WordsChain[i]
+                    StringList[LineNumber] = Line
+
+                }
+                if i == len(WordsChain)-1 {
+                    StopSignal = true
+                }
+            }
+        }
+    }
+    TrimmedList := DeleteEmpty(StringList)
+    return TrimmedList
+}
+//
+//======================================================================================================================
+//
+//      S4)Function ComputeStartingOffset
+//      Fourth Secondary Function used in the Main Function
+//
+func ComputeStartingOffset (Tablet Board, TextLines []string) []int64 {
+    var(
+        OffsetList = make([]int64, len(TextLines))
+        LineLength,TotalOffset int64
+    )
+    for i:=0; i<len(TextLines); i++ {
+        LineLength = GetTextLengthWithKerning(TextLines[i])
+        TotalOffset = Tablet.Lines[i] - LineLength
+
+        if TotalOffset == Tablet.Lines[i] {
+            TotalOffset = -1
+        }
+        OffsetList[i] = TotalOffset
+    }
+    return OffsetList
 }

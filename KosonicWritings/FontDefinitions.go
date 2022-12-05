@@ -6,21 +6,34 @@ import (
     svg "github.com/ajstarks/svgo"
     "os"
 )
-
-var (
-    WTier8 = []string{"A","Ä","B","C","D","E","F","G","H","I","J","K","L","M","N","O","Ö","P","Q","R","S","T","U","Ü","V","W","X","Y","Z"," "}
-    WTier7 = []string{"a","ä","q","o","ö","u","ü","v"}
-    WTier6 = []string{"c","d","g","w","m","z","t","x","y","¤","«","»"}
-    WTier5 = []string{"0","1","2","3","4","5","6","7","8","9","h","n","k","£","?"}
-    WTier4 = []string{"b","ß","e","f","p","r","s","$","l"}
-    WTier3 = []string{"(",")","[","]","{","}"}
-    WTier2 = []string{"i","j",".",",",":",";","!"}
-    Capital = append(WTier8[:29])
-
-)
-
-
-
+//================================================
+//
+// 	CONTENT LIST:
+//
+//      Structure Definitions
+//              01  - GlyphGraphics
+//              02  - SVGStartCoord
+//
+//      Variable Definitions
+//              01  - Glyph Tier Definitions                    8 Tier separation based on glyph size
+//              02  - Coin Geometry Definition                  Definitions of the Coin Basorelief Coordinates
+//              03  - Glyph Geometry Definition                 Glyph geometry definition based on width tiers
+//                                                              Included Glyph "OM" Geometric Definition
+//      Functions:
+//
+//      01 Main Drawing Functions
+//              01  - DrawOM                                    Function that draws the OM Glyph
+//              01  - DrawWord                                  Function that draws words
+//
+//      02 Secondary Drawing Functions
+//              01  - ComputeGlyphCode                          Function that computes glyph code in svg format as text
+//              02  - DrawCapitalGlyphAt                        Function that draws Capital Glyphs
+//              03  - DrawGlyphAt                               Function that draws non-Capital Glyphs
+//              04  - IzCapital                                 Function that detects is a Glyph is capital
+//
+//      03 Auxiliary Functions
+//              01  - MakeRuneChain                             Makes a chain of runes from a given Text string
+//================================================
 type GlyphGraphic struct {
     Width int64
     SX *p.Decimal
@@ -32,6 +45,19 @@ type SVGStartCoord struct {
     X int
     Y int
 }
+
+// Letter Tier Definitions
+var (
+    WTier8 = []string{"A","Ä","B","C","D","E","F","G","H","I","J","K","L","M","N","O","Ö","P","Q","R","S","T","U","Ü","V","W","X","Y","Z"," "}
+    WTier7 = []string{"a","ä","q","o","ö","u","ü","v"}
+    WTier6 = []string{"c","d","g","w","m","z","t","x","y","¤","«","»"}
+    WTier5 = []string{"0","1","2","3","4","5","6","7","8","9","h","n","k","£","?"}
+    WTier4 = []string{"b","ß","e","f","p","r","s","$","l"}
+    WTier3 = []string{"(",")","[","]","{","}"}
+    WTier2 = []string{"i","j",".",",",":",";","!"}
+    Capital = append(WTier8[:29])
+
+)
 
 //Coin Geometry Definitions
 var (
@@ -91,8 +117,6 @@ var (
     DigitEight                  = GlyphGraphic{1000,p.NFS("500"),       p.NFS("26.660"),        CreateSVGCodeNoZ(ConvertRawToRelative(DigitEightRawCoordinates))}                  //  U+0038
     DigitNine                   = GlyphGraphic{1000,p.NFS("536.685"),   p.NFS("626.742"),       CreateSVGCode(ConvertRawToRelative(DigitNineRawCoordinates))}                  //  U+0039
 
-
-
     //Tier 4
     LatinSmallLetterB           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterBRawCoordinates))}         //  U+0062
     LatinSmallLetterSharpS      = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterSharpSRawCoordinates))}    //  U+00DF
@@ -129,9 +153,144 @@ var (
     OmMain                      = GlyphGraphic{1600,p.NFS("1422.355"),          p.NFS("521.564"),             CreateSVGCode(ConvertRawToRelative(OMMainRC))}
 
 )
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// MAIN Drawing Functions
+//
+//      01.01
+//      DrawOM Function
+//
+//      Function that Draws the OM Glyph on given coordinates, with a given stroke scaling factor in the given svg file
+//
+func DrawOM (X,Y *p.Decimal, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
+    var(
+        S1="fill=\"none\""
+        S2="stroke=\"black\""
 
-//Letter Functions
-//True is used for capital, False for non Capital
+        StrokeWidth = b.DIVxc(p.NFS("3"),StrokeWidthScalingFactor).String()
+        S3="stroke-width=\"" + StrokeWidth + "\""
+        Canvas             = svg.New(OutputVariable)
+    )
+
+    Canvas.Path(ComputeGlyphCode(OmPoint,X,Y,false),S1,S2,S3)
+    Canvas.Path(ComputeGlyphCode(OmPoint2,X,Y,false),S1,S2,S3)
+    Canvas.Path(ComputeGlyphCode(OmMain,X,Y,false),S1,S2,S3)
+}
+//
+//======================================================================================================================
+//
+//      01.02
+//      DrawWord Function
+//
+//      Function that draws words
+//
+func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) *p.Decimal {
+    var(
+        //Width = int(GetTextLengthWithKerning(Word)) * 200
+        //Height = 1600
+
+        //OutputGlyph = svg.New(os.Stdout)
+        //TotalWord = svg.New(os.Stdout)
+        KerningValue int64
+        MovementDistance = new(p.Decimal)
+        DrawingPointX = new(p.Decimal)
+        DrawingPointY = new(p.Decimal)
+
+
+        //S1="fill=\"none\""
+        //S2="stroke=\"black\""
+        //S3="stroke-width=\"1\""
+    )
+    DrawingPointX = X
+    DrawingPointY = Y
+    //TotalWord.Start(Width, Height)
+    RuneChain := MakeRuneChain(Word)
+    for i:=0; i<len(RuneChain); i++ {
+
+        //First and only Position
+
+        if i==0 && len(RuneChain) == 1 {
+            //fmt.Println("First and only Position")
+            if IzCapital(RuneChain[i]) == true {
+                _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, 0,OutputVariable)
+            } else {
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+            }
+
+            //First Position of many
+
+        }else if i==0 {
+            //fmt.Println("First Position of many")
+            if IzCapital(RuneChain[i]) == true {
+                if IzCapital(RuneChain[i+1]) == true {
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,1, OutputVariable)
+                } else {
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0, OutputVariable)
+                }
+            } else {
+                //Kerning goes here
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+                KerningValue = ComputeKerning(string(RuneChain[i]),string(RuneChain[i+1]))
+                DrawingPointX = b.SUBxc(DrawingPointX,b.MULxc(p.NFI(KerningValue),p.NFS("200")))
+            }
+            //Intermediary Positions
+        } else if i<len(RuneChain)-1 && i != 0 && i != len(RuneChain){
+            //fmt.Println("Intermediary Positions")
+            if IzCapital(RuneChain[i]) == true {
+                if IzCapital(RuneChain[i-1]) == true {
+                    if IzCapital(RuneChain[i+1]) == true {
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), StrokeWidthScalingFactor,3, OutputVariable)
+                    } else {
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), StrokeWidthScalingFactor,2, OutputVariable)
+                    }
+                } else {
+                    if IzCapital(RuneChain[i+1]) == true {
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,1, OutputVariable)
+                    } else {
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0,OutputVariable)
+                    }
+                }
+
+            }  else {
+                //Kerning goes here
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+                KerningValue = ComputeKerning(string(RuneChain[i]),string(RuneChain[i+1]))
+                DrawingPointX = b.SUBxc(DrawingPointX,b.MULxc(p.NFI(KerningValue),p.NFS("200")))
+            }
+
+            //Last Position
+        } else if i == len(RuneChain)-1 {
+            //fmt.Println("Last Position")
+            if IzCapital(RuneChain[i]) == true {
+                if IzCapital(RuneChain[i-1]) == true {
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,2, OutputVariable)
+                } else {
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0, OutputVariable)
+                }
+            } else {
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+            }
+        }
+        DrawingPointX = b.ADDxc(DrawingPointX,MovementDistance)
+    }
+    //TotalWord.End()
+
+    return DrawingPointX
+}
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// SECONDARY Drawing Functions (Letter Function) - They are used in the PRIMARY Drawing Functions
+//
+//      02.01
+//      ComputeGlyphCode Function
+//
+//      Creates the svg code as string from the given inputs
+//      Capital bool: True is used for capital, False for non Capital
+//
 func ComputeGlyphCode(Glyph GlyphGraphic, StartX, StartY *p.Decimal, Capital bool) string {
     var Result string
     if Capital == false {
@@ -150,7 +309,20 @@ func ComputeGlyphCode(Glyph GlyphGraphic, StartX, StartY *p.Decimal, Capital boo
 
     return Result
 }
-
+//
+//======================================================================================================================
+//
+//      02.02
+//      DrawCapitalGlyphAt Function
+//
+//      Draws a CAPITAL glyph at given coordinates using a StrokeWidthScalingFactor as input,
+//      Type represents how the Capital braces are drawn:
+//          Type 0: Single Capital Letter(Glyph)                                - Single-Pillar-Left & Single-Pillar-Right
+//          Type 1: Capital Letter at the beginning of a Capital Letter word    - Single-Pillar-Left & Double-Pillar-Right
+//          Type 2: Capital Letter at the end of a Capital Letter word          - Single-Pillar-Right
+//          Type 3: Capital Letter inside of a Capital Letter word              - Double-Pillar-Right
+//      OutputVariable is the SVG file name, defined all the way in the main drawing function
+//
 func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, StrokeWidthScalingFactor *p.Decimal, Type int, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
     var (
         S1="fill=\"none\""
@@ -249,7 +421,15 @@ func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, StrokeWidthScalingFactor 
     MovementDistance = p.NFS("1600")
     return OutputGlyph,MovementDistance
 }
-
+//
+//======================================================================================================================
+//
+//      02.03
+//      DrawGlyphAt Function
+//
+//      Draws a non-CAPITAL glyph at given coordinates using a StrokeWidthScalingFactor as input,
+//      OutputVariable is the SVG file name, defined all the way in the main drawing function
+//
 func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
     var (
         //Width int
@@ -450,7 +630,15 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Dec
     OutputGlyph = Canvas
     return OutputGlyph,MovementDistance
 }
-
+//
+//======================================================================================================================
+//
+//      02.04
+//      IzCapital Function
+//
+//      Detects if Glyph is capital or not.
+//      If it is, its output is bool true
+//
 func IzCapital (Glyph rune) bool {
     var Output bool
     for i:=0; i<len(Capital); i++ {
@@ -463,119 +651,21 @@ func IzCapital (Glyph rune) bool {
     }
     return Output
 }
-
-func DrawOM (X,Y *p.Decimal, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
-    var(
-        S1="fill=\"none\""
-        S2="stroke=\"black\""
-
-        StrokeWidth = b.DIVxc(p.NFS("3"),StrokeWidthScalingFactor).String()
-        S3="stroke-width=\"" + StrokeWidth + "\""
-        Canvas             = svg.New(OutputVariable)
-    )
-    //EllipseCenterX, _ := b.ADDxc(X,p.NFS("1006.4838")).Int64()
-    //EllipseCenterY, _ := b.ADDxc(Y,p.NFS("212.3908")).Int64()
-    //EllipseMinorAx, _ := p.NFS("56.5243").Int64()
-    //EllipseMajorAx, _ := p.NFS("93.6657").Int64()
-
-
-    Canvas.Path(ComputeGlyphCode(OmPoint,X,Y,false),S1,S2,S3)
-    Canvas.Path(ComputeGlyphCode(OmPoint2,X,Y,false),S1,S2,S3)
-    Canvas.Path(ComputeGlyphCode(OmMain,X,Y,false),S1,S2,S3)
+//
+//======================================================================================================================
+//======================================================================================================================
+//
+// Auxiliary Functions
+//
+//      03.01
+//      MakeRuneChain Function
+//
+//      Makes a chain of runes from the given Text string
+//      Used in the DrawWord Function
+//
+func MakeRuneChain (Text string) []rune {
+    Result := []rune(Text)
+    return Result
 }
-
-func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) *p.Decimal {
-    var(
-        //Width = int(GetTextLengthWithKerning(Word)) * 200
-        //Height = 1600
-
-        //OutputGlyph = svg.New(os.Stdout)
-        //TotalWord = svg.New(os.Stdout)
-        KerningValue int64
-        MovementDistance = new(p.Decimal)
-        DrawingPointX = new(p.Decimal)
-        DrawingPointY = new(p.Decimal)
-
-
-        //S1="fill=\"none\""
-        //S2="stroke=\"black\""
-        //S3="stroke-width=\"1\""
-    )
-    DrawingPointX = X
-    DrawingPointY = Y
-    //TotalWord.Start(Width, Height)
-    RuneChain := MakeRuneChain(Word)
-    for i:=0; i<len(RuneChain); i++ {
-
-        //First and only Position
-
-        if i==0 && len(RuneChain) == 1 {
-            //fmt.Println("First and only Position")
-            if IzCapital(RuneChain[i]) == true {
-                _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, 0,OutputVariable)
-            } else {
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
-            }
-
-        //First Position of many
-
-        }else if i==0 {
-            //fmt.Println("First Position of many")
-            if IzCapital(RuneChain[i]) == true {
-                if IzCapital(RuneChain[i+1]) == true {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,1, OutputVariable)
-                } else {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0, OutputVariable)
-                }
-            } else {
-                //Kerning goes here
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
-                KerningValue = ComputeKerning(string(RuneChain[i]),string(RuneChain[i+1]))
-                DrawingPointX = b.SUBxc(DrawingPointX,b.MULxc(p.NFI(KerningValue),p.NFS("200")))
-            }
-        //Intermediary Positions
-        } else if i<len(RuneChain)-1 && i != 0 && i != len(RuneChain){
-            //fmt.Println("Intermediary Positions")
-            if IzCapital(RuneChain[i]) == true {
-                if IzCapital(RuneChain[i-1]) == true {
-                    if IzCapital(RuneChain[i+1]) == true {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), StrokeWidthScalingFactor,3, OutputVariable)
-                    } else {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), StrokeWidthScalingFactor,2, OutputVariable)
-                    }
-                } else {
-                    if IzCapital(RuneChain[i+1]) == true {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,1, OutputVariable)
-                    } else {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0,OutputVariable)
-                    }
-                }
-
-            }  else {
-                //Kerning goes here
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
-                KerningValue = ComputeKerning(string(RuneChain[i]),string(RuneChain[i+1]))
-                DrawingPointX = b.SUBxc(DrawingPointX,b.MULxc(p.NFI(KerningValue),p.NFS("200")))
-            }
-
-        //Last Position
-        } else if i == len(RuneChain)-1 {
-            //fmt.Println("Last Position")
-            if IzCapital(RuneChain[i]) == true {
-                if IzCapital(RuneChain[i-1]) == true {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,2, OutputVariable)
-                } else {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0, OutputVariable)
-                }
-            } else {
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
-            }
-        }
-        DrawingPointX = b.ADDxc(DrawingPointX,MovementDistance)
-    }
-    //TotalWord.End()
-
-    return DrawingPointX
-
-
-}
+//
+//======================================================================================================================
