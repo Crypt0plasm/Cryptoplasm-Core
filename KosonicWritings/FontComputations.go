@@ -48,9 +48,15 @@ type KerningPair struct {
     Pair1 string
     Pair2 string
 }
+
+//Wanted Stroke Size Definition
+var (
+    KosonStarStrokeSize = "3")
+
 //KerningPairs Definitions
 //Kerning Pairs
 var (
+
     //Kerning Pairs that decrease the length by 1
     KP1U = [] KerningPair{
         //a Pair
@@ -237,7 +243,7 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
         Height = 18100
 	S1 = "fill=\"none\""
 	S2 = "stroke=\"black\""
-	S3 = "stroke-width=\"3\""
+	S3 = "stroke-width=\"" + KosonStarStrokeSize +"\""
 	Zero = p.NFS("0")
     )
 
@@ -274,7 +280,6 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
                 }
     }
 
-
     FreeLines := int64(len(CorrectTabletSize.Lines) - len(TextLines))
     OMScalingFactor := b.MULxc(p.NFI(FreeLines),CorrectTabletSize.ScalingFactor)
     OMHeight := b.MULxc(OMScalingFactor,p.NFI(1600))
@@ -308,7 +313,13 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     KosonStar.Translate(KanonNamePlateX,KanonNamePlateY)
     ScalingFactorKanon,_ := Tablet400.ScalingFactor.Float64()
     KosonStar.Scale(ScalingFactorKanon)
-    DrawKosonKanonText(Unit.Name,Tablet400.ScalingFactor,OutputVariable)
+	//Defining Style Used for Draw
+	KosonKanonTextStyle := StyleSVG{
+	    "black",
+	    p.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),Tablet400.ScalingFactor)),
+	    "none"}
+    	//Effective Draw
+    	DrawKosonKanonText(Unit.Name,KosonKanonTextStyle,OutputVariable)
     KosonStar.Gend()
     KosonStar.Gend()
 
@@ -318,16 +329,28 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
     KosonStar.Translate(DecimalToInt(CorrectTabletSize.AnchorX),DecimalToInt(CorrectTabletSize.AnchorY))
     ScalingFactor,_ :=  CorrectTabletSize.ScalingFactor.Float64()
     KosonStar.Scale(ScalingFactor)
-    DrawKosonStarText(Unit.Value,CorrectTabletSize.ScalingFactor,OutputVariable)
+	//Defining Style Used for Draw
+	KosonStarTextStyle := StyleSVG{
+	    "black",
+	    p.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),CorrectTabletSize.ScalingFactor)),
+	    "none"}
+	//Effective Draw
+    	DrawKosonStarText(Unit.Value, KosonStarTextStyle,OutputVariable)
     KosonStar.Gend()
     KosonStar.Gend()
 
-    //Draws the OM Sign, using a scaling factor, at given coordonates.
+    //Draws the OM Sign, using a scaling factor, at given coordinates.
     if FreeLines > 0 {
 	KosonStar.Translate(OMXint,OMYint)
 	ScalingFactorOM,_ := OMScalingFactor.Float64()
 	KosonStar.Scale(ScalingFactorOM)
-	DrawOM(Zero,Zero,OMScalingFactor,OutputVariable)
+	    //Defining Style Used for Draw
+	    OMStyle := StyleSVG{
+		"black",
+		p.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),OMScalingFactor)),
+		"none"}
+	    //Effective Draw
+	    DrawOM(Zero,Zero,OMStyle,OutputVariable)
 	KosonStar.Gend()
 	KosonStar.Gend()
     }
@@ -345,9 +368,9 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
 //	Function that draws a "text" of characters, such as for example "Kanon  9. 999"
 //	It is used for short texts, that are taken as a "single word" (spaces included)
 //
-func DrawKosonKanonText(Text string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
+func DrawKosonKanonText(Text string, Style StyleSVG, OutputVariable *os.File) {
     V1 := p.NFI(0)
-    DrawWord(V1, p.NFI(0), Text, StrokeWidthScalingFactor, OutputVariable)
+    DrawWord(V1, p.NFI(0), Text, Style, OutputVariable)
 }
 //
 //======================================================================================================================
@@ -359,7 +382,7 @@ func DrawKosonKanonText(Text string, StrokeWidthScalingFactor *p.Decimal, Output
 //	Function that draws a "text" of characters, that is extra long
 //	It has logic that splits it in lines, and centers the resulting words based on their length.
 //
-func DrawKosonStarText (Text string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
+func DrawKosonStarText (Text string, Style StyleSVG, OutputVariable *os.File) {
 
     CorrectTabletSize := GetCorrectBoardSize(Text)
     TextLines := SplitString(CorrectTabletSize, Text)
@@ -387,10 +410,10 @@ func DrawKosonStarText (Text string, StrokeWidthScalingFactor *p.Decimal, Output
 	WordsChainToPrint := strings.Split(TextLines[i]," ")
 	for j:=0; j<len(WordsChainToPrint); j++ {
 	    if j == 0{
-		WLO = DrawWord(X, Y, WordsChainToPrint[j], StrokeWidthScalingFactor, OutputVariable)
+		WLO = DrawWord(X, Y, WordsChainToPrint[j], Style, OutputVariable)
 		WLOS = b.ADDxc(WLO,p.NFI(1600))		//Offset given by space
 	    } else {
-		WLO = DrawWord(WLOS, Y, WordsChainToPrint[j], StrokeWidthScalingFactor, OutputVariable)
+		WLO = DrawWord(WLOS, Y, WordsChainToPrint[j], Style, OutputVariable)
 		WLOS = b.ADDxc(WLO,p.NFI(1600))		//Offset given by space
 	    }
 	}
@@ -436,6 +459,7 @@ func ComputeKerning (FirstGlyph, SecondGlyph string) (KerningValue int64) {
 //	GetRuneWidth Function; computes rune width
 //
 // 	Used in the Line length computations based on Kerning Values
+//	1 Units represent 200 width value (One Eighth). (Glyph Definition is 1600x1600).
 //
 func GetRuneWidth (Glyph rune) int64 {
     var Result int64

@@ -18,6 +18,37 @@ import (
 //      03b - ConvertIntervals                          converts interval duration in time duration.
 //
 //=================================================================================================
+//
+//Kosonic Writings Structures
+//
+type NNB struct {
+    Validator *p.Decimal
+    Observer *p.Decimal
+    Power *p.Decimal
+    Bonus *p.Decimal
+}
+
+type UnityTime struct {
+    Day *p.Decimal
+    Year *p.Decimal
+    DayOfYear *p.Decimal
+}
+
+type UnityNftInput struct {
+    Day string
+    RawDailyMint *p.Decimal
+    TxTax *p.Decimal
+    Network NNB
+}
+
+type UnityNftOutput struct {
+    Time UnityTime
+    Treasury *p.Decimal
+    Minor *p.Decimal
+    AbsoluteBonus *p.Decimal
+    Major *p.Decimal
+    EliteAuryn *p.Decimal
+}
 
 //BlockChain Intervals
 const (

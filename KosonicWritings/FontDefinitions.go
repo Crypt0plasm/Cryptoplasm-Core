@@ -164,19 +164,21 @@ var (
 //
 //      Function that Draws the OM Glyph on given coordinates, with a given stroke scaling factor in the given svg file
 //
-func DrawOM (X,Y *p.Decimal, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) {
+func DrawOM (X,Y *p.Decimal, Style StyleSVG, OutputVariable *os.File) {
     var(
-        S1="fill=\"none\""
-        S2="stroke=\"black\""
+        //S1="fill=\"none\""
+        //S2="stroke=\"black\""
 
-        StrokeWidth = b.DIVxc(p.NFS("3"),StrokeWidthScalingFactor).String()
-        S3="stroke-width=\"" + StrokeWidth + "\""
-        Canvas             = svg.New(OutputVariable)
+        //StrokeWidth = b.DIVxc(p.NFS(StrokeSize),StrokeWidthScalingFactor).String()
+        //S3="stroke-width=\"" + StrokeWidth + "\""
+
+        UsedStyle           = SVGStyleToString(Style)
+        Canvas              = svg.New(OutputVariable)
     )
 
-    Canvas.Path(ComputeGlyphCode(OmPoint,X,Y,false),S1,S2,S3)
-    Canvas.Path(ComputeGlyphCode(OmPoint2,X,Y,false),S1,S2,S3)
-    Canvas.Path(ComputeGlyphCode(OmMain,X,Y,false),S1,S2,S3)
+    Canvas.Path(ComputeGlyphCode(OmPoint,X,Y,false), UsedStyle)
+    Canvas.Path(ComputeGlyphCode(OmPoint2,X,Y,false),UsedStyle)
+    Canvas.Path(ComputeGlyphCode(OmMain,X,Y,false),UsedStyle)
 }
 //
 //======================================================================================================================
@@ -186,7 +188,7 @@ func DrawOM (X,Y *p.Decimal, StrokeWidthScalingFactor *p.Decimal, OutputVariable
 //
 //      Function that draws words
 //
-func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) *p.Decimal {
+func DrawWord(X,Y *p.Decimal, Word string, Style StyleSVG, OutputVariable *os.File) *p.Decimal {
     var(
         //Width = int(GetTextLengthWithKerning(Word)) * 200
         //Height = 1600
@@ -202,6 +204,7 @@ func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, 
         //S1="fill=\"none\""
         //S2="stroke=\"black\""
         //S3="stroke-width=\"1\""
+
     )
     DrawingPointX = X
     DrawingPointY = Y
@@ -214,9 +217,9 @@ func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, 
         if i==0 && len(RuneChain) == 1 {
             //fmt.Println("First and only Position")
             if IzCapital(RuneChain[i]) == true {
-                _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, 0,OutputVariable)
+                _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style, 0,OutputVariable)
             } else {
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style, OutputVariable)
             }
 
             //First Position of many
@@ -225,13 +228,13 @@ func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, 
             //fmt.Println("First Position of many")
             if IzCapital(RuneChain[i]) == true {
                 if IzCapital(RuneChain[i+1]) == true {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,1, OutputVariable)
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style,1, OutputVariable)
                 } else {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0, OutputVariable)
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style,0, OutputVariable)
                 }
             } else {
                 //Kerning goes here
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style, OutputVariable)
                 KerningValue = ComputeKerning(string(RuneChain[i]),string(RuneChain[i+1]))
                 DrawingPointX = b.SUBxc(DrawingPointX,b.MULxc(p.NFI(KerningValue),p.NFS("200")))
             }
@@ -241,21 +244,21 @@ func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, 
             if IzCapital(RuneChain[i]) == true {
                 if IzCapital(RuneChain[i-1]) == true {
                     if IzCapital(RuneChain[i+1]) == true {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), StrokeWidthScalingFactor,3, OutputVariable)
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), Style,3, OutputVariable)
                     } else {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), StrokeWidthScalingFactor,2, OutputVariable)
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY,string(RuneChain[i]), Style,2, OutputVariable)
                     }
                 } else {
                     if IzCapital(RuneChain[i+1]) == true {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,1, OutputVariable)
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style,1, OutputVariable)
                     } else {
-                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0,OutputVariable)
+                        _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style,0,OutputVariable)
                     }
                 }
 
             }  else {
                 //Kerning goes here
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style, OutputVariable)
                 KerningValue = ComputeKerning(string(RuneChain[i]),string(RuneChain[i+1]))
                 DrawingPointX = b.SUBxc(DrawingPointX,b.MULxc(p.NFI(KerningValue),p.NFS("200")))
             }
@@ -265,12 +268,12 @@ func DrawWord(X,Y *p.Decimal, Word string, StrokeWidthScalingFactor *p.Decimal, 
             //fmt.Println("Last Position")
             if IzCapital(RuneChain[i]) == true {
                 if IzCapital(RuneChain[i-1]) == true {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,2, OutputVariable)
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style,2, OutputVariable)
                 } else {
-                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor,0, OutputVariable)
+                    _, MovementDistance = DrawCapitalGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style,0, OutputVariable)
                 }
             } else {
-                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), StrokeWidthScalingFactor, OutputVariable)
+                _, MovementDistance = DrawGlyphAt(DrawingPointX, DrawingPointY, string(RuneChain[i]), Style, OutputVariable)
             }
         }
         DrawingPointX = b.ADDxc(DrawingPointX,MovementDistance)
@@ -323,99 +326,95 @@ func ComputeGlyphCode(Glyph GlyphGraphic, StartX, StartY *p.Decimal, Capital boo
 //          Type 3: Capital Letter inside of a Capital Letter word              - Double-Pillar-Right
 //      OutputVariable is the SVG file name, defined all the way in the main drawing function
 //
-func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, StrokeWidthScalingFactor *p.Decimal, Type int, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
+func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, Type int, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
     var (
-        S1="fill=\"none\""
-        S2="stroke=\"black\""
-        StrokeWidth = b.DIVxc(p.NFS("3"),StrokeWidthScalingFactor).String()
-        S3="stroke-width=\"" + StrokeWidth + "\""
-
-        Canvas             = svg.New(OutputVariable)
+        UsedStyle           = SVGStyleToString(Style)
+        Canvas              = svg.New(OutputVariable)
     )
 
     Switcheroo := func () {
         switch Letter := Glyph;{
         case Letter == "A":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA,X,Y,true),UsedStyle)
         case Letter == "Ä":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA,X,Y,true),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,p.NFS("800")),Y,false),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,p.NFS("800")),Y,false),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA,X,Y,true),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,p.NFS("800")),Y,false),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,p.NFS("800")),Y,false),UsedStyle)
         case Letter == "B":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterB,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterB,X,Y,true),UsedStyle)
         case Letter == "C":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterC,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterC,X,Y,true),UsedStyle)
         case Letter == "D":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterD,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterD,X,Y,true),UsedStyle)
         case Letter == "E":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterE,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterE,X,Y,true),UsedStyle)
         case Letter == "F":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterF,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterF,X,Y,true),UsedStyle)
         case Letter == "G":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterG,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterG,X,Y,true),UsedStyle)
         case Letter == "H":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterH,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterH,X,Y,true),UsedStyle)
         case Letter == "I":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterI,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterI,X,Y,true),UsedStyle)
         case Letter == "J":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterJ,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterJ,X,Y,true),UsedStyle)
         case Letter == "K":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterK,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterK,X,Y,true),UsedStyle)
         case Letter == "L":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterL,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterL,X,Y,true),UsedStyle)
         case Letter == "M":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterM,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterM,X,Y,true),UsedStyle)
         case Letter == "N":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterN,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterN,X,Y,true),UsedStyle)
         case Letter == "O":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO,X,Y,true),UsedStyle)
         case Letter == "Ö":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO,X,Y,true),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,p.NFS("800")),Y,false),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,p.NFS("800")),Y,false),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO,X,Y,true),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,p.NFS("800")),Y,false),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,p.NFS("800")),Y,false),UsedStyle)
         case Letter == "P":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterP,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterP,X,Y,true),UsedStyle)
         case Letter == "Q":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterQ,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterQ,X,Y,true),UsedStyle)
         case Letter == "R":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterR,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterR,X,Y,true),UsedStyle)
         case Letter == "S":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterS,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterS,X,Y,true),UsedStyle)
         case Letter == "T":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterT,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterT,X,Y,true),UsedStyle)
         case Letter == "U":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU,X,Y,true),UsedStyle)
         case Letter == "Ü":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU,X,Y,true),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,p.NFS("800")),Y,false),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,p.NFS("800")),Y,false),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU,X,Y,true),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,p.NFS("800")),Y,false),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,p.NFS("800")),Y,false),UsedStyle)
         case Letter == "V":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterV,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterV,X,Y,true),UsedStyle)
         case Letter == "W":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterW,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterW,X,Y,true),UsedStyle)
         case Letter == "X":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterX,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterX,X,Y,true),UsedStyle)
         case Letter == "Y":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterY,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterY,X,Y,true),UsedStyle)
         case Letter == "Z":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterZ,X,Y,true),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterZ,X,Y,true),UsedStyle)
         }
     }
 
     if Type == 0 {
-        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),S1,S2,S3)
+        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),UsedStyle)
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),S1,S2,S3)
+        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),UsedStyle)
     } else if Type == 1 {
-        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),S1,S2,S3)
+        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),UsedStyle)
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),S1,S2,S3)
+        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),UsedStyle)
     } else if Type == 2 {
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),S1,S2,S3)
+        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),UsedStyle)
     } else if Type == 3 {
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),S1,S2,S3)
+        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),UsedStyle)
     }
     OutputGlyph = Canvas
     MovementDistance = p.NFS("1600")
@@ -430,16 +429,10 @@ func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, StrokeWidthScalingFactor 
 //      Draws a non-CAPITAL glyph at given coordinates using a StrokeWidthScalingFactor as input,
 //      OutputVariable is the SVG file name, defined all the way in the main drawing function
 //
-func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Decimal, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
+func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
     var (
-        //Width int
-        //Height = 1600
-        S1="fill=\"none\""
-        S2="stroke=\"black\""
-
-        StrokeWidth = b.DIVxc(p.NFS("3"),StrokeWidthScalingFactor).String()
-        S3="stroke-width=\"" + StrokeWidth + "\""
-        Canvas             = svg.New(OutputVariable)
+        UsedStyle           = SVGStyleToString(Style)
+        Canvas              = svg.New(OutputVariable)
         
     )
 
@@ -448,180 +441,180 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string,  StrokeWidthScalingFactor *p.Dec
         case Letter == " ":
             MovementDistance = p.NFI(800)
         case Letter == "-":
-            Canvas.Path(ComputeGlyphCode(HyphenMinus, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(HyphenMinus, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(HyphenMinus.Width)
         case Letter == "+":
-            Canvas.Path(ComputeGlyphCode(PlusSign, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(PlusSign, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(PlusSign.Width)
         case Letter == "(":
-            Canvas.Path(ComputeGlyphCode(LeftParenthesis, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LeftParenthesis, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LeftParenthesis.Width)
         case Letter == ")":
-            Canvas.Path(ComputeGlyphCode(RightParenthesis, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(RightParenthesis, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(RightParenthesis.Width)
         case Letter == "《" || Letter == "«":
-            Canvas.Path(ComputeGlyphCode(LeftDoubleAngleBracketOne, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(LeftDoubleAngleBracketTwo, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LeftDoubleAngleBracketOne, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(LeftDoubleAngleBracketTwo, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LeftDoubleAngleBracketOne.Width)
         case Letter == "》" || Letter == "»":
-            Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketOne, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketTwo, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketOne, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(RightDoubleAngleBracketTwo, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(RightDoubleAngleBracketOne.Width)
 
         case Letter == "0":
-            Canvas.Path(ComputeGlyphCode(DigitZero, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(DigitZeroInner, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitZero, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DigitZeroInner, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitZero.Width)
         case Letter == "1":
-            Canvas.Path(ComputeGlyphCode(DigitOne, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitOne, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitOne.Width)
         case Letter == "2":
-            Canvas.Path(ComputeGlyphCode(DigitTwo, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitTwo, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitTwo.Width)
         case Letter == "3":
-            Canvas.Path(ComputeGlyphCode(DigitThree, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitThree, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitThree.Width)
         case Letter == "4":
-            Canvas.Path(ComputeGlyphCode(DigitFour, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitFour, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitFour.Width)
         case Letter == "5":
-            Canvas.Path(ComputeGlyphCode(DigitFive, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitFive, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitFive.Width)
         case Letter == "6":
-            Canvas.Path(ComputeGlyphCode(DigitSix, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitSix, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitSix.Width)
         case Letter == "7":
-            Canvas.Path(ComputeGlyphCode(DigitSeven, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitSeven, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitSeven.Width)
         case Letter == "8":
-            Canvas.Path(ComputeGlyphCode(DigitEight, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitEight, X, Y, false), UsedStyle)
             C1X, _ := b.ADDxc(X,p.NFI(500)).Int64()
             C1Y, _ := b.ADDxc(Y,p.NFI(544)).Int64()
             C2X, _ := b.ADDxc(X,p.NFI(500)).Int64()
             C2Y, _ := b.ADDxc(Y,p.NFI(1056)).Int64()
-            Canvas.Circle(int(C1X),int(C1Y),128, S1, S2, S3)
-            Canvas.Circle(int(C2X),int(C2Y),128, S1, S2, S3)
+            Canvas.Circle(int(C1X),int(C1Y),128, UsedStyle)
+            Canvas.Circle(int(C2X),int(C2Y),128, UsedStyle)
             MovementDistance = p.NFI(DigitEight.Width)
         case Letter == "9":
-            Canvas.Path(ComputeGlyphCode(DigitNine, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(DigitNine, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(DigitNine.Width)
         case Letter == "a":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterA.Width)
         case Letter == "ä":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterA.Width),p.NFS("2"))),Y,false),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterA.Width),p.NFS("2"))),Y,false),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterA, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterA.Width),p.NFS("2"))),Y,false),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterA.Width),p.NFS("2"))),Y,false),UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterA.Width)
         case Letter == "b":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterB, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterB, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterB.Width)
         case Letter == "ß":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterSharpS, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterSharpS, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterSharpS.Width)
         case Letter == "c":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterC, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterC, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterC.Width)
         case Letter == "d":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterD, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterD, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterD.Width)
         case Letter == "e":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterE, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterE, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterE.Width)
         case Letter == "f":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterF, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterF, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterF.Width)
         case Letter == "g":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterG, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterG, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterG.Width)
         case Letter == "h":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterH, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterH, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterH.Width)
         case Letter == "i":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterI, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterI, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterI.Width)
         case Letter == "j":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterJ, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterJ, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterJ.Width)
         case Letter == "k":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterK, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterK, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterK.Width)
         case Letter == "l":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterL, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterL, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterL.Width)
         case Letter == "m":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterM, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterM, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterM.Width)
         case Letter == "n":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterN, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterN, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterN.Width)
         case Letter == "o":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterO.Width)
         case Letter == "ö":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterO.Width),p.NFS("2"))),Y,false),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterO.Width),p.NFS("2"))),Y,false),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterO, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterO.Width),p.NFS("2"))),Y,false),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterO.Width),p.NFS("2"))),Y,false),UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterO.Width)
         case Letter == "p":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterP, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterP, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterP.Width)
         case Letter == "q":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterQ, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterQ, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterQ.Width)
         case Letter == "r":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterR, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterR, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterR.Width)
         case Letter == "s":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterS, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterS, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterS.Width)
         case Letter == "t":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterT, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterT, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterT.Width)
         case Letter == "u":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterU.Width)
         case Letter == "ü":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterU.Width),p.NFS("2"))),Y,false),S1,S2,S3)
-            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterU.Width),p.NFS("2"))),Y,false),S1,S2,S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterU, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisLeft,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterU.Width),p.NFS("2"))),Y,false),UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DieresisRight,b.ADDxc(X,b.DIVxc(p.NFI(LatinSmallLetterU.Width),p.NFS("2"))),Y,false),UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterU.Width)
         case Letter == "v":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterV, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterV, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterV.Width)
         case Letter == "w":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterW, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterW, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterW.Width)
         case Letter == "x":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterX, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterX, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterX.Width)
         case Letter == "y":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterY, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterY, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterY.Width)
         case Letter == "z":
-            Canvas.Path(ComputeGlyphCode(LatinSmallLetterZ, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(LatinSmallLetterZ, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(LatinSmallLetterZ.Width)
         case Letter == ".":
-            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(PointDown.Width)
         case Letter == ",":
-            Canvas.Path(ComputeGlyphCode(Comma, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(Comma, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(Comma.Width)
         case Letter == ":":
-            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(PointUp, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PointUp, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(PointDown.Width)
         case Letter == ";":
-            Canvas.Path(ComputeGlyphCode(Comma, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(PointUp, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(Comma, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PointUp, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(PointDown.Width)
         case Letter == "!":
-            Canvas.Path(ComputeGlyphCode(Exclamation, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(Exclamation, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PointDown, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(PointDown.Width)
         case Letter == "?":
-            Canvas.Path(ComputeGlyphCode(Question, X, Y, false), S1, S2, S3)
-            Canvas.Path(ComputeGlyphCode(PointDown, b.ADDxc(X,p.NFS("200")), Y, false), S1, S2, S3)
+            Canvas.Path(ComputeGlyphCode(Question, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PointDown, b.ADDxc(X,p.NFS("200")), Y, false), UsedStyle)
             MovementDistance = p.NFI(Question.Width)
         }
     }
