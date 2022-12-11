@@ -1588,7 +1588,7 @@ func UnityDaysComputer (Day string) (Output UnityTime) {
     Output.Day = p.NFS(Day)
 
     //Computes Year Number
-    Output.Year = ADDxc(DivInt(Output.Day, p.NFS("365")),p.NFS("1"))
+    Output.Year = DivInt(Output.Day, p.NFS("365"))
 
     //Computes Day of Year Number
     Output.DayOfYear = DivMod(Output.Day,p.NFS("365"))

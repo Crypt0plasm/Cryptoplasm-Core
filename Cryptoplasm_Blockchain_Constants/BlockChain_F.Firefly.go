@@ -85,6 +85,7 @@ var (
 //	08 Digit Manipulation Functions
 //		01  - RemoveDecimals			Removes the decimals of a number, uses floor function
 //		02  - Count4Coma			Counts the number of digits before precision
+//		03  - DTS				Converts Decimal to String with "." as Separator
 //	09 Blockchain Specific Geometry Functions
 //		01  - ASApr				Computes an ASA triangle with specified precision without returning the Gamma Angle
 //	10 OverSend Functions
@@ -1107,6 +1108,75 @@ func Count4Coma(Number *p.Decimal) int64 {
 	Int64Digits := Whole.NumDigits()	//int64, up to 9223372036854775807
 	return Int64Digits
 }
+//================================================
+//
+// Function 08.03 - DTS
+//
+// DTS Converts Decimal to String with "." as Separator
+// Similar to .String() function, but you can choose separator.
+func DTS(Input *p.Decimal) (Output string) {
+    var Zeros string
+
+    //Function makes a rune chain from a text string
+    MakeRuneChain := func(Text string) []rune {
+	Result := []rune(Text)
+	return Result
+    }
+
+
+
+    //Function to insert an element (Value to insert) in a slice (in this example runes) at a given position (Index)
+    InsertIntoRuneSlice := func(RuneSlice []rune, Index int, ValueToInsert rune) []rune {
+	if len(RuneSlice) == Index { //nil or empty slice or after the last element
+	    return append(RuneSlice, ValueToInsert)
+	}
+	RuneSlice = append(RuneSlice[:Index+1], RuneSlice[Index:]...) //Index < len(RuneSlice)
+	RuneSlice[Index] = ValueToInsert
+	return RuneSlice
+    }
+
+    //Separator that is to be inserted into the string to be created.
+    //The "." Character is used
+    Separator := MakeRuneChain(".")[0]
+    IntegerPart := RemoveDecimals(Input)
+
+    //Creating the Chain of runes representing the Decimal Number
+    Coefficient := Input.Coeff
+    DecimalAsLongText := Coefficient.Text(10)
+    OriginalRuneSlice := MakeRuneChain(DecimalAsLongText)
+
+    //Getting the Position where the Separator must be inserted
+    //Assumes Exponent is lower than Zero, that is, there is precision in the decimal, ie: "8888.12345"
+    //That Example would have a -5 Exponent
+    Exponent := int(Input.Exponent)
+
+    Position := len(OriginalRuneSlice) + Exponent
+
+    if DecimalEqual(IntegerPart,p.NFS("0")) == true && Exponent < 0 {
+	PosExp := 0 - Exponent
+	NumberOfExtraZeroes := PosExp - len(OriginalRuneSlice)
+	if NumberOfExtraZeroes != 0 {                       //Case 0.00000xxxxx
+	    for i:=0; i<NumberOfExtraZeroes; i++ {
+		Zeros = Zeros + "0"
+	    }
+	    ModifiedDecimalAsLongText := Zeros + DecimalAsLongText
+	    ModifiedRuneSlice := MakeRuneChain(ModifiedDecimalAsLongText)
+	    S1 := string(InsertIntoRuneSlice(ModifiedRuneSlice, len(ModifiedRuneSlice)+Exponent, Separator))
+	    Output = "0" + S1
+	} else {                                            //Case 0.xxxxx
+	    S2 := string(InsertIntoRuneSlice(OriginalRuneSlice, Position, Separator))
+	    Output = "0" + S2
+	}
+    } else {
+	if Exponent >= 0 {                                  //Case xxxxx
+	    Output = DecimalAsLongText
+	} else {                                            //Case xxxxx.xxxxxx
+	    Output = string(InsertIntoRuneSlice(OriginalRuneSlice, Position, Separator))
+	}
+    }
+    return
+}
+
 //================================================
 //	09 Blockchain Specific Geometry Functions
 //		For now only a custom ASA triangle function is needed

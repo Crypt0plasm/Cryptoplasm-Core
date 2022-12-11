@@ -198,8 +198,8 @@ func ConvertToThousandSeparator(Number *p.Decimal) string {
 
 func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     //WinnerHeroTag := GetHeroTag(Winner)
-    //UnityInput := b.UnityDayScanner(Day, TxTaxAddy)
-    //UnityOutput := b.UnityNftComputer(UnityInput)
+    UnityInput := b.UnityDayScanner(Day, TxTaxAddy)
+    UnityOutput := b.UnityNftComputer(UnityInput)
     //NFTScore := GetUnityNFTScore(UnityInput)
 
     var (
@@ -248,13 +248,68 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
             //Defining Style Used for Draw
             DayStyle := StyleSVG{
             HexFromRGB(Period).Hex,
-            p.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.8"))),
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.8"))),
             HexFromRGB(Period).Hex}
-            fmt.Println("ESTE",SVGStyleToString(DayStyle))
             //Effective Draw
             DrawWord(DayXX,DayYY, DayConvTT, DayStyle, OutputVariable)
         UnityDailyNFT.Gend()
 
+    //Draw Year Number
+    //Size is 640 for this Number. Represents 0.4 out of 1600 (Glyph code definition).
+    //Therefore a scaling factor of 0.8 must be used
+        //Convert string Day to thousand separators
+        YearConvTT := ConvertToThousandSeparator(UnityOutput.Time.Year)
+        //Get Length of the resulted Day Display (1 unit is 200), then multiply it by 0.4 to get actual Length in SVG
+        //As such multiplication with 200*0.4 which is 80 is performed
+        YearConvTTT := GetTextLengthWithKerning(YearConvTT)
+        YearConvTTL := b.MULxc(p.NFI(YearConvTTT),p.NFS("80"))
+        //Get X,Y Coordinates as starting point for the Year Number Write
+        //Coordinates must be scaled to reflect the future downscale, as such must be divided by 0.4
+        YearX := b.SUBxc(p.NFS("5400"),b.DIVxc(YearConvTTL,p.NFS("2")))
+        YearY := p.NFS("1505")
+        YearXX := b.DIVxc(YearX,p.NFS("0.4"))
+        YearYY := b.DIVxc(YearY,p.NFS("0.4"))
+        //Drawing the Year number, scaling it before
+        ScalingFactorYear,_ := p.NFS("0.4").Float64()
+        UnityDailyNFT.Scale(ScalingFactorYear)
+        //Defining Style Used for Draw
+            YearStyle := StyleSVG{
+            HexFromRGB(Period).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.4"))),
+            HexFromRGB(Period).Hex}
+            //Same Style as Day
+            //Effective Draw
+            DrawWord(YearXX,YearYY, YearConvTT, YearStyle, OutputVariable)
+        UnityDailyNFT.Gend()
+
+
+    //Draw Day of Year Number
+    //Size is 512 for this Number. Represents 0.32 out of 1600 (Glyph code definition).
+    //Therefore a scaling factor of 0.32 must be used
+    //Convert string Day to thousand separators
+    DayOfYearConvTT := ConvertToThousandSeparator(UnityOutput.Time.DayOfYear)
+    //Get Length of the resulted Day Display (1 unit is 200), then multiply it by 0.32 to get actual Length in SVG
+    //As such multiplication with 200*0.32 which is 64 is performed
+    DayOfYearConvTTT := GetTextLengthWithKerning(DayOfYearConvTT)
+    DayOfYearConvTTL := b.MULxc(p.NFI(DayOfYearConvTTT),p.NFS("64"))
+    //Get X,Y Coordinates as starting point for the DayOfYear Number Write
+    //Coordinates must be scaled to reflect the future downscale, as such must be divided by 0.32
+    DayOfYearX := b.SUBxc(p.NFS("5400"),b.DIVxc(DayOfYearConvTTL,p.NFS("2")))
+    DayOfYearY := p.NFS("2219")
+    DayOfYearXX := b.DIVxc(DayOfYearX,p.NFS("0.32"))
+    DayOfYearYY := b.DIVxc(DayOfYearY,p.NFS("0.32"))
+    //Drawing the DayOfYear number, scaling it before
+    ScalingFactorDayOfYear,_ := p.NFS("0.32").Float64()
+    UnityDailyNFT.Scale(ScalingFactorDayOfYear)
+    //Defining Style Used for Draw
+    DayOfYearStyle := StyleSVG{
+        HexFromRGB(Period).Hex,
+        b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.32"))),
+        HexFromRGB(Period).Hex}
+    //Same Style as Day
+    //Effective Draw
+    DrawWord(DayOfYearXX,DayOfYearYY, DayOfYearConvTT, DayOfYearStyle, OutputVariable)
+    UnityDailyNFT.Gend()
 
 
     //Last Command from the SVG

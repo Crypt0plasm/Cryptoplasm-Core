@@ -316,7 +316,7 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
 	//Defining Style Used for Draw
 	KosonKanonTextStyle := StyleSVG{
 	    "black",
-	    p.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),Tablet400.ScalingFactor)),
+	    b.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),Tablet400.ScalingFactor)),
 	    "none"}
     	//Effective Draw
     	DrawKosonKanonText(Unit.Name,KosonKanonTextStyle,OutputVariable)
@@ -332,7 +332,7 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
 	//Defining Style Used for Draw
 	KosonStarTextStyle := StyleSVG{
 	    "black",
-	    p.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),CorrectTabletSize.ScalingFactor)),
+	    b.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),CorrectTabletSize.ScalingFactor)),
 	    "none"}
 	//Effective Draw
     	DrawKosonStarText(Unit.Value, KosonStarTextStyle,OutputVariable)
@@ -347,7 +347,7 @@ func DrawKosonStar (Unit Kanon) *svg.SVG {
 	    //Defining Style Used for Draw
 	    OMStyle := StyleSVG{
 		"black",
-		p.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),OMScalingFactor)),
+		b.DTS(b.DIVxc(p.NFS(KosonStarStrokeSize),OMScalingFactor)),
 		"none"}
 	    //Effective Draw
 	    DrawOM(Zero,Zero,OMStyle,OutputVariable)
