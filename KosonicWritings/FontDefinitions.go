@@ -126,6 +126,7 @@ var (
     LatinSmallLetterF           = GlyphGraphic{800, p.NFS("100"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterFRawCoordinates))}         //  U+0066
     LatinSmallLetterL           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterLRawCoordinates))}        //  U+006C
     LatinSmallLetterP           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterPRawCoordinates))}        //  U+0070
+    Power                       = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PowerRawCoordinates))}
     LatinSmallLetterR           = GlyphGraphic{800, p.NFS("20"),        p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterRRawCoordinates))}        //  U+0072
     LatinSmallLetterS           = GlyphGraphic{800, p.NFS("730"),       p.NFS("160"),           CreateSVGCode(ConvertRawToRelative(LatinSmallLetterSRawCoordinates))}        // U+0073
 
@@ -136,7 +137,7 @@ var (
     //Tier 0 - Diacritics and Orthography
     DieresisLeft                = GlyphGraphic{-1,  p.NFS("-230"),      p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisLeftRawCoordinates))}
     DieresisRight               = GlyphGraphic{-1,  p.NFS("230"),       p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(DieresisRightRawCoordinates))}
-    Exclamation                 = GlyphGraphic{400, p.NFS("200"),       p.NFS("10"),           CreateSVGCode(ConvertRawToRelative(ExclamationRawCoordinates))}
+    Exclamation                 = GlyphGraphic{400, p.NFS("200"),       p.NFS("10"),            CreateSVGCode(ConvertRawToRelative(ExclamationRawCoordinates))}
     Comma                       = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(CommaRawCoordinates))}
     PointDown                   = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(PointDownRawCoordinates))}
     PointUp                     = GlyphGraphic{400, p.NFS("200"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PointUpRawCoordinates))}
@@ -148,11 +149,16 @@ var (
     RightDoubleAngleBracketOne  = GlyphGraphic{1200,p.NFS("735.736"),   p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(RightDoubleAngleBracketOneRawCoordinates))}
     RightDoubleAngleBracketTwo  = GlyphGraphic{1200,p.NFS("1160"),      p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(RightDoubleAngleBracketTwoRawCoordinates))}
 
+    //Percent and Permille Signs (-1 means the width isn't used anywhere)
+    PercentBar                  = GlyphGraphic{1200,p.NFS("978.981"),   p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PercentBarRawCoordinates))}
+    PercentBarPoint1            = GlyphGraphic{-1,p.NFS("245"),         p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PercentBarPoint1RawCoordinates))}
+    PercentBarPoint2            = GlyphGraphic{-1,p.NFS("600"),         p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(PercentBarPoint2RawCoordinates))}
+    PercentBarPoint3            = GlyphGraphic{-1,p.NFS("955"),         p.NFS("1060"),           CreateSVGCode(ConvertRawToRelative(PercentBarPoint3RawCoordinates))}
 
     //Omfalon Murado
-    OmPoint                     = GlyphGraphic{1600,p.NFS("1066.038"),          p.NFS("140.095"),             CreateSVGCode(ConvertRawToRelative(OMPointRC))}
-    OmPoint2                    = GlyphGraphic{1600,p.NFS("1391.157"),          p.NFS("252.850"),             CreateSVGCode(ConvertRawToRelative(OMPoint2RC))}
-    OmMain                      = GlyphGraphic{1600,p.NFS("1422.355"),          p.NFS("521.564"),             CreateSVGCode(ConvertRawToRelative(OMMainRC))}
+    OmPoint                     = GlyphGraphic{1600,p.NFS("1066.038"),  p.NFS("140.095"),       CreateSVGCode(ConvertRawToRelative(OMPointRC))}
+    OmPoint2                    = GlyphGraphic{1600,p.NFS("1391.157"),  p.NFS("252.850"),       CreateSVGCode(ConvertRawToRelative(OMPoint2RC))}
+    OmMain                      = GlyphGraphic{1600,p.NFS("1422.355"),  p.NFS("521.564"),       CreateSVGCode(ConvertRawToRelative(OMMainRC))}
 
 )
 //
@@ -449,6 +455,17 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *
         switch Letter := Glyph; {
         case Letter == " ":
             MovementDistance = p.NFI(800)
+        case Letter == "%":
+            Canvas.Path(ComputeGlyphCode(PercentBar, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PercentBarPoint1, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PercentBarPoint3, X, Y, false), UsedStyle)
+            MovementDistance = p.NFI(PercentBar.Width)
+        case Letter == "‰":
+            Canvas.Path(ComputeGlyphCode(PercentBar, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PercentBarPoint1, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PercentBarPoint2, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(PercentBarPoint3, X, Y, false), UsedStyle)
+            MovementDistance = p.NFI(PercentBar.Width)
         case Letter == "-":
             Canvas.Path(ComputeGlyphCode(HyphenMinus, X, Y, false), UsedStyle)
             MovementDistance = p.NFI(HyphenMinus.Width)
@@ -499,16 +516,6 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *
             Canvas.Path(ComputeGlyphCode(DigitEight, X, Y, false), UsedStyle)
             Canvas.Path(ComputeGlyphCode(DigitEightUpperCircle, X, Y, false), InnerStyleString)
             Canvas.Path(ComputeGlyphCode(DigitEightLowerCircle, X, Y, false), InnerStyleString)
-
-
-
-            //C1X := IntDecToInt(b.ADDxc(X,p.NFS("500")))
-            //C1Y := IntDecToInt(b.ADDxc(Y,p.NFS("544")))
-            //C2Y := IntDecToInt(b.ADDxc(Y,p.NFS("1056")))
-            //Canvas.Circle(C1X,C1Y,128, InnerStyleString)
-            //Canvas.Circle(C1X,C2Y,128, InnerStyleString)
-
-
             MovementDistance = p.NFI(DigitEight.Width)
         case Letter == "9":
             Canvas.Path(ComputeGlyphCode(DigitNine, X, Y, false), UsedStyle)
