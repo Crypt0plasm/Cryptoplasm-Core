@@ -115,6 +115,8 @@ var (
     DigitSix                    = GlyphGraphic{1000,p.NFS("322.008"),   p.NFS("116.822"),       CreateSVGCode(ConvertRawToRelative(DigitSixRawCoordinates))}                  //  U+0036
     DigitSeven                  = GlyphGraphic{1000,p.NFS("116"),       p.NFS("160"),           CreateSVGCode(ConvertRawToRelative(DigitSevenRawCoordinates))}                  //  U+0037
     DigitEight                  = GlyphGraphic{1000,p.NFS("500"),       p.NFS("26.660"),        CreateSVGCodeNoZ(ConvertRawToRelative(DigitEightRawCoordinates))}                  //  U+0038
+    DigitEightUpperCircle       = GlyphGraphic{1000,p.NFS("372"),       p.NFS("544"),           CreateSVGCodeNoZ(ConvertRawToRelative(DigitEightUpperCircleRawCoordinates))}            //  U+0038
+    DigitEightLowerCircle       = GlyphGraphic{1000,p.NFS("372"),       p.NFS("1056"),          CreateSVGCodeNoZ(ConvertRawToRelative(DigitEightLowerCircleRawCoordinates))}            //  U+0038
     DigitNine                   = GlyphGraphic{1000,p.NFS("536.685"),   p.NFS("626.742"),       CreateSVGCode(ConvertRawToRelative(DigitNineRawCoordinates))}                  //  U+0039
 
     //Tier 4
@@ -436,6 +438,13 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *
         
     )
 
+    InnerStyle := StyleSVG{
+        Style.StrokeColour,
+        Style.StrokeWidth,
+        HexFromRGB(White).Hex,
+    }
+    InnerStyleString := SVGStyleToString(InnerStyle)
+
     Switcheroo := func () {
         switch Letter := Glyph; {
         case Letter == " ":
@@ -463,7 +472,7 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *
 
         case Letter == "0":
             Canvas.Path(ComputeGlyphCode(DigitZero, X, Y, false), UsedStyle)
-            Canvas.Path(ComputeGlyphCode(DigitZeroInner, X, Y, false), UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DigitZeroInner, X, Y, false), InnerStyleString)
             MovementDistance = p.NFI(DigitZero.Width)
         case Letter == "1":
             Canvas.Path(ComputeGlyphCode(DigitOne, X, Y, false), UsedStyle)
@@ -488,12 +497,18 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *
             MovementDistance = p.NFI(DigitSeven.Width)
         case Letter == "8":
             Canvas.Path(ComputeGlyphCode(DigitEight, X, Y, false), UsedStyle)
-            C1X, _ := b.ADDxc(X,p.NFI(500)).Int64()
-            C1Y, _ := b.ADDxc(Y,p.NFI(544)).Int64()
-            C2X, _ := b.ADDxc(X,p.NFI(500)).Int64()
-            C2Y, _ := b.ADDxc(Y,p.NFI(1056)).Int64()
-            Canvas.Circle(int(C1X),int(C1Y),128, UsedStyle)
-            Canvas.Circle(int(C2X),int(C2Y),128, UsedStyle)
+            Canvas.Path(ComputeGlyphCode(DigitEightUpperCircle, X, Y, false), InnerStyleString)
+            Canvas.Path(ComputeGlyphCode(DigitEightLowerCircle, X, Y, false), InnerStyleString)
+
+
+
+            //C1X := IntDecToInt(b.ADDxc(X,p.NFS("500")))
+            //C1Y := IntDecToInt(b.ADDxc(Y,p.NFS("544")))
+            //C2Y := IntDecToInt(b.ADDxc(Y,p.NFS("1056")))
+            //Canvas.Circle(C1X,C1Y,128, InnerStyleString)
+            //Canvas.Circle(C1X,C2Y,128, InnerStyleString)
+
+
             MovementDistance = p.NFI(DigitEight.Width)
         case Letter == "9":
             Canvas.Path(ComputeGlyphCode(DigitNine, X, Y, false), UsedStyle)

@@ -358,7 +358,7 @@ var (
 var (
     DigitZeroInnerRawCoordinates = [] RawCoordinates{
         {p.NFS("37.2"), p.NFS("54.4"), "M", "", "", ""},
-        {p.NFS("62.8"), p.NFS("54.4"), "a", "128", "120", "0 0 1"},
+        {p.NFS("62.8"), p.NFS("54.4"), "a", "128", "128", "0 0 1"},
         {p.NFS("62.8"), p.NFS("105.6"), "l", "", "", ""},
         {p.NFS("37.2"), p.NFS("105.6"), "a", "128", "128", "0 0 1"},
     }
@@ -540,6 +540,17 @@ var (
         {p.NFS("35.6753"), p.NFS("25.8971"), "a", "319", "319", "0 0 1"},
         {p.NFS("50"), p.NFS("2.660"), "a", "260", "260", "0 0 0"},
     }
+    DigitEightUpperCircleRawCoordinates = [] RawCoordinates{
+        {p.NFS("37.2"), p.NFS("54.4"), "M", "", "", ""},
+        {p.NFS("62.8"), p.NFS("54.4"), "a", "128", "128", "0 0 1"},
+        {p.NFS("37.2"), p.NFS("54.4"), "a", "128", "128", "0 0 1"},
+    }
+    DigitEightLowerCircleRawCoordinates = [] RawCoordinates{
+        {p.NFS("37.2"), p.NFS("105.6"), "M", "", "", ""},
+        {p.NFS("62.8"), p.NFS("105.6"), "a", "128", "128", "0 0 1"},
+        {p.NFS("37.2"), p.NFS("105.6"), "a", "128", "128", "0 0 1"},
+    }
+
 )
 
 //DigitNine

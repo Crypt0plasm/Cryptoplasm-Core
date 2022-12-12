@@ -1547,7 +1547,7 @@ var (
     KossonSILVER0377 = Kanon {"Kanon 14.  21", "Und wahrlich, es ist dadurch gegeben, dass der Mensch im Leben nach seinem Leben und so also im nächsten Leben die Früchte dessen erntet, was er hat gepflanzet im Leben zuvor, weshalb er stetig sei darauf bedacht, sein Leben zu führen in schöpfungsgefälliger Form, und als rechtschaffener Gerechter gleichsam.»"}
 
     //Kanon 15
-    KossonSILVER0378 = Kanon {"Kanon 15.   1", "Im Namen der Schöpfung, der Weisen, der Gerechten."}
+    KossonSILVER0378 = Kanon {"Kanon 15.   1", "Im Namen der Schöpfung, der Weisen, der Gerechten"}
     KossonSILVER0379 = Kanon {"Kanon 15.   2", "Preis (Ehre) sei der Schöpfung, der Geduldigen."}
     KossonSILVER0380 = Kanon {"Kanon 15.   3", "Und also spricht der JHWH zum Propheten, der da ist betrübet in seiner Mission:"}
     KossonSILVER0381 = Kanon {"Kanon 15.   4", "«Siehe, du bist betrübet in deinen Gedanken und in deinem Fühlen, denn die Menschen zeihen dich der Lüge und der Falschheit, und den JHWH zeihen sie so also."}
