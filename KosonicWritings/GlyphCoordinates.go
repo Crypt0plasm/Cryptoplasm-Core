@@ -280,7 +280,7 @@ var (
     }
 )
 
-//LeftParenthesis
+//LeftParenthesis and RightParenthesis
 var (
     LeftParenthesisRawCoordinates = [] RawCoordinates{
         {p.NFS("60"), p.NFS("0"), "M", "", "", ""},
@@ -290,10 +290,7 @@ var (
         {p.NFS("60"), p.NFS("140"), "l", "", "", ""},
         {p.NFS("60"), p.NFS("20"), "a", "1275", "1275", "0 0 1"},
     }
-)
 
-//RightParenthesis
-var (
     RightParenthesisRawCoordinates = [] RawCoordinates{
         {p.NFS("0"), p.NFS("0"), "M", "", "", ""},
         {p.NFS("17.5"), p.NFS("0"), "l", "", "", ""},
@@ -301,6 +298,69 @@ var (
         {p.NFS("0"), p.NFS("160"), "l", "", "", ""},
         {p.NFS("0"), p.NFS("140"), "l", "", "", ""},
         {p.NFS("0"), p.NFS("20"), "a", "1275", "1275", "0 0 0"},
+    }
+)
+
+//LeftBracket and Right Bracket
+var (
+    LeftBracketRawCoordinates = [] RawCoordinates{
+        {p.NFS("25"), p.NFS("0"), "M", "", "", ""},
+        {p.NFS("60"), p.NFS("0"), "l", "", "", ""},
+        {p.NFS("60"), p.NFS("20"), "l", "", "", ""},
+        {p.NFS("45"), p.NFS("20"), "l", "", "", ""},
+        {p.NFS("45"), p.NFS("140"), "l", "", "", ""},
+        {p.NFS("60"), p.NFS("140"), "l", "", "", ""},
+        {p.NFS("60"), p.NFS("160"), "l", "", "", ""},
+        {p.NFS("25"), p.NFS("160"), "l", "", "", ""},
+    }
+
+    RightBracketRawCoordinates = [] RawCoordinates{
+        {p.NFS("0"), p.NFS("0"), "M", "", "", ""},
+        {p.NFS("35"), p.NFS("0"), "l", "", "", ""},
+        {p.NFS("35"), p.NFS("160"), "l", "", "", ""},
+        {p.NFS("0"), p.NFS("160"), "l", "", "", ""},
+        {p.NFS("0"), p.NFS("140"), "l", "", "", ""},
+        {p.NFS("15"), p.NFS("140"), "l", "", "", ""},
+        {p.NFS("15"), p.NFS("20"), "l", "", "", ""},
+        {p.NFS("0"), p.NFS("20"), "l", "", "", ""},
+    }
+)
+
+//LatinSmallLetterMuster
+var (
+    BarRawCoordinates = [] RawCoordinates{
+        {p.NFS("20"), p.NFS("6"), "M", "", "", ""},
+        {p.NFS("2"), p.NFS("24"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("32"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("40"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("48"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("56"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("64"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("72"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("80"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("88"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("96"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("104"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("112"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("120"), "l", "", "", ""},
+        {p.NFS("10"), p.NFS("128"), "l", "", "", ""},
+        {p.NFS("2"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("20"), p.NFS("154"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("136"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("128"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("120"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("112"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("104"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("96"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("88"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("80"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("72"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("64"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("56"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("48"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("40"), "l", "", "", ""},
+        {p.NFS("30"), p.NFS("32"), "l", "", "", ""},
+        {p.NFS("38"), p.NFS("24"), "l", "", "", ""},
     }
 )
 

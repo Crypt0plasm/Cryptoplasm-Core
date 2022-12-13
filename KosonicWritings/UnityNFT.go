@@ -45,16 +45,27 @@ type HEXColor struct {
 
 //Colour Variables
 var (
-    Period  = RGBColor  {20,    220,    220}
-    Black   = RGBColor  {0,     0,      0}
-    White   = RGBColor  {255,   255,    255}
-    Yellow  = RGBColor  {240,   220,    20}
-    Red     = RGBColor  {240,   70,     20}
+    Period      = RGBColor  {20,    220,    220}
+    Black       = RGBColor  {0,     0,      0}
+    White       = RGBColor  {255,   255,    255}
+    Yellow      = RGBColor  {240,   220,    20}
+    Red         = RGBColor  {240,   70,     20}
+    Blue        = RGBColor  {20,    170,    240}
+    Green       = RGBColor  {20,    240,    140}
+    DarkBlue    = RGBColor  {20,    90,     240}
+    Mov         = RGBColor  {90,    20,     240}
+    LightBrown  = RGBColor  {220,   190,    140}
+    HardBrown   = RGBColor  {220,   170,    80}
+    Pink        = RGBColor  {240,   20,     170}
+    DarkBrown   = RGBColor  {133,   72,     30}
+
+
 )
 
 func HexFromRGB (Input RGBColor) HEXColor {
     return HEXColor{Hex: fmt.Sprintf("#%02x%02x%02x", Input.R, Input.G, Input.B)}
 }
+
 
 
 type ElrondAccount struct {
@@ -243,6 +254,96 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
         SecondaryLowerRectangle Rectangle
         MintingPowerRectangle Rectangle
         NodeRectangle Rectangle
+
+        //Scaling Factors
+        ScalingFactorDay                = p.NFS("0.8")
+        ScalingFactorYear               = p.NFS("0.4")
+        ScalingFactorDayOfYear          = p.NFS("0.32")
+        ScalingFactorLetter             = p.NFS("0.203125")
+        ScalingFactorMintingPower       = p.NFS("0.3880596875")
+        ScalingFactorSmallNumber        = p.NFS("0.2")
+
+        //SVG Drawing Styles
+        BlankoStyle = StyleSVG{
+            HexFromRGB(Black).Hex,
+            UnityNFTStroke,
+            "none"}
+        DayStyle = StyleSVG{
+            HexFromRGB(Period).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorDay)),
+            HexFromRGB(Period).Hex}
+        YearStyle = StyleSVG{
+            HexFromRGB(Period).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(Period).Hex}
+        DayOfYearStyle = StyleSVG{
+            HexFromRGB(Period).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorDayOfYear)),
+            HexFromRGB(Period).Hex}
+        LettersStyle = StyleSVG{
+            HexFromRGB(Yellow).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorLetter)),
+            HexFromRGB(Yellow).Hex}
+        Letters2Style = StyleSVG{
+            HexFromRGB(Yellow).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorMintingPower)),
+            HexFromRGB(Yellow).Hex}
+        NodesStyle = StyleSVG{
+            HexFromRGB(Red).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorLetter)),
+            HexFromRGB(Red).Hex}
+        Number0StyleB = StyleSVG{
+            HexFromRGB(Green).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(Green).Hex}
+        Number0StyleS = StyleSVG{
+            HexFromRGB(Green).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorSmallNumber)),
+            HexFromRGB(Green).Hex}
+        Number1StyleB = StyleSVG{
+            HexFromRGB(Blue).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(Blue).Hex}
+        Number1StyleS = StyleSVG{
+            HexFromRGB(Blue).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorSmallNumber)),
+            HexFromRGB(Blue).Hex}
+        Number2StyleB = StyleSVG{
+            HexFromRGB(DarkBlue).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(DarkBlue).Hex}
+        Number2StyleS = StyleSVG{
+            HexFromRGB(DarkBlue).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorSmallNumber)),
+            HexFromRGB(DarkBlue).Hex}
+        Number3StyleB = StyleSVG{
+            HexFromRGB(Mov).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(Mov).Hex}
+        Number3StyleS = StyleSVG{
+            HexFromRGB(Mov).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorSmallNumber)),
+            HexFromRGB(Mov).Hex}
+        Number4StyleB = StyleSVG{
+            HexFromRGB(Pink).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(Pink).Hex}
+        Number4StyleS = StyleSVG{
+            HexFromRGB(Pink).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorSmallNumber)),
+            HexFromRGB(Pink).Hex}
+        BracketStyle = StyleSVG{
+            HexFromRGB(LightBrown).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(LightBrown).Hex}
+        BarStyle = StyleSVG{
+            HexFromRGB(HardBrown).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
+            HexFromRGB(HardBrown).Hex}
+        CapitalStyle = StyleSVG{
+            HexFromRGB(DarkBrown).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorLetter)),
+            HexFromRGB(DarkBrown).Hex}
     )
 
     //Outputs SVG content directly to external file
@@ -255,103 +356,177 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
 
     UnityDailyNFT := svg.New(OutputVariable)
 
+    //Functions
+    TSDraw := func (X, Y, SF *p.Decimal, Text string, Style StyleSVG, OV *os.File) () {
+        UnityDailyNFT.Translate(IntDecToInt(X),IntDecToInt(Y))
+        UnityDailyNFT.Scale(DecToFloat(SF))
+        DrawWord(Zero,Zero,Text,Style,OV)
+        UnityDailyNFT.Gend()
+        UnityDailyNFT.Gend()
+    }
+
+    DrawPeriod := func (Type string) () {
+        var(
+            TS string
+            NActualLength, X, Y, SF *p.Decimal
+            Style StyleSVG
+        )
+        switch Variant := Type; {
+        case Variant == "Day":
+            TS = ConvertToThousandSeparator(p.NFS(Day))
+            NActualLength = b.PRDxc(p.NFI(GetTextLengthWithKerning(TS)),p.NFS("200"),ScalingFactorDay)
+            Y = p.NFS("210")
+            SF = ScalingFactorDay
+            Style = DayStyle
+        case Variant == "Year":
+            TS = ConvertToThousandSeparator(UnityOutput.Time.Year)
+            NActualLength = b.PRDxc(p.NFI(GetTextLengthWithKerning(TS)),p.NFS("200"),ScalingFactorYear)
+            Y = p.NFS("1505")
+            SF = ScalingFactorYear
+            Style = YearStyle
+        case Variant == "DayOfYear":
+            TS = ConvertToThousandSeparator(UnityOutput.Time.DayOfYear)
+            NActualLength = b.PRDxc(p.NFI(GetTextLengthWithKerning(TS)),p.NFS("200"),ScalingFactorDayOfYear)
+            Y = p.NFS("2219")
+            SF = ScalingFactorDayOfYear
+            Style = DayOfYearStyle
+        }
+        X = b.SUBxc(p.NFS("5400"),b.DIVxc(NActualLength,p.NFS("2")))
+
+        //Effective Draw
+        TSDraw(X,Y,SF,TS,Style,OutputVariable)
+    }
+
+    DrawNodes := func (Type string) () {
+        var (
+            TS string
+            NumberLength int64
+            NActualLength, TActualLength, XN, XT, Y *p.Decimal
+        )
+        switch Variant := Type; {
+        case Variant == "Validator":
+            TS = ConvertToThousandSeparator(UnityInput.Network.Validator)
+            Y = p.NFS("9300")
+        case Variant == "Observer":
+            TS = ConvertToThousandSeparator(UnityInput.Network.Observer)
+            Y = p.NFS("9625")
+        case Variant == "Power":
+            TS = ConvertToThousandSeparator(UnityInput.Network.Power)
+            Y = p.NFS("9950")
+        }
+        NumberLength = GetTextLengthWithKerning(TS)
+        NActualLength = b.TruncateCustom(b.MULxc(p.NFI(NumberLength),p.NFS("40.625")),0)
+        TActualLength = b.TruncateCustom(b.PRDxc(p.NFS("1.25"),p.NFS("1600"),ScalingFactorLetter),0)
+
+        XN = b.SUBxc(p.NFS("10610"),b.SUMxc(NActualLength,TActualLength,p.NFS("40")))
+        XT = b.ADDxc(XN,NActualLength)
+
+        //DrawNumber
+        TSDraw(XN,Y,ScalingFactorLetter,TS,NodesStyle,OutputVariable)
+
+        //Draw Letter Part
+        switch Variant := Type; {
+        case Variant == "Validator":
+            TSDraw(XT,Y,ScalingFactorLetter,":V",LettersStyle,OutputVariable)
+        case Variant == "Observer":
+            TSDraw(XT,Y,ScalingFactorLetter,":O",LettersStyle,OutputVariable)
+        case Variant == "Power":
+            UnityDailyNFT.Translate(IntDecToInt(XT),IntDecToInt(Y))
+            UnityDailyNFT.Scale(DecToFloat(ScalingFactorLetter))
+
+            UnityDailyNFT.Path(ComputeGlyphCode(PointDown, Zero, Zero, false), SVGStyleToString(LettersStyle))
+            UnityDailyNFT.Path(ComputeGlyphCode(PointUp, Zero, Zero, false), SVGStyleToString(LettersStyle))
+            MovementDistance := p.NFI(PointDown.Width)
+            UnityDailyNFT.Path(ComputeGlyphCode(CapitalLeftPillar,MovementDistance,Zero, false), SVGStyleToString(CapitalStyle))
+            UnityDailyNFT.Path(ComputeGlyphCode(Power,MovementDistance,Zero, true), SVGStyleToString(LettersStyle))
+            UnityDailyNFT.Path(ComputeGlyphCode(CapitalRightPillar,MovementDistance,Zero, false), SVGStyleToString(CapitalStyle))
+
+            UnityDailyNFT.Gend()
+            UnityDailyNFT.Gend()
+        }
+    }
+
+    DrawUnityValue := func (Number, Y *p.Decimal, Type string) () {
+        //Type = "0" (invisible numbers)
+        //Type = "1" (Upper numbers)
+        //Type = "2" (middle numbers)
+        //Type = "3" (lower number)
+        //Type = "4" (minting power)
+        var (
+            Integer2Write string
+            StyleBig, StyleSmall StyleSVG
+        )
+        switch Variant := Type; {
+        case Variant == "0":
+            StyleBig = Number0StyleB
+            StyleSmall = Number0StyleS
+        case Variant == "1":
+            StyleBig = Number1StyleB
+            StyleSmall = Number1StyleS
+        case Variant == "2":
+            StyleBig = Number2StyleB
+            StyleSmall = Number2StyleS
+        case Variant == "3":
+            StyleBig = Number3StyleB
+            StyleSmall = Number3StyleS
+        case Variant == "4":
+            StyleBig = Number4StyleB
+            StyleSmall = Number4StyleS
+        }
+
+
+        PrecisionNumber := b.TruncateCustom(Number,18)
+        S0 := ConvertToThousandSeparator(PrecisionNumber)
+        RC := MakeRuneChain(b.DTS(b.SUBxc(PrecisionNumber,b.RemoveDecimals(PrecisionNumber))))[2:]
+        S1 := string(RC[:3])
+        S2 := string(RC[3:6])
+        S3 := string(RC[6:9])
+        S4 := string(RC[9:12])
+        S5 := string(RC[12:15])
+        S6 := string(RC[15:])
+
+        IntegerLength := GetTextLengthWithKerning(S0)
+        IntegerActualLength := b.PRDxc(p.NFI(IntegerLength),p.NFS("200"),ScalingFactorYear)
+        X := b.SUBxc(p.NFS("5400"),b.ADDxc(IntegerActualLength,p.NFS("80")))
+
+        if S0 == "0" {
+            Integer2Write = ""
+        } else {
+            Integer2Write = S0 + ","
+        }
+
+        TSDraw(X,Y,ScalingFactorYear,Integer2Write,StyleBig,OutputVariable)
+        X1 := p.NFS("5680")
+        X2 := p.NFS("6440")
+        X3 := p.NFS("7200")
+        Y2 := b.ADDxc(Y,p.NFS("320"))
+
+        TSDraw(X1,Y,ScalingFactorSmallNumber,S1,StyleSmall,OutputVariable)
+        TSDraw(X2,Y,ScalingFactorSmallNumber,S2,StyleSmall,OutputVariable)
+        TSDraw(X3,Y,ScalingFactorSmallNumber,S3,StyleSmall,OutputVariable)
+        TSDraw(X1,Y2,ScalingFactorSmallNumber,S4,StyleSmall,OutputVariable)
+        TSDraw(X2,Y2,ScalingFactorSmallNumber,S5,StyleSmall,OutputVariable)
+        TSDraw(X3,Y2,ScalingFactorSmallNumber,S6,StyleSmall,OutputVariable)
+
+        TSDraw(b.SUBxc(X1,p.NFS("240")),Y,ScalingFactorYear, "[", BracketStyle, OutputVariable)
+        TSDraw(b.ADDxc(X3,p.NFS("600")),Y,ScalingFactorYear, "]", BracketStyle, OutputVariable)
+        TSDraw(b.ADDxc(X1,p.NFS("600")),Y,ScalingFactorYear, "|", BarStyle, OutputVariable)
+        TSDraw(b.ADDxc(X2,p.NFS("600")),Y,ScalingFactorYear, "|", BarStyle, OutputVariable)
+
+    }
+
     //0 Starts creating the SVG
     UnityDailyNFT.Start(Width,Height)
 
     //1 Draw Outer Rectangle, that is 10800x10800 exactly the size of the board.
-    BlankoStyle := StyleSVG{
-        HexFromRGB(Black).Hex,
-        UnityNFTStroke,
-        "none"}
     UnityDailyNFT.Rect(0,0,Width,Height,SVGStyleToString(BlankoStyle))
 
-    //1)
-    //Draw Day Number
-    //Size is 1280 for this Number. Represents 0.8 out of 1600 (Glyph code definition).
-    //Therefore a scaling factor of 0.8 must be used
-        //Convert string Day to thousand separators
-        DayConvTT := ConvertToThousandSeparator(p.NFS(Day))
-        //Get Length of the resulted Day Display (1 unit is 200), then multiply it by 0.8 to get actual Length in SVG
-        //As such multiplication with 200*0.8 which is 160 is performed
-        DayConvTTT := GetTextLengthWithKerning(DayConvTT)
-        DayConvTTL := b.MULxc(p.NFI(DayConvTTT),p.NFS("160"))
-        //Get X,Y Coordinates as starting point for the Day Number Write
-        DayX := b.SUBxc(p.NFS("5400"),b.DIVxc(DayConvTTL,p.NFS("2")))
-        DayY := p.NFS("210")
+    //2 Draw Period
+    DrawPeriod("Day")
+    DrawPeriod("Year")
+    DrawPeriod("DayOfYear")
 
-        //Defining Style Used for Draw
-        DayStyle := StyleSVG{
-        HexFromRGB(Period).Hex,
-        b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.8"))),
-        HexFromRGB(Period).Hex}
-
-        //Effective Draw. First Translate, Scale, then Draw
-        UnityDailyNFT.Translate(IntDecToInt(DayX),IntDecToInt(DayY))
-        UnityDailyNFT.Scale(DecToFloat(p.NFS("0.8")))
-            DrawWord(Zero,Zero, DayConvTT, DayStyle, OutputVariable)
-        UnityDailyNFT.Gend()
-        UnityDailyNFT.Gend()
-
-    //2)
-    //Draw Year Number
-    //Size is 640 for this Number. Represents 0.4 out of 1600 (Glyph code definition).
-    //Therefore a scaling factor of 0.8 must be used
-        //Convert string Day to thousand separators
-        YearConvTT := ConvertToThousandSeparator(UnityOutput.Time.Year)
-        //Get Length of the resulted Day Display (1 unit is 200), then multiply it by 0.4 to get actual Length in SVG
-        //As such multiplication with 200*0.4 which is 80 is performed
-        YearConvTTT := GetTextLengthWithKerning(YearConvTT)
-        YearConvTTL := b.MULxc(p.NFI(YearConvTTT),p.NFS("80"))
-        //Get X,Y Coordinates as starting point for the Year Number Write
-        //Coordinates must be scaled to reflect the future downscale, as such must be divided by 0.4
-        YearX := b.SUBxc(p.NFS("5400"),b.DIVxc(YearConvTTL,p.NFS("2")))
-        YearY := p.NFS("1505")
-
-        //Defining Style Used for Draw
-        YearStyle := StyleSVG{
-        HexFromRGB(Period).Hex,
-        b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.4"))),
-        HexFromRGB(Period).Hex}
-
-        //Effective Draw. First Translate, Scale, then Draw
-        UnityDailyNFT.Translate(IntDecToInt(YearX),IntDecToInt(YearY))
-        UnityDailyNFT.Scale(DecToFloat(p.NFS("0.4")))
-            DrawWord(Zero,Zero, YearConvTT, YearStyle, OutputVariable)
-        UnityDailyNFT.Gend()
-        UnityDailyNFT.Gend()
-
-
-    //3)
-    //Draw Day of Year Number
-    //Size is 512 for this Number. Represents 0.32 out of 1600 (Glyph code definition).
-    //Therefore a scaling factor of 0.32 must be used
-        //Convert string Day to thousand separators
-        DayOfYearConvTT := ConvertToThousandSeparator(UnityOutput.Time.DayOfYear)
-        //Get Length of the resulted Day Display (1 unit is 200), then multiply it by 0.32 to get actual Length in SVG
-        //As such multiplication with 200*0.32 which is 64 is performed
-        DayOfYearConvTTT := GetTextLengthWithKerning(DayOfYearConvTT)
-        DayOfYearConvTTL := b.MULxc(p.NFI(DayOfYearConvTTT),p.NFS("64"))
-        //Get X,Y Coordinates as starting point for the DayOfYear Number Write
-        //Coordinates must be scaled to reflect the future downscale, as such must be divided by 0.32
-        DayOfYearX := b.SUBxc(p.NFS("5400"),b.DIVxc(DayOfYearConvTTL,p.NFS("2")))
-        DayOfYearY := p.NFS("2219")
-
-        //Defining Style Used for Draw
-         DayOfYearStyle := StyleSVG{
-        HexFromRGB(Period).Hex,
-        b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.32"))),
-        HexFromRGB(Period).Hex}
-
-
-         //Effective Draw. First Translate, Scale, then Draw
-         UnityDailyNFT.Translate(IntDecToInt(DayOfYearX),IntDecToInt(DayOfYearY))
-         UnityDailyNFT.Scale(DecToFloat(p.NFS("0.32")))
-         DrawWord(Zero,Zero, DayOfYearConvTT, DayOfYearStyle, OutputVariable)
-         UnityDailyNFT.Gend()
-         UnityDailyNFT.Gend()
-
-
-    //4)
+    //3a)Getting max Main Rectangle Size.
     //Get Board Background Rectangle point of origin and length. (First 3 Rectangle categories)
     //Integer Part of the Number has a text size of 640. Represents 0.4 out of 1600 (Glyph code definition).
     //Therefore a scaling factor of 0.4 must be used
@@ -361,13 +536,15 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     //As such multiplication with 200*0.4 which is 80 is performed
     OutputMajorConvTTL := b.MULxc(p.NFI(OutputMajorConvTTT),p.NFS("80"))
     //80 Units (Half of "," Character are added to the length
-    OutputMajorConvTTLF := b.ADDxc(OutputMajorConvTTL,p.NFS("80"))
+    //40 Units (20 and 20 as rectangle border from the text length must also be added)
+    //120 in total must be added
+    OutputMajorConvTTLF := b.ADDxc(OutputMajorConvTTL,p.NFS("120"))
     LastX := b.SUBxc(p.NFS("5400"),OutputMajorConvTTLF)
-    LastY := p.NFS("2805")
+    LastY := p.NFS("2760")
 
-    //Getting Rectangle Sizes.
-    PrimaryUpperRectangle.X = b.ADDxc(LastX,p.NFS("40"))
-    PrimaryUpperRectangle.Y = b.SUBxc(LastY,p.NFS("45"))
+    //3b)Computing Rectangles based on Max Rectangle Size
+    PrimaryUpperRectangle.X = LastX
+    PrimaryUpperRectangle.Y = LastY
     PrimaryUpperRectangle.Length = b.SUBxc(p.NFS("10610"),PrimaryUpperRectangle.X)
     PrimaryUpperRectangle.Height = b.SUBxc(p.NFS("4790"),PrimaryUpperRectangle.Y)
 
@@ -389,7 +566,7 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     PrimaryLowerRectangle.X = PrimaryUpperRectangle.X
     PrimaryLowerRectangle.Y = b.ADDxc(PrimaryMiddleRectangle.Y,p.NFS("2275"))
     PrimaryLowerRectangle.Length = PrimaryUpperRectangle.Length
-    PrimaryLowerRectangle.Height = b.SUBxc(p.NFS("8670"),PrimaryLowerRectangle.Y)
+    PrimaryLowerRectangle.Height = b.SUBxc(p.NFS("8690"),PrimaryLowerRectangle.Y)
 
     SecondaryLowerRectangle.X = SecondaryUpperRectangle.X
     SecondaryLowerRectangle.Y = b.ADDxc(SecondaryMiddleRectangle.Y,p.NFS("2275"))
@@ -401,8 +578,7 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     MintingPowerRectangle.Length = p.NFS("5280")
     MintingPowerRectangle.Height = p.NFS("1380")
 
-    //5)
-    //Get Node Rectangle Size (Last Rectangle)
+    //3c)Getting max Node Rectangle Size
     //Integer Part of the Number has a text size of 325. Represents 0.203125 out of 1600 (Glyph code definition).
     //Therefore a scaling factor of 0.203125 must be used
     NodePowerConvTT := ConvertToThousandSeparator(UnityInput.Network.Power)
@@ -418,13 +594,13 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     NodeLastX := b.SUBxc(p.NFS("10610"),NodePowerConvTTLFT)
     NodeLastY := p.NFS("9260")
 
+    //3d)Computing Node Rectangle Size
     NodeRectangle.X = NodeLastX
     NodeRectangle.Y = NodeLastY
     NodeRectangle.Length = NodePowerConvTTLFT
     NodeRectangle.Height = p.NFS("1055")
 
-    //6)
-    //Draw Rectangles
+    //3e)Draw Rectangles
     DrawRectangle(PrimaryUpperRectangle,UnityDailyNFT,BlankoStyle)
     DrawRectangle(SecondaryUpperRectangle,UnityDailyNFT,BlankoStyle)
     DrawRectangle(PrimaryMiddleRectangle,UnityDailyNFT,BlankoStyle)
@@ -434,198 +610,48 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     DrawRectangle(MintingPowerRectangle,UnityDailyNFT,BlankoStyle)
     DrawRectangle(NodeRectangle,UnityDailyNFT,BlankoStyle)
 
-    //7)
-    //Draw Words.
-    //Text Size is 325. Represent 0.203125 out of 1600 (Glyph Code Definition)
-    //Therefore a scaling factor of 0.203125 must be used
-    //X and Y Coordinates are known and do not need to be calculated, as the design is made to fit in the req. space
-    LettersStyle := StyleSVG{
-        HexFromRGB(Yellow).Hex,
-        b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.203125"))),
-        HexFromRGB(Yellow).Hex}
+    //4)Draw Words.
+    LX := p.NFS("8001")
+    MX := p.NFS("2800")
 
-    NodesStyle := StyleSVG{
-        HexFromRGB(Red).Hex,
-        b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),p.NFS("0.203125"))),
-        HexFromRGB(Red).Hex}
+    TSDraw(LX,p.NFS("2800"),ScalingFactorLetter,"Raw",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("3125"),ScalingFactorLetter,"Daily Mint",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("3450"),ScalingFactorLetter,"Volumetric",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("3775"),ScalingFactorLetter,"Daily tx tax",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("4100"),ScalingFactorLetter,"1% to",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("4425"),ScalingFactorLetter,"Treasury",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("5075"),ScalingFactorLetter,"Minor",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("5400"),ScalingFactorLetter,"Daily Total",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("5725"),ScalingFactorLetter,"Percentual",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("6050"),ScalingFactorLetter,"Node Bonus",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("6375"),ScalingFactorLetter,"Absolute",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("6700"),ScalingFactorLetter,"Node Bonus",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("7350"),ScalingFactorLetter,"Major",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("7675"),ScalingFactorLetter,"Daily Total",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("8000"),ScalingFactorLetter,"1‰ to",LettersStyle,OutputVariable)
+    TSDraw(LX,p.NFS("8325"),ScalingFactorLetter,"Elite Auryn",LettersStyle,OutputVariable)
+    TSDraw(MX,p.NFS("8990"),ScalingFactorMintingPower,"Minting Power",Letters2Style,OutputVariable)
 
-    //Effective Draw. First Translate, Scale, then Draw
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("2800")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Raw", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("3125")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Daily Mint", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("3450")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Volumetric", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("3775")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Daily tx tax", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("4100")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "1% to", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("4425")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Treasury", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("5075")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Minor", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("5400")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Daily Total", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("5725")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Percentual", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("6050")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Node Bonus", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("6375")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Absolute", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("6700")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Node Bonus", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("7350")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Major", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("7675")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Daily Total", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("8000")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "1‰ to", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("8000")),IntDecToInt(p.NFS("8325")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, "Elite Auryn", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(p.NFS("2800")),IntDecToInt(p.NFS("8990")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.3880596875")))
-    DrawWord(Zero,Zero, "Minting Power", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-
-    //8)
+    //5)
     //Network Node Text and Numbers
+    DrawNodes("Validator")
+    DrawNodes("Observer")
+    DrawNodes("Power")
 
-    //Validator
-    NodeValidatorConvTT := ConvertToThousandSeparator(UnityInput.Network.Validator)
-    NodeValidatorConvTTT := GetTextLengthWithKerning(NodeValidatorConvTT)
-    //Get Length of the resulted Number Display (1 unit is 200), then multiply it by 0.203125 to get actual Length in SVG
-    //As such multiplication with 200*0.203125 which is 40.625 is performed
-    NodeValidatorConvTTL := b.MULxc(p.NFI(NodeValidatorConvTTT),p.NFS("40.625"))
-    //406.25 Units (1.25x Glyph Size = Full Glyph plus quarter ":") 1.25*1600*0.203125 = 406.25
-    //40 Units also must be added, single side 20 and 20
-    NodeValidatorConvTTLF := b.TruncateCustom(b.ADDxc(NodeValidatorConvTTL,p.NFS("446.25")),0)
-    ValidatorLastX := b.SUBxc(p.NFS("10610"),NodeValidatorConvTTLF)
-    ValidatorLastXX := b.TruncateCustom(b.ADDxc(ValidatorLastX,NodeValidatorConvTTL),0)
+    //6)
+    //Draw Unity Numbers
+    DrawUnityValue(UnityInput.RawDailyMint,p.NFS("2805"),"1")
+    DrawUnityValue(UnityInput.TxTax,p.NFS("3455"),"1")
+    DrawUnityValue(UnityOutput.Treasury,p.NFS("4105"),"0")
 
-    UnityDailyNFT.Translate(IntDecToInt(ValidatorLastX),IntDecToInt(p.NFS("9300")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, NodeValidatorConvTT, NodesStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
+    DrawUnityValue(UnityOutput.Minor,p.NFS("5080"),"2")
+    DrawUnityValue(UnityInput.Network.Bonus,p.NFS("5730"),"0")
+    DrawUnityValue(UnityOutput.AbsoluteBonus,p.NFS("6380"),"2")
 
-    UnityDailyNFT.Translate(IntDecToInt(ValidatorLastXX),IntDecToInt(p.NFS("9300")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, ":V", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
+    DrawUnityValue(UnityOutput.Major,p.NFS("7355"),"3")
+    DrawUnityValue(UnityOutput.EliteAuryn,p.NFS("8005"),"3")
 
-
-    //Observer
-    NodeObserverConvTT := ConvertToThousandSeparator(UnityInput.Network.Observer)
-    NodeObserverConvTTT := GetTextLengthWithKerning(NodeObserverConvTT)
-    //Get Length of the resulted Number Display (1 unit is 200), then multiply it by 0.203125 to get actual Length in SVG
-    //As such multiplication with 200*0.203125 which is 40.625 is performed
-    NodeObserverConvTTL := b.MULxc(p.NFI(NodeObserverConvTTT),p.NFS("40.625"))
-    //406.25 Units (1.25x Glyph Size = Full Glyph plus quarter ":") 1.25*1600*0.203125 = 406.25
-    //40 Units also must be added, single side 20 and 20
-    NodeObserverConvTTLF := b.TruncateCustom(b.ADDxc(NodeObserverConvTTL,p.NFS("446.25")),0)
-    ObserverLastX := b.SUBxc(p.NFS("10610"),NodeObserverConvTTLF)
-    ObserverLastXX := b.TruncateCustom(b.ADDxc(ObserverLastX,NodeObserverConvTTL),0)
-
-    UnityDailyNFT.Translate(IntDecToInt(ObserverLastX),IntDecToInt(p.NFS("9625")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, NodeObserverConvTT, NodesStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    UnityDailyNFT.Translate(IntDecToInt(ObserverLastXX),IntDecToInt(p.NFS("9625")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, ":O", LettersStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-
-    //NodePower
-    //Translation point is NodeLastX + 40
-    UnityDailyNFT.Translate(IntDecToInt(b.ADDxc(NodeLastX,p.NFS("40"))),IntDecToInt(p.NFS("9950")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    DrawWord(Zero,Zero, NodePowerConvTT, NodesStyle, OutputVariable)
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
-
-    PowerLastXX := b.TruncateCustom(b.SUMxc(NodeLastX,p.NFS("40"),NodePowerConvTTL),0)
-    UnityDailyNFT.Translate(IntDecToInt(PowerLastXX),IntDecToInt(p.NFS("9950")))
-    UnityDailyNFT.Scale(DecToFloat(p.NFS("0.203125")))
-    //First Example of Custom Glyph Drawing
-    UnityDailyNFT.Path(ComputeGlyphCode(PointDown, Zero, Zero, false), SVGStyleToString(LettersStyle))
-    UnityDailyNFT.Path(ComputeGlyphCode(PointUp, Zero, Zero, false), SVGStyleToString(LettersStyle))
-    MovementDistance := p.NFI(PointDown.Width)
-    UnityDailyNFT.Path(ComputeGlyphCode(CapitalLeftPillar,MovementDistance,Zero, false), SVGStyleToString(LettersStyle))
-    UnityDailyNFT.Path(ComputeGlyphCode(Power,MovementDistance,Zero, true), SVGStyleToString(LettersStyle))
-    UnityDailyNFT.Path(ComputeGlyphCode(CapitalRightPillar,MovementDistance,Zero, false), SVGStyleToString(LettersStyle))
-    UnityDailyNFT.Gend()
-    UnityDailyNFT.Gend()
+    DrawUnityValue(UnityInput.Network.Bonus,p.NFS("9630"),"4")
 
     //Last Command from the SVG
     UnityDailyNFT.End()

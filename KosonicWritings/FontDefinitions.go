@@ -141,8 +141,11 @@ var (
     Comma                       = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(CommaRawCoordinates))}
     PointDown                   = GlyphGraphic{400, p.NFS("200"),       p.NFS("1060"),          CreateSVGCode(ConvertRawToRelative(PointDownRawCoordinates))}
     PointUp                     = GlyphGraphic{400, p.NFS("200"),       p.NFS("240"),           CreateSVGCode(ConvertRawToRelative(PointUpRawCoordinates))}
+    Bar                         = GlyphGraphic{400, p.NFS("200"),       p.NFS("60"),            CreateSVGCode(ConvertRawToRelative(BarRawCoordinates))}
     LeftParenthesis             = GlyphGraphic{600, p.NFS("600"),       p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(LeftParenthesisRawCoordinates))}
     RightParenthesis            = GlyphGraphic{600, p.NFS("0"),         p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(RightParenthesisRawCoordinates))}
+    LeftBracket                 = GlyphGraphic{600, p.NFS("250"),       p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(LeftBracketRawCoordinates))}
+    RightBracket                = GlyphGraphic{600, p.NFS("0"),         p.NFS("0"),             CreateSVGCode(ConvertRawToRelative(RightBracketRawCoordinates))}
     Question                    = GlyphGraphic{800, p.NFS("20"),        p.NFS("390"),           CreateSVGCode(ConvertRawToRelative(QuestionRawCoordinates))}
     LeftDoubleAngleBracketOne   = GlyphGraphic{1200,p.NFS("40"),        p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(LeftDoubleAngleBracketOneRawCoordinates))}
     LeftDoubleAngleBracketTwo   = GlyphGraphic{1200,p.NFS("464.264"),   p.NFS("800"),           CreateSVGCode(ConvertRawToRelative(LeftDoubleAngleBracketTwoRawCoordinates))}
@@ -336,9 +339,15 @@ func ComputeGlyphCode(Glyph GlyphGraphic, StartX, StartY *p.Decimal, Capital boo
 //
 func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, Type int, OutputVariable *os.File) (OutputGlyph *svg.SVG, MovementDistance *p.Decimal) {
     var (
+        CStyle              StyleSVG
         UsedStyle           = SVGStyleToString(Style)
         Canvas              = svg.New(OutputVariable)
     )
+    CStyle.StrokeColour = HexFromRGB(DarkBrown).Hex
+    CStyle.StrokeWidth = Style.StrokeWidth
+    CStyle.StrokeFill = HexFromRGB(DarkBrown).Hex
+    CapitalStyle := SVGStyleToString(CStyle)
+
 
     Switcheroo := func () {
         switch Letter := Glyph;{
@@ -410,19 +419,19 @@ func DrawCapitalGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, Type int,
     }
 
     if Type == 0 {
-        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),UsedStyle)
+        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),CapitalStyle)
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),UsedStyle)
+        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),CapitalStyle)
     } else if Type == 1 {
-        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),UsedStyle)
+        Canvas.Path(ComputeGlyphCode(CapitalLeftPillar,X,Y,false),CapitalStyle)
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),UsedStyle)
+        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),CapitalStyle)
     } else if Type == 2 {
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),UsedStyle)
+        Canvas.Path(ComputeGlyphCode(CapitalRightPillar,X,Y,false),CapitalStyle)
     } else if Type == 3 {
         Switcheroo()
-        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),UsedStyle)
+        Canvas.Path(ComputeGlyphCode(CapitalDoublePillar,X,Y,false),CapitalStyle)
     }
     OutputGlyph = Canvas
     MovementDistance = p.NFS("1600")
@@ -455,6 +464,15 @@ func DrawGlyphAt (X,Y *p.Decimal, Glyph string, Style StyleSVG, OutputVariable *
         switch Letter := Glyph; {
         case Letter == " ":
             MovementDistance = p.NFI(800)
+        case Letter == "[":
+            Canvas.Path(ComputeGlyphCode(LeftBracket, X, Y, false), UsedStyle)
+            MovementDistance = p.NFI(LeftBracket.Width)
+        case Letter == "]":
+            Canvas.Path(ComputeGlyphCode(RightBracket, X, Y, false), UsedStyle)
+            MovementDistance = p.NFI(RightBracket.Width)
+        case Letter == "|":
+            Canvas.Path(ComputeGlyphCode(Bar, X, Y, false), UsedStyle)
+            MovementDistance = p.NFI(Bar.Width)
         case Letter == "%":
             Canvas.Path(ComputeGlyphCode(PercentBar, X, Y, false), UsedStyle)
             Canvas.Path(ComputeGlyphCode(PercentBarPoint1, X, Y, false), UsedStyle)
