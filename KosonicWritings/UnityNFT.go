@@ -58,6 +58,7 @@ var (
     HardBrown   = RGBColor  {220,   170,    80}
     Pink        = RGBColor  {240,   20,     170}
     DarkBrown   = RGBColor  {133,   72,     30}
+    PureRed     = RGBColor  {255,   0,      0}
 
 
 )
@@ -149,17 +150,17 @@ func GetUnityNFTScore (Input b.UnityNftInput) (Score *p.Decimal) {
     S9 := AddDigits(Output.EliteAuryn)
 
     //Get Minting Power Daily Total Sum
-    S10 := S6
+    //S10 := S6
 
     //Get VOP Node Numbers Sum
     N1 := AddDigits(Input.Network.Validator)
     N2 := AddDigits(Input.Network.Observer)
     N3 := AddDigits(Input.Network.Power)
-    S11 := b.SUMxc(N1,N2,N3)
+    S10 := b.SUMxc(N1,N2,N3)
 
 
     //Get Final Score
-    Score = b.SUMxc(S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11)
+    Score = b.SUMxc(S1,S2,S3,S4,S5,S6,S7,S8,S9,S10)
 
     return
 }
@@ -221,26 +222,8 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     //WinnerHeroTag := GetHeroTag(Winner)
     UnityInput := b.UnityDayScanner(Day, TxTaxAddy)
     UnityOutput := b.UnityNftComputer(UnityInput)
-    //NFTScore := GetUnityNFTScore(UnityInput)
+    NFTScore := GetUnityNFTScore(UnityInput)
 
-    IntDecToInt := func(Decimal *p.Decimal) int {
-        Integer64, _ := Decimal.Int64()
-        return int(Integer64)
-    }
-
-    DecToFloat := func(Decimal *p.Decimal) float64 {
-        Float, _ := Decimal.Float64()
-        return Float
-    }
-
-    DrawRectangle := func(Rect Rectangle, Vector *svg.SVG, Style StyleSVG) () {
-        C1 := IntDecToInt(Rect.X)
-        C2 := IntDecToInt(Rect.Y)
-        C3 := IntDecToInt(Rect.Length)
-        C4 := IntDecToInt(Rect.Height)
-
-        Vector.Rect(C1,C2,C3,C4,SVGStyleToString(Style))
-    }
 
     var (
         Width = 10800
@@ -268,6 +251,10 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
             HexFromRGB(Black).Hex,
             UnityNFTStroke,
             "none"}
+        PolygonStyle = StyleSVG{
+            HexFromRGB(Black).Hex,
+            b.DTS(b.MULxc(p.NFS(UnityNFTStroke),p.NFS("2"))),
+            HexFromRGB(Black).Hex}
         DayStyle = StyleSVG{
             HexFromRGB(Period).Hex,
             b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorDay)),
@@ -292,6 +279,10 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
             HexFromRGB(Red).Hex,
             b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorLetter)),
             HexFromRGB(Red).Hex}
+        ScoreStyle = StyleSVG{
+            HexFromRGB(PureRed).Hex,
+            b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorLetter)),
+            HexFromRGB(PureRed).Hex}
         Number0StyleB = StyleSVG{
             HexFromRGB(Green).Hex,
             b.DTS(b.DIVxc(p.NFS(UnityNFTStroke),ScalingFactorYear)),
@@ -357,6 +348,30 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     UnityDailyNFT := svg.New(OutputVariable)
 
     //Functions
+
+    //1)Converts an integer p.Decimal to int
+    IntDecToInt := func(Decimal *p.Decimal) int {
+        Integer64, _ := Decimal.Int64()
+        return int(Integer64)
+    }
+
+    //2)Converts a p.Decimal to float
+    DecToFloat := func(Decimal *p.Decimal) float64 {
+        Float, _ := Decimal.Float64()
+        return Float
+    }
+
+    //3)Draws a rectangle within the UnityDailyNFT
+    DrawRectangle := func(Rect Rectangle, Style StyleSVG) () {
+        C1 := IntDecToInt(Rect.X)
+        C2 := IntDecToInt(Rect.Y)
+        C3 := IntDecToInt(Rect.Length)
+        C4 := IntDecToInt(Rect.Height)
+
+        UnityDailyNFT.Rect(C1,C2,C3,C4,SVGStyleToString(Style))
+    }
+
+    //4)Draws a Word a X/Y Coordinates that is also scaled
     TSDraw := func (X, Y, SF *p.Decimal, Text string, Style StyleSVG, OV *os.File) () {
         UnityDailyNFT.Translate(IntDecToInt(X),IntDecToInt(Y))
         UnityDailyNFT.Scale(DecToFloat(SF))
@@ -365,6 +380,8 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
         UnityDailyNFT.Gend()
     }
 
+    //5)Draws the Day, Year and DayOfYear Numbers
+    //Types used are "Day", "Year", "DayOfYear".
     DrawPeriod := func (Type string) () {
         var(
             TS string
@@ -397,6 +414,8 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
         TSDraw(X,Y,SF,TS,Style,OutputVariable)
     }
 
+    //6)Draws the Network Node Numbers
+    //)Types used are "Validator", "Observer" and "Power"
     DrawNodes := func (Type string) () {
         var (
             TS string
@@ -404,6 +423,9 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
             NActualLength, TActualLength, XN, XT, Y *p.Decimal
         )
         switch Variant := Type; {
+        case Variant == "Score":
+            TS = ConvertToThousandSeparator(NFTScore)
+            Y = p.NFS("8975")
         case Variant == "Validator":
             TS = ConvertToThousandSeparator(UnityInput.Network.Validator)
             Y = p.NFS("9300")
@@ -421,16 +443,20 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
         XN = b.SUBxc(p.NFS("10610"),b.SUMxc(NActualLength,TActualLength,p.NFS("40")))
         XT = b.ADDxc(XN,NActualLength)
 
-        //DrawNumber
-        TSDraw(XN,Y,ScalingFactorLetter,TS,NodesStyle,OutputVariable)
 
         //Draw Letter Part
         switch Variant := Type; {
+        case Variant == "Score":
+            TSDraw(XN,Y,ScalingFactorLetter,TS,ScoreStyle,OutputVariable)
+            TSDraw(XT,Y,ScalingFactorLetter,":S",LettersStyle,OutputVariable)
         case Variant == "Validator":
+            TSDraw(XN,Y,ScalingFactorLetter,TS,NodesStyle,OutputVariable)
             TSDraw(XT,Y,ScalingFactorLetter,":V",LettersStyle,OutputVariable)
         case Variant == "Observer":
+            TSDraw(XN,Y,ScalingFactorLetter,TS,NodesStyle,OutputVariable)
             TSDraw(XT,Y,ScalingFactorLetter,":O",LettersStyle,OutputVariable)
         case Variant == "Power":
+            TSDraw(XN,Y,ScalingFactorLetter,TS,NodesStyle,OutputVariable)
             UnityDailyNFT.Translate(IntDecToInt(XT),IntDecToInt(Y))
             UnityDailyNFT.Scale(DecToFloat(ScalingFactorLetter))
 
@@ -446,6 +472,13 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
         }
     }
 
+    //7)Draws Numbers with 18 Decimals on the main plane.
+    //Types used are
+    //      Type 0: Treasury and Percentual Node Bonus
+    //      Type 1: Upper Rectangle
+    //      Type 2: Middle Rectangle
+    //      Type 3: Lower Rectangle
+    //      Type 4: Lowest Rectangle
     DrawUnityValue := func (Number, Y *p.Decimal, Type string) () {
         //Type = "0" (invisible numbers)
         //Type = "1" (Upper numbers)
@@ -473,7 +506,6 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
             StyleBig = Number4StyleB
             StyleSmall = Number4StyleS
         }
-
 
         PrecisionNumber := b.TruncateCustom(Number,18)
         S0 := ConvertToThousandSeparator(PrecisionNumber)
@@ -515,11 +547,61 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
 
     }
 
+    //8)Draw Polygon Function
+    //Draws the "bar" between Rectangles
+    DrawPolygon := func (X,Y *p.Decimal) () {
+        MUL2 := func (N *p.Decimal) *p.Decimal {
+            return b.MULxc(N,p.NFS("2"))
+        }
+        P1X := IntDecToInt(MUL2(b.ADDxc(X,p.NFS("120"))))
+        P1Y := IntDecToInt(MUL2(b.ADDxc(Y,p.NFS("80"))))
+        P2X := IntDecToInt(MUL2(b.ADDxc(X,p.NFS("40"))))
+        P2Y := IntDecToInt(MUL2(Y))
+        P3X := P1X
+        P3Y := IntDecToInt(MUL2(b.SUBxc(Y,p.NFS("80"))))
+
+        P4X := IntDecToInt(MUL2(p.NFS("7960")))
+        P4Y := P3Y
+        P5X := IntDecToInt(MUL2(p.NFS("8040")))
+        P5Y := P2Y
+        P6X := P4X
+        P6Y := P1Y
+
+        var (
+            PX = make([]int,6)
+            PY = make([]int,6)
+        )
+        PX[0] = P1X
+        PX[1] = P2X
+        PX[2] = P3X
+        PX[3] = P4X
+        PX[4] = P5X
+        PX[5] = P6X
+
+        PY[0] = P1Y
+        PY[1] = P2Y
+        PY[2] = P3Y
+        PY[3] = P4Y
+        PY[4] = P5Y
+        PY[5] = P6Y
+
+        SF := p.NFS("0.5")
+
+        UnityDailyNFT.Scale(DecToFloat(SF))
+        Style:=SVGStyleToString(PolygonStyle)
+        UnityDailyNFT.Polygon(PX,PY,Style)
+
+        UnityDailyNFT.Gend()
+    }
+
+
+    //STARTs the DRAWING Process
     //0 Starts creating the SVG
     UnityDailyNFT.Start(Width,Height)
 
     //1 Draw Outer Rectangle, that is 10800x10800 exactly the size of the board.
-    UnityDailyNFT.Rect(0,0,Width,Height,SVGStyleToString(BlankoStyle))
+    MainSquare := Rectangle{Zero,Zero,p.NFI(int64(Width)),p.NFI(int64(Height))}
+    DrawRectangle(MainSquare,BlankoStyle)
 
     //2 Draw Period
     DrawPeriod("Day")
@@ -542,7 +624,11 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     LastX := b.SUBxc(p.NFS("5400"),OutputMajorConvTTLF)
     LastY := p.NFS("2760")
 
-    //3b)Computing Rectangles based on Max Rectangle Size
+    //3b)Draw the Bar between Rectangles
+    DrawPolygon(LastX, p.NFS("4912.5"))
+    DrawPolygon(LastX, p.NFS("7187.5"))
+
+    //3c)Computing Rectangles based on Max Rectangle Size
     PrimaryUpperRectangle.X = LastX
     PrimaryUpperRectangle.Y = LastY
     PrimaryUpperRectangle.Length = b.SUBxc(p.NFS("10610"),PrimaryUpperRectangle.X)
@@ -578,7 +664,7 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     MintingPowerRectangle.Length = p.NFS("5280")
     MintingPowerRectangle.Height = p.NFS("1380")
 
-    //3c)Getting max Node Rectangle Size
+    //3d)Getting max Node Rectangle Size
     //Integer Part of the Number has a text size of 325. Represents 0.203125 out of 1600 (Glyph code definition).
     //Therefore a scaling factor of 0.203125 must be used
     NodePowerConvTT := ConvertToThousandSeparator(UnityInput.Network.Power)
@@ -592,23 +678,23 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     //RoundUp, using TruncateCustom, with 0 precision.
     NodePowerConvTTLFT := b.TruncateCustom(NodePowerConvTTLF,0)
     NodeLastX := b.SUBxc(p.NFS("10610"),NodePowerConvTTLFT)
-    NodeLastY := p.NFS("9260")
+    NodeLastY := p.NFS("8935")
 
-    //3d)Computing Node Rectangle Size
+    //3e)Computing Node Rectangle Size
     NodeRectangle.X = NodeLastX
     NodeRectangle.Y = NodeLastY
     NodeRectangle.Length = NodePowerConvTTLFT
-    NodeRectangle.Height = p.NFS("1055")
+    NodeRectangle.Height = p.NFS("1380")
 
-    //3e)Draw Rectangles
-    DrawRectangle(PrimaryUpperRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(SecondaryUpperRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(PrimaryMiddleRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(SecondaryMiddleRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(PrimaryLowerRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(SecondaryLowerRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(MintingPowerRectangle,UnityDailyNFT,BlankoStyle)
-    DrawRectangle(NodeRectangle,UnityDailyNFT,BlankoStyle)
+    //3f)Draw Rectangles
+    //DrawRectangle(PrimaryUpperRectangle,BlankoStyle)
+    //DrawRectangle(SecondaryUpperRectangle,BlankoStyle)
+    //DrawRectangle(PrimaryMiddleRectangle,BlankoStyle)
+    //DrawRectangle(SecondaryMiddleRectangle,BlankoStyle)
+    //DrawRectangle(PrimaryLowerRectangle,BlankoStyle)
+    //DrawRectangle(SecondaryLowerRectangle,BlankoStyle)
+    //DrawRectangle(MintingPowerRectangle,BlankoStyle)
+    //DrawRectangle(NodeRectangle,BlankoStyle)
 
     //4)Draw Words.
     LX := p.NFS("8001")
@@ -634,6 +720,7 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
 
     //5)
     //Network Node Text and Numbers
+    DrawNodes("Score")
     DrawNodes("Validator")
     DrawNodes("Observer")
     DrawNodes("Power")
@@ -651,7 +738,8 @@ func DrawUnitySVG (Day string, TxTaxAddy, Winner b.ElrondAddress) *svg.SVG {
     DrawUnityValue(UnityOutput.Major,p.NFS("7355"),"3")
     DrawUnityValue(UnityOutput.EliteAuryn,p.NFS("8005"),"3")
 
-    DrawUnityValue(UnityInput.Network.Bonus,p.NFS("9630"),"4")
+    MintingPower := b.ADDxc(UnityInput.Network.Bonus,b.DIVxc(NFTScore,p.NFS("32")))
+    DrawUnityValue(MintingPower,p.NFS("9630"),"4")
 
     //Last Command from the SVG
     UnityDailyNFT.End()
