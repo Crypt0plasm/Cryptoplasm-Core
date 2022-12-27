@@ -213,7 +213,30 @@ func ConvertToThousandSeparator(Number *p.Decimal) string {
 	return Result
 }
 
-func DrawUnitySVG(Day string, TxTaxAddy, Winner b.ElrondAddress) (*svg.SVG, []Rectangle) {
+func DayToString(Day string) string {
+	var (
+		Output string
+	)
+	DayD := p.NFS(Day)
+
+	switch Length := b.Count4Coma(DayD); {
+	case Length == 1:
+		Output = "000.00" + Day
+	case Length == 2:
+		Output = "000.0" + Day
+	case Length == 3:
+		Output = "000." + Day
+	case Length == 4:
+		Output = "00" + ConvertToThousandSeparator(DayD)
+	case Length == 5:
+		Output = "0" + ConvertToThousandSeparator(DayD)
+	case Length >= 6:
+		Output = ConvertToThousandSeparator(DayD)
+	}
+	return Output
+}
+
+func DrawUnitySVG(Day string, TxTaxAddy b.ElrondAddress) (*svg.SVG, string, string, []Rectangle) {
 	//WinnerHeroTag := GetHeroTag(Winner)
 	UnityInput := b.UnityDayScanner(Day, TxTaxAddy)
 	UnityOutput := b.UnityNftComputer(UnityInput)
@@ -333,8 +356,11 @@ func DrawUnitySVG(Day string, TxTaxAddy, Winner b.ElrondAddress) (*svg.SVG, []Re
 	)
 
 	//Outputs SVG content directly to external file
-	OutputSVGName := "Day" + Day + ".svg"
-	OutputVariable, err := os.Create(OutputSVGName)
+	OutputSVGName := "Day_" + DayToString(Day)
+	OutputSVGExtension := ".svg"
+	FullSVGName := OutputSVGName + OutputSVGExtension
+	fmt.Println("NAME IS ", FullSVGName)
+	OutputVariable, err := os.Create(FullSVGName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -744,5 +770,5 @@ func DrawUnitySVG(Day string, TxTaxAddy, Winner b.ElrondAddress) (*svg.SVG, []Re
 
 	//Last Command from the SVG
 	UnityDailyNFT.End()
-	return UnityDailyNFT, Rectangles
+	return UnityDailyNFT, OutputSVGName, OutputSVGExtension, Rectangles
 }
