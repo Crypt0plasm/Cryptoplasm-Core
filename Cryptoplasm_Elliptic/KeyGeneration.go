@@ -804,8 +804,8 @@ func CharacterMatrix() [16][16]rune {
     C014 := '€' //U+20AC    [226 130 172] Euro Sign
     C015 := '£' //U+00A3    [194 163] Pound Sign
     C016 := '¥' //U+00A5    [194 165] Yen Sign
-    C017 := '₽' //U+20BD    [226 130 189] Ruble Sign
-    C018 := '₱' //U+20B1    [226 130 177] Peso Sign
+    C017 := '₱' //U+20B1    [226 130 177] Peso Sign
+    C018 := '₳' //U+20B1    [226 130 179] Austral Sign (AURYN Currency)
     C019 := '∇' //U+2207    [226 136 135] Nabla (TALOS Currency)
     
     //Lonely Small Letters 36 Runes
